@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,6 +23,7 @@ class Project
     private $id;
 
     /**
+     * @ApiProperty(iri="http://schema.org/name")
      * @ApiFilter(SearchFilter::class, strategy="ipartial")
      * @ORM\Column(type="string", length=255)
      */
