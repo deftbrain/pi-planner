@@ -30,7 +30,7 @@ class ProgramIncrement
      * @ORM\JoinTable(
      *      name="program_increment_projects",
      *      joinColumns={@ORM\JoinColumn(name="pi_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="project_id", referencedColumnName="id", unique=true)}
+     *      inverseJoinColumns={@ORM\JoinColumn(name="project_id", referencedColumnName="id")}
      * )
      */
     private $projects;
