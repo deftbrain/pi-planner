@@ -24,7 +24,6 @@ class Project
 
     /**
      * @ApiProperty(iri="http://schema.org/name")
-     * @ApiFilter(SearchFilter::class, strategy="ipartial")
      * @ORM\Column(type="string", length=255)
      */
     private $name;
