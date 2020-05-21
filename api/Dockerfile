@@ -119,6 +119,16 @@ ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
 
+FROM api_platform_php as api_platform_php_dev
+
+ARG XDEBUG_VERSION=2.9.2
+RUN set -eux; \
+	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
+	pecl install xdebug-$XDEBUG_VERSION; \
+	docker-php-ext-enable xdebug; \
+	apk del .build-deps
+
+
 # "nginx" stage
 # depends on the "php" stage above
 # The OpenResty distribution of NGINX is only needed for Kubernetes compatiblity (dynamic upstream resolution)
