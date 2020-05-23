@@ -37,17 +37,15 @@ class ApiClient
     /**
      * @param string|AssetMetadata\Asset $assetMetadataClassName
      * @param array $filter
-     * @param array $sort
      * @return array
      */
-    private function findAssets(string $assetMetadataClassName, array $filter = [], array $sort = []): array
+    private function findAssets(string $assetMetadataClassName, array $filter = []): array
     {
         /** @var  $assetMetadataClassName */
         $query = $this->makeQueryBuilder()
             ->from($assetMetadataClassName::getType())
             ->select($assetMetadataClassName::getAttributesToSelect())
             ->filter($filter)
-            ->sort($sort)
             ->getQuery();
 
         return $this->sendQuery($query);

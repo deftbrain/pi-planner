@@ -32,7 +32,7 @@ class QueryBuilder
     /**
      * @var array
      */
-    private const PROPERTIES_WITHOUT_CONVERSION = ['from', 'select', 'sort', 'update'];
+    private const PROPERTIES_WITHOUT_CONVERSION = ['from', 'select', 'update'];
 
     /**
      * @var array|null
@@ -48,11 +48,6 @@ class QueryBuilder
      * @var string|null
      */
     private $select;
-
-    /**
-     * @var array|null
-     */
-    private $sort;
 
     /**
      * @var array
@@ -96,12 +91,6 @@ class QueryBuilder
     public function select(array $select): self
     {
         $this->select = array_values($select);
-        return $this;
-    }
-
-    public function sort(array $sort): self
-    {
-        $this->sort = $sort;
         return $this;
     }
 
