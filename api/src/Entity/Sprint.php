@@ -25,7 +25,7 @@ class Sprint extends AbstractEntity
     private $endDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SprintSchedule")
+     * @ORM\ManyToOne(targetEntity="App\Entity\SprintSchedule", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $schedule;

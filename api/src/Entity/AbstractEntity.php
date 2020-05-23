@@ -2,10 +2,9 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass
@@ -13,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class AbstractEntity
 {
     /**
-     * @ApiFilter(SearchFilter::class, strategy="exact")
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,15 +19,18 @@ abstract class AbstractEntity
     private $id;
 
     /**
+     * @Assert\NotBlank
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $externalId;
 
     /**
+     * @Assert\NotBlank
      * @ApiProperty(iri="http://schema.org/name")
      * @ORM\Column(type="string", length=255)
+     * @todo Make the property private when the issue is fixed: https://github.com/api-platform/api-platform/issues/1362
      */
-    private $name;
+    protected $name;
 
     public function getId(): ?int
     {

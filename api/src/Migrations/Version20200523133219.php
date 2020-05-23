@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200516135723 extends AbstractMigration
+final class Version20200523133219 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -48,22 +48,22 @@ final class Version20200516135723 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_CBCB70EC8C24077B ON program_increment_epic (sprint_id)');
         $this->addSql('CREATE TABLE sprint_schedule (id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE epic_status (id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE TABLE sprint (id INT NOT NULL, schedule_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE sprint (id INT NOT NULL, schedule_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_EF8055B7A40BC2D5 ON sprint (schedule_id)');
         $this->addSql('CREATE TABLE team_sprint_capacity (id INT NOT NULL, team_id INT NOT NULL, sprint_id INT NOT NULL, capacity_frontend DOUBLE PRECISION NOT NULL, capacity_backend DOUBLE PRECISION NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_E6B1FD39296CD8AE ON team_sprint_capacity (team_id)');
         $this->addSql('CREATE INDEX IDX_E6B1FD398C24077B ON team_sprint_capacity (sprint_id)');
         $this->addSql('CREATE TABLE epic (id INT NOT NULL, status_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_19C950716BF700BD ON epic (status_id)');
-        $this->addSql('CREATE TABLE project (id INT NOT NULL, sprint_schedule_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE project (id INT NOT NULL, sprint_schedule_id INT DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_2FB3D0EEF0A3F61D ON project (sprint_schedule_id)');
-        $this->addSql('CREATE TABLE workitem (id INT NOT NULL, project_id INT NOT NULL, team_id INT DEFAULT NULL, sprint_id INT DEFAULT NULL, epic_id INT NOT NULL, backlog_group_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, estimate_frontend DOUBLE PRECISION DEFAULT NULL, estimate_backend DOUBLE PRECISION DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE workitem (id INT NOT NULL, project_id INT NOT NULL, team_id INT DEFAULT NULL, sprint_id INT DEFAULT NULL, epic_id INT NOT NULL, backlog_group_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, estimate_frontend DOUBLE PRECISION DEFAULT NULL, estimate_backend DOUBLE PRECISION DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_281E6B78166D1F9C ON workitem (project_id)');
         $this->addSql('CREATE INDEX IDX_281E6B78296CD8AE ON workitem (team_id)');
         $this->addSql('CREATE INDEX IDX_281E6B788C24077B ON workitem (sprint_id)');
         $this->addSql('CREATE INDEX IDX_281E6B786B71E00E ON workitem (epic_id)');
         $this->addSql('CREATE INDEX IDX_281E6B785BCB6642 ON workitem (backlog_group_id)');
-        $this->addSql('CREATE TABLE backlog_group (id INT NOT NULL, project_id INT NOT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE backlog_group (id INT NOT NULL, project_id INT DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_99AABD78166D1F9C ON backlog_group (project_id)');
         $this->addSql('ALTER TABLE program_increment_projects ADD CONSTRAINT FK_711F1D47E0DEB379 FOREIGN KEY (pi_id) REFERENCES program_increment (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE program_increment_projects ADD CONSTRAINT FK_711F1D47166D1F9C FOREIGN KEY (project_id) REFERENCES project (id) NOT DEFERRABLE INITIALLY IMMEDIATE');

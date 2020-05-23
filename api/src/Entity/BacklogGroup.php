@@ -13,7 +13,7 @@ class BacklogGroup extends AbstractEntity
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Project")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $project;
 

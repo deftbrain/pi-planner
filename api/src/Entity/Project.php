@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Project extends AbstractEntity
 {
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SprintSchedule")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\SprintSchedule", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true)
      */
     private $sprintSchedule;
 

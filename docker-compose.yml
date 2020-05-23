@@ -13,6 +13,11 @@ services:
       target: api_platform_php
       <<: *api-cache-from
     image: ${PHP_IMAGE:-quay.io/api-platform/php}
+    environment:
+      # https://versionone.github.io/api-docs/#authentication
+      - VERSION_ONE_ACCESS_TOKEN=${VERSION_ONE_ACCESS_TOKEN:?}
+      # Example: https://www2.v1host.com/CompanyName
+      - VERSION_ONE_SERVER_BASE_URI=${VERSION_ONE_SERVER_BASE_URI:?}
     healthcheck:
       interval: 10s
       timeout: 3s

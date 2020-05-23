@@ -1,0 +1,26 @@
+httplug:
+    plugins:
+        retry:
+            retry: 1
+
+    discovery:
+        client: auto
+
+    clients:
+        app:
+            http_methods_client: true
+            plugins:
+                - httplug.plugin.content_length
+                - httplug.plugin.redirect
+        version_one:
+            plugins:
+                - authentication:
+                      bearer: 
+                          type: bearer
+                          token: '%version_one.access_token%'
+                - base_uri:
+                      uri: '%version_one.api_base_uri%'
+                - header_set:
+                      headers:
+                          Accept: application/json
+                          Content-Type: application/json

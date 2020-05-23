@@ -4,6 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    version_one.access_token: '%env(VERSION_ONE_ACCESS_TOKEN)%'
+    version_one.server_base_uri: '%env(VERSION_ONE_SERVER_BASE_URI)%'
+    version_one.api_base_uri: '%version_one.server_base_uri%/api/asset'
 
 services:
     # default configuration for services in *this* file
@@ -25,3 +28,7 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\VersionOne\ApiClient:
+        arguments:
+            Psr\Http\Client\ClientInterface: '@httplug.client.version_one'
