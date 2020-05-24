@@ -3,10 +3,12 @@
 namespace App\Command;
 
 use App\VersionOne\AssetMetadata\BacklogGroup;
+use App\VersionOne\AssetMetadata\Epic;
 use App\VersionOne\AssetMetadata\EpicStatus;
 use App\VersionOne\AssetMetadata\Project;
 use App\VersionOne\AssetMetadata\Sprint;
 use App\VersionOne\AssetMetadata\Team;
+use App\VersionOne\AssetMetadata\Workitem;
 use App\VersionOne\Sync\Synchronizer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,6 +23,8 @@ class SyncCommand extends Command
         Project::class,
         Sprint::class,
         Team::class,
+        Epic::class,
+        Workitem::class,
     ];
 
     /**

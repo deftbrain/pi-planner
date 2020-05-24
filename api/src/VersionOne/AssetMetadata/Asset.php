@@ -9,6 +9,7 @@ abstract class Asset
     public const ATTRIBUTE_NAME = 'Name';
     public const ATTRIBUTE_STATE = 'AssetState';
     public const ATTRIBUTE_STATE_ACTIVE = 'Active';
+    public const ATTRIBUTE_STATE_FUTURE = 'Future';
 
     abstract public static function getType(): string;
 

@@ -2,13 +2,29 @@
 
 namespace App\VersionOne\Sync;
 
+use App\Entity\ProgramIncrement;
 use App\VersionOne\ApiClient;
 use App\VersionOne\AssetMetadata\Asset;
+use App\VersionOne\AssetMetadata\Epic;
+use App\VersionOne\AssetMetadata\Workitem;
+use App\VersionOne\Sync\FilterProvider\EpicFilterProvider;
+use App\VersionOne\Sync\FilterProvider\WorkitemFilterProvider;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class Synchronizer
 {
+    private const FILTER_PROVIDER = [
+        Epic::class => EpicFilterProvider::class,
+        Workitem::class => WorkitemFilterProvider::class,
+    ];
+
+    private const PI_DEPENDENT_ASSETS = [
+        Epic::class,
+        Workitem::class,
+    ];
+
     /**
      * @var ApiClient
      */
@@ -26,18 +42,25 @@ class Synchronizer
 
     private $assetsToSync = [];
 
+    /**
+     * @var ParameterBagInterface
+     */
+    private $params;
+
     public function __construct(
         ApiClient $v1ApiClient,
         EntityManagerInterface $entityManager,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ParameterBagInterface $params
     ) {
         $this->versionOneApiClient = $v1ApiClient;
         $this->entityManager = $entityManager;
         $this->serializer = $serializer;
+        $this->params = $params;
     }
 
     /**
-     * @param string $assetClassName
+     * @param string|Asset $assetClassName
      */
     public function syncAssets(string $assetClassName): void
     {
@@ -46,10 +69,25 @@ class Synchronizer
         }
         $this->assetsToSync[] = $assetClassName;
 
+        if (
+            in_array($assetClassName, self::PI_DEPENDENT_ASSETS, true)
+            && !$this->entityManager->getRepository(ProgramIncrement::class)->count([])
+        ) {
+            printf(
+                'At least one program increment should be created to import affected %ss' . PHP_EOL,
+                strtolower($assetClassName::getType())
+            );
+            return;
+        }
+
         $this->syncAssetDependencies($assetClassName);
 
+        $filterProviderClassName = self::FILTER_PROVIDER[$assetClassName] ?? null;
+        $filter = $filterProviderClassName
+            ? (new $filterProviderClassName($this->entityManager, $this->params))->getFilter()
+            : [];
         $entityClassName = AssetToEntityMap::MAP[$assetClassName];
-        $assets = $this->versionOneApiClient->find($assetClassName);
+        $assets = $this->versionOneApiClient->find($assetClassName, $filter);
         foreach ($assets as $asset) {
             try {
                 echo $asset[Asset::ATTRIBUTE_ID] . PHP_EOL;

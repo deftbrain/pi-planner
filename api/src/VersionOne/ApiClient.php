@@ -23,14 +23,19 @@ class ApiClient
         $this->requestFactory = $requestFactory;
     }
 
-    /**
-     * @param string $assetMetadataClassName
-     */
-    public function find(string $assetMetadataClassName): array
+    public function find(string $assetMetadataClassName, array $filter = []): array
     {
         return $this->findAssets(
             $assetMetadataClassName,
-            [AssetMetadata\Asset::ATTRIBUTE_STATE => AssetMetadata\Asset::ATTRIBUTE_STATE_ACTIVE]
+            array_merge(
+                [
+                    AssetMetadata\Asset::ATTRIBUTE_STATE => [
+                        AssetMetadata\Asset::ATTRIBUTE_STATE_ACTIVE,
+                        AssetMetadata\Asset::ATTRIBUTE_STATE_FUTURE,
+                    ],
+                ],
+                $filter
+            )
         );
     }
 

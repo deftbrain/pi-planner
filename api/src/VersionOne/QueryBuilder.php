@@ -68,7 +68,9 @@ class QueryBuilder
             $filter = [];
             foreach ($this->filter as $attribute => $value) {
                 [$attribute, $operator] = $this->parseNameAndOperator($attribute);
-                $filter[] = sprintf('%s%s\'%s\'', $attribute, $operator, $value);
+                $value = array_map(function ($v) { return "'$v'";}, (array) $value);
+                $value = implode(',', $value);
+                $filter[] = sprintf('%s%s%s', $attribute, $operator, $value);
             }
             $query['filter'] = $filter;
         }
