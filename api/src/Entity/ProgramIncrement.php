@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -21,6 +22,7 @@ class ProgramIncrement
     private $id;
 
     /**
+     * @ApiProperty(iri="http://schema.org/name")
      * @ORM\Column(type="string", length=255)
      */
     private $name;

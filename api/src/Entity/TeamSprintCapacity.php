@@ -43,6 +43,12 @@ class TeamSprintCapacity
      */
     private $capacityBackend;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\ProgramIncrement")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $programIncrement;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,6 +98,18 @@ class TeamSprintCapacity
     public function setCapacityBackend($capacity): self
     {
         $this->capacityBackend = $capacity;
+
+        return $this;
+    }
+
+    public function getProgramIncrement(): ?ProgramIncrement
+    {
+        return $this->programIncrement;
+    }
+
+    public function setProgramIncrement(?ProgramIncrement $programIncrement): self
+    {
+        $this->programIncrement = $programIncrement;
 
         return $this;
     }
