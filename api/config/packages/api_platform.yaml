@@ -1,6 +1,9 @@
 api_platform:
     title: Hello API Platform
     version: 1.0.0
+    collection:
+        pagination:
+            enabled: false
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:

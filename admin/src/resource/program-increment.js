@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Create,
   Datagrid,
   Edit,
   FormTab,
@@ -14,6 +15,25 @@ import {
 import Button from '@material-ui/core/Button';
 import {Link} from 'react-router-dom';
 import {stringify} from 'query-string';
+
+export const ProgramIncrementCreate = props => (
+  <Create {...props}>
+    <TabbedForm>
+      <FormTab label="General">
+        <TextInput label="Name" source={"name"}/>
+        <ReferenceArrayInput label="Projects" source="projects" reference="projects">
+          <SelectArrayInput optionText="name"/>
+        </ReferenceArrayInput>
+        <ReferenceArrayInput label="Teams" source="teams" reference="teams">
+          <SelectArrayInput optionText="name"/>
+        </ReferenceArrayInput>
+        <ReferenceArrayInput label="Sprints" source="sprints" reference="sprints">
+          <SelectArrayInput optionText="name"/>
+        </ReferenceArrayInput>
+      </FormTab>
+    </TabbedForm>
+  </Create>
+);
 
 const AddCapacityButton = ({record}) => (
   <Button

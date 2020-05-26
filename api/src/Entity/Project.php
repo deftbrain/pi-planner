@@ -6,7 +6,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(attributes={"order"={"name": "DESC"}})
  * @ORM\Entity(repositoryClass="App\Repository\ProjectRepository")
  */
 class Project extends AbstractEntity
