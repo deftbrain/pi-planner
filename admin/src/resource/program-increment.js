@@ -15,6 +15,14 @@ import {
 import Button from '@material-ui/core/Button';
 import {Link} from 'react-router-dom';
 import {stringify} from 'query-string';
+import {FieldGuesser, ListGuesser} from "@api-platform/admin";
+
+export const ProgramIncrementList = props => (
+  <ListGuesser {...props}>
+    <FieldGuesser source="name"/>
+    <FieldGuesser source="projects"/>
+  </ListGuesser>
+);
 
 export const ProgramIncrementCreate = props => (
   <Create {...props}>
