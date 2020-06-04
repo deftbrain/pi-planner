@@ -17,13 +17,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SyncCommand extends Command
 {
-    private const EAGER_SYNC_ASSETS = [
+    private const ASSETS = [
         BacklogGroup::class,
+        Epic::class,
         EpicStatus::class,
         Project::class,
         Sprint::class,
         Team::class,
-        Epic::class,
         Workitem::class,
     ];
 
@@ -59,7 +59,7 @@ class SyncCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        foreach (self::EAGER_SYNC_ASSETS as $className) {
+        foreach (self::ASSETS as $className) {
             $io->note("Synchronizing $className...");
             $this->synchronizer->syncAssets($className);
         }

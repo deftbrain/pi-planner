@@ -8,6 +8,7 @@
         "api-platform/api-pack": "^1.1",
         "doctrine/doctrine-migrations-bundle": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
+        "opsway/doctrine-dbal-postgresql": "^0.8.1",
         "php-http/guzzle6-adapter": "^2.0",
         "php-http/httplug-bundle": "^1.18",
         "symfony/console": "5.0.*",

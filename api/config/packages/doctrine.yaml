@@ -16,3 +16,7 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        dql:
+            string_functions:
+                GET_JSON_FIELD: \Opsway\Doctrine\ORM\Query\AST\Functions\GetJsonField
+                JSON_ARRAY_ELEM: App\ORM\Query\Functions\JsonArrayElements

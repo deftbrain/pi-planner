@@ -1,14 +1,12 @@
 <?php
 
-
 namespace App\VersionOne\Sync\FilterProvider;
-
 
 use App\Entity\Epic;
 use App\VersionOne\AssetMetadata\Workitem;
 use Doctrine\ORM\EntityManagerInterface;
 
-class WorkitemFilterProvider
+class WorkitemFilterProvider implements FilterProviderInterface
 {
     /**
      * @var EntityManagerInterface
@@ -22,13 +20,17 @@ class WorkitemFilterProvider
 
     public function getFilter(): array
     {
-        $v1EpicIds = $this->entityManager->createQueryBuilder()
+        $epics = $this->entityManager->createQueryBuilder()
             ->from(Epic::class, 'e')
             ->distinct()
             ->select('e.externalId')
             ->getQuery()
             ->getScalarResult();
 
-        return [Workitem::ATTRIBUTE_SUPER => array_column($v1EpicIds, 'externalId')];
+        if (!$epics) {
+            return [];
+        }
+
+        return [Workitem::ATTRIBUTE_SUPER => array_column($epics, 'externalId')];
     }
 }
