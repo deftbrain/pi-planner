@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {retrieve} from '../../actions/programincrement/show';
+import EpicsList from '../epic/List'
 
 class Show extends Component {
   static propTypes = {
@@ -36,20 +37,7 @@ class Show extends Component {
         )}
 
         {item && (
-          <table className="table table-responsive table-striped table-hover">
-            <thead>
-              <tr>
-                <th>Field</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">name</th>
-                <td>{item['name']}</td>
-              </tr>
-            </tbody>
-          </table>
+          <EpicsList projectSettings={item.projectSettings}/>
         )}
         <Link to=".." className="btn btn-primary">
           Back to list

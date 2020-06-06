@@ -16,6 +16,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import * as serviceWorker from './serviceWorker';
 import Welcome from './Welcome';
 import programincrement from './reducers/programincrement/';
+import epic from './reducers/epic/';
 import programincrementRoutes from './routes/programincrement';
 
 const history = createBrowserHistory();
@@ -24,6 +25,7 @@ const store = createStore(
     router: connectRouter(history),
     form,
     programincrement,
+    epic,
   }),
   applyMiddleware(routerMiddleware(history), thunk)
 );

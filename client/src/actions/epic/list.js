@@ -18,12 +18,17 @@ export function success(retrieved) {
   return { type: 'EPIC_LIST_SUCCESS', retrieved };
 }
 
-export function list(page = 'epics') {
+export function list(projects = []) {
   return dispatch => {
     dispatch(loading(true));
     dispatch(error(''));
 
-    fetch(page)
+    const searchParams = new URLSearchParams()
+    for (const project of projects) {
+      searchParams.append('project[]', project);
+    }
+
+    fetch('epics', {}, searchParams)
       .then(response =>
         response
           .json()

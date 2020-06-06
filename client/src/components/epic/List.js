@@ -6,6 +6,7 @@ import { list, reset } from '../../actions/epic/list';
 
 class List extends Component {
   static propTypes = {
+    projectSettings: PropTypes.array.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
     error: PropTypes.string,
@@ -16,18 +17,8 @@ class List extends Component {
   };
 
   componentDidMount() {
-    this.props.list(
-      this.props.match.params.page &&
-        decodeURIComponent(this.props.match.params.page)
-    );
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.match.params.page !== nextProps.match.params.page)
-      nextProps.list(
-        nextProps.match.params.page &&
-          decodeURIComponent(nextProps.match.params.page)
-      );
+    const projects = this.props.projectSettings.map(s => s.project);
+    this.props.list(projects);
   }
 
   componentWillUnmount() {
@@ -173,7 +164,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  list: page => dispatch(list(page)),
+  list: projects => dispatch(list(projects)),
   reset: eventSource => dispatch(reset(eventSource))
 });
 
