@@ -40,28 +40,33 @@ const Welcome = () => (
                         href="https://api-platform.com/docs/"
                         className="main__button"
                     >
-                        Get started<Arrow />
+                      Get started<Arrow/>
                     </a>
                 </div>
-                <div className="main__other">
-                    <h2>Available services:</h2>
-                    <div className="other__bloc">
-                        <div className="other__circle">
-                            <Api />
-                        </div>
-                        <div className="other__content">
-                          <h3><a href={`https://${document.domain}:8443`}>API</a></h3>
-                        </div>
-                    </div>
-                    <div className="other__bloc">
-                        <div className="other__circle">
-                            <Admin />
-                        </div>
-                        <div className="other__content">
-                          <h3><a href={`https://${document.domain}:444`}>Admin</a></h3>
-                        </div>
-                    </div>
+              <div className="main__other">
+                <h2>Available services:</h2>
+                <div className="other__bloc">
+                  <div className="other__content">
+                    <h3><a href={`https://${document.domain}/program_increments/`}>Program Increments</a></h3>
+                  </div>
                 </div>
+                <div className="other__bloc">
+                  <div className="other__circle">
+                    <Admin/>
+                  </div>
+                  <div className="other__content">
+                    <h3><a href={`https://${document.domain}:444`}>Admin</a></h3>
+                  </div>
+                </div>
+                <div className="other__bloc">
+                  <div className="other__circle">
+                    <Api/>
+                  </div>
+                  <div className="other__content">
+                    <h3><a href={`https://${document.domain}:8443`}>API</a></h3>
+                  </div>
+                </div>
+              </div>
             </div>
         </section>
         <div className="welcome__help">
