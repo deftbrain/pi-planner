@@ -8,7 +8,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(mercure=true)
  * @ApiFilter(SearchFilter::class, properties={"epic": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\WorkitemRepository")
  */
