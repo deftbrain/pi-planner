@@ -1,5 +1,6 @@
 import React from 'react';
 import {HydraAdmin, ResourceGuesser} from '@api-platform/admin';
+import {WorkitemList} from './resource/WorkitemList';
 import {ProgramIncrementList} from './resource/ProgramIncrementList';
 import {ProgramIncrementCreate} from './resource/ProgramIncremenCreate';
 import {ProgramIncrementEdit} from './resource/ProgramIncremenEdit';
@@ -15,6 +16,6 @@ export default () => (
     <ResourceGuesser name="sprints"/>
     <ResourceGuesser name="sprint_schedules"/>
     <ResourceGuesser name="teams"/>
-    <ResourceGuesser name="workitems"/>
+    <ResourceGuesser name="workitems" list={WorkitemList}/>
   </HydraAdmin>
 );
