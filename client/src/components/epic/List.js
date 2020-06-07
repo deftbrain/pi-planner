@@ -1,11 +1,28 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import { list, reset } from '../../actions/epic/list';
+import {list, reset} from '../../actions/epic/list';
+
+import {withStyles} from '@material-ui/core/styles';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+
+const styles = theme => ({
+  root: {
+    width: '100%',
+  },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular,
+  },
+});
 
 class List extends Component {
   static propTypes = {
+    classes: PropTypes.object.isRequired,
     projectSettings: PropTypes.array.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
@@ -28,8 +45,6 @@ class List extends Component {
   render() {
     return (
       <div>
-        <h1>Epic List</h1>
-
         {this.props.loading && (
           <div className="alert alert-info">Loading...</div>
         )}
@@ -42,114 +57,31 @@ class List extends Component {
           <div className="alert alert-danger">{this.props.error}</div>
         )}
 
-        <p>
-          <Link to="create" className="btn btn-primary">
-            Create
-          </Link>
-        </p>
+        <div className={this.props.classes.root}>
 
-        <table className="table table-responsive table-striped table-hover">
-          <thead>
-            <tr>
-              <th>id</th>
-              <th>status</th>
-              <th>project</th>
-              <th>wsjf</th>
-              <th>externalId</th>
-              <th>name</th>
-              <th colSpan={2} />
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.retrieved &&
-              this.props.retrieved['hydra:member'].map(item => (
-                <tr key={item['@id']}>
-                  <th scope="row">
-                    <Link to={`show/${encodeURIComponent(item['@id'])}`}>
-                      {item['@id']}
-                    </Link>
-                  </th>
-                  <td>{this.renderLinks('epic_statuses', item['status'])}</td>
-                  <td>{this.renderLinks('projects', item['project'])}</td>
-                  <td>{item['wsjf']}</td>
-                  <td>{item['externalId']}</td>
-                  <td>{item['name']}</td>
-                  <td>
-                    <Link to={`show/${encodeURIComponent(item['@id'])}`}>
-                      <span className="fa fa-search" aria-hidden="true" />
-                      <span className="sr-only">Show</span>
-                    </Link>
-                  </td>
-                  <td>
-                    <Link to={`edit/${encodeURIComponent(item['@id'])}`}>
-                      <span className="fa fa-pencil" aria-hidden="true" />
-                      <span className="sr-only">Edit</span>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-
-        {this.pagination()}
+          {this.props.retrieved &&
+          this.props.retrieved['hydra:member'].map(item => (
+            <ExpansionPanel key={item['@id']}>
+              <ExpansionPanelSummary
+                expandIcon={<ExpandMoreIcon/>}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography
+                  className={this.props.classes.heading}>{item['name']}</Typography>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
+                <Typography>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
+                  sit amet blandit leo lobortis eget.
+                </Typography>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
+          ))}
+        </div>
       </div>
     );
   }
-
-  pagination() {
-    const view = this.props.retrieved && this.props.retrieved['hydra:view'];
-    if (!view) return;
-
-    const {
-      'hydra:first': first,
-      'hydra:previous': previous,
-      'hydra:next': next,
-      'hydra:last': last
-    } = view;
-
-    return (
-      <nav aria-label="Page navigation">
-        <Link
-          to="."
-          className={`btn btn-primary${previous ? '' : ' disabled'}`}
-        >
-          <span aria-hidden="true">&lArr;</span> First
-        </Link>
-        <Link
-          to={
-            !previous || previous === first ? '.' : encodeURIComponent(previous)
-          }
-          className={`btn btn-primary${previous ? '' : ' disabled'}`}
-        >
-          <span aria-hidden="true">&larr;</span> Previous
-        </Link>
-        <Link
-          to={next ? encodeURIComponent(next) : '#'}
-          className={`btn btn-primary${next ? '' : ' disabled'}`}
-        >
-          Next <span aria-hidden="true">&rarr;</span>
-        </Link>
-        <Link
-          to={last ? encodeURIComponent(last) : '#'}
-          className={`btn btn-primary${next ? '' : ' disabled'}`}
-        >
-          Last <span aria-hidden="true">&rArr;</span>
-        </Link>
-      </nav>
-    );
-  }
-
-  renderLinks = (type, items) => {
-    if (Array.isArray(items)) {
-      return items.map((item, i) => (
-        <div key={i}>{this.renderLinks(type, item)}</div>
-      ));
-    }
-
-    return (
-      <Link to={`../${type}/show/${encodeURIComponent(items)}`}>{items}</Link>
-    );
-  };
 }
 
 const mapStateToProps = state => {
@@ -168,4 +100,4 @@ const mapDispatchToProps = dispatch => ({
   reset: eventSource => dispatch(reset(eventSource))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(List);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(List));

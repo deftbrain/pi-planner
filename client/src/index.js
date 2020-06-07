@@ -11,8 +11,7 @@ import {
   connectRouter,
   routerMiddleware
 } from 'connected-react-router';
-import 'bootstrap/dist/css/bootstrap.css';
-import '@fortawesome/fontawesome-free/css/all.css';
+
 import * as serviceWorker from './serviceWorker';
 import Welcome from './Welcome';
 import programincrement from './reducers/programincrement/';
