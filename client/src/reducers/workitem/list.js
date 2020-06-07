@@ -42,16 +42,19 @@ export function retrieved(state = {}, action) {
 
     case 'WORKITEM_LIST_MERCURE_MESSAGE':
       newState = Object.assign({}, state);
-      newState[action.epic]['hydra:member'] = newState[action.epic]['hydra:member'].map(item =>
+      newState[action.retrieved.epic]['hydra:member'] = newState[action.epic]['hydra:member'].map(item =>
         item['@id'] === action.retrieved['@id'] ? action.retrieved : item
       )
       return newState;
 
     case 'WORKITEM_LIST_MERCURE_DELETED':
+      const removedWorkitemId = action.retrieved['@id'];
       newState = Object.assign({}, state);
-      newState[action.epic]['hydra:member'] = newState[action.epic]['hydra:member'].filter(
-        item => item['@id'] !== action.retrieved['@id']
-      )
+      for (let epic in newState) {
+        newState[epic]['hydra:member'] = newState[epic]['hydra:member'].filter(
+          item => item['@id'] !== removedWorkitemId
+        )
+      }
       return newState;
 
     default:
