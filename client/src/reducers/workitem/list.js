@@ -29,29 +29,30 @@ export function loading(state = false, action) {
   }
 }
 
-export function retrieved(state = null, action) {
+export function retrieved(state = {}, action) {
+  let newState;
   switch (action.type) {
     case 'WORKITEM_LIST_SUCCESS':
-      return action.retrieved;
+      return {...state, [action.epic]: action.retrieved};
 
     case 'WORKITEM_LIST_RESET':
-      return null;
+      newState = Object.assign({}, state);
+      delete newState[action.epic];
+      return newState;
 
     case 'WORKITEM_LIST_MERCURE_MESSAGE':
-      return {
-        ...state,
-        'hydra:member': state['hydra:member'].map(item =>
-          item['@id'] === action.retrieved['@id'] ? action.retrieved : item
-        )
-      };
+      newState = Object.assign({}, state);
+      newState[action.epic]['hydra:member'] = newState[action.epic]['hydra:member'].map(item =>
+        item['@id'] === action.retrieved['@id'] ? action.retrieved : item
+      )
+      return newState;
 
     case 'WORKITEM_LIST_MERCURE_DELETED':
-      return {
-        ...state,
-        'hydra:member': state['hydra:member'].filter(
-          item => item['@id'] !== action.retrieved['@id']
-        )
-      };
+      newState = Object.assign({}, state);
+      newState[action.epic]['hydra:member'] = newState[action.epic]['hydra:member'].filter(
+        item => item['@id'] !== action.retrieved['@id']
+      )
+      return newState;
 
     default:
       return state;

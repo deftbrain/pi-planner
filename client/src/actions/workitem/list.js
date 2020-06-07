@@ -14,8 +14,8 @@ export function loading(loading) {
   return { type: 'WORKITEM_LIST_LOADING', loading };
 }
 
-export function success(retrieved) {
-  return { type: 'WORKITEM_LIST_SUCCESS', retrieved };
+export function success(retrieved, epic) {
+  return { type: 'WORKITEM_LIST_SUCCESS', retrieved, epic };
 }
 
 export function list(epic) {
@@ -35,7 +35,7 @@ export function list(epic) {
         retrieved = normalize(retrieved);
 
         dispatch(loading(false));
-        dispatch(success(retrieved));
+        dispatch(success(retrieved, epic));
 
         if (hubURL && retrieved['hydra:member'].length)
           dispatch(
