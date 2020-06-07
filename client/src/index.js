@@ -15,8 +15,9 @@ import {
 import * as serviceWorker from './serviceWorker';
 import Welcome from './Welcome';
 import programincrement from './reducers/programincrement/';
-import epic from './reducers/epic/';
 import programincrementRoutes from './routes/programincrement';
+import epic from './reducers/epic/';
+import workitem from './reducers/workitem/';
 
 const history = createBrowserHistory();
 const store = createStore(
@@ -25,6 +26,7 @@ const store = createStore(
     form,
     programincrement,
     epic,
+    workitem,
   }),
   applyMiddleware(routerMiddleware(history), thunk)
 );

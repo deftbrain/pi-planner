@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {list, reset} from '../../actions/epic/list';
+import WorkitemList from '../workitem/List';
 
 import {withStyles} from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -71,10 +72,7 @@ class List extends Component {
                   className={this.props.classes.heading}>{item['name']}</Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                <Typography>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                  sit amet blandit leo lobortis eget.
-                </Typography>
+                <WorkitemList epic={item['@id']}/>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           ))}
