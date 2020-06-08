@@ -62,7 +62,7 @@ class List extends Component {
 
           {this.props.retrieved &&
           this.props.retrieved['hydra:member'].map(item => (
-            <ExpansionPanel key={item['@id']}>
+            <ExpansionPanel key={item['@id']} TransitionProps={{ unmountOnExit: true }}>
               <ExpansionPanelSummary
                 expandIcon={<ExpandMoreIcon/>}
                 aria-controls="panel1a-content"
