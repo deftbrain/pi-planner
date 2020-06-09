@@ -7,6 +7,7 @@ abstract class Asset
     /** @var string This attribute is automatically added to every asset returned by VersionOne API */
     public const ATTRIBUTE_ID = '_oid';
     public const ATTRIBUTE_NAME = 'Name';
+    public const ATTRIBUTE_CHANGE_DATE = 'ChangeDateUTC';
     public const ATTRIBUTE_STATE = 'AssetState';
     public const ATTRIBUTE_STATE_ACTIVE = 'Active';
     public const ATTRIBUTE_STATE_FUTURE = 'Future';
@@ -15,7 +16,7 @@ abstract class Asset
 
     public static function getAttributesToSelect(): array
     {
-        return [self::ATTRIBUTE_NAME];
+        return [self::ATTRIBUTE_NAME, self::ATTRIBUTE_CHANGE_DATE];
     }
 
     public static function getAssetToEntityPropertyMap(): array
@@ -23,6 +24,7 @@ abstract class Asset
         return [
             self::ATTRIBUTE_ID => 'externalId',
             self::ATTRIBUTE_NAME => 'name',
+            self::ATTRIBUTE_CHANGE_DATE => 'changedAt',
         ];
     }
 }

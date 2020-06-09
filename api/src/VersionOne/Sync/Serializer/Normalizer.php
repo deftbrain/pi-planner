@@ -73,7 +73,19 @@ class Normalizer extends ObjectNormalizer
     {
         $existingEntity = $this->findEntity($type, $data[Asset::ATTRIBUTE_ID]);
         if ($existingEntity) {
-            return $existingEntity;
+            if (!isset($data[Asset::ATTRIBUTE_CHANGE_DATE])) {
+                // Change date is not set on relations during denormalization
+                return $existingEntity;
+            }
+
+            $changedAt = strtotime($data[Asset::ATTRIBUTE_CHANGE_DATE]);
+            // Use timestamps because V1 API returns time with microseconds but we don't store them for entities in a DB
+            $wasEntityChanged = $changedAt !== $existingEntity->getChangedAt()->getTimestamp();
+            if (!$wasEntityChanged) {
+                return $existingEntity;
+            }
+
+            $context[self::OBJECT_TO_POPULATE] = $existingEntity;
         }
 
         $data = array_map([$this, 'denormalizeAttributeValue'], $data);

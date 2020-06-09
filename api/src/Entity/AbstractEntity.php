@@ -32,6 +32,12 @@ abstract class AbstractEntity
      */
     protected $name;
 
+    /**
+     * @Assert\NotBlank
+     * @ORM\Column(type="datetime")
+     */
+    private $changedAt;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -57,6 +63,18 @@ abstract class AbstractEntity
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getChangedAt(): ?\DateTimeInterface
+    {
+        return $this->changedAt;
+    }
+
+    public function setChangedAt(\DateTimeInterface $changedAt): self
+    {
+        $this->changedAt = $changedAt;
 
         return $this;
     }
