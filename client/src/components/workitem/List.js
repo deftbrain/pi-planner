@@ -2,10 +2,13 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {list, reset} from '../../actions/workitem/list';
+import Board from 'react-trello';
+import './List.css'
 
 class List extends Component {
   static propTypes = {
     epic: PropTypes.string.isRequired,
+    projectSettings: PropTypes.array.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
     error: PropTypes.string,
@@ -23,6 +26,43 @@ class List extends Component {
     this.props.reset(this.props.eventSource);
   }
 
+  getBoardCards(project, team, sprint) {
+    const workitems = this.props.retrieved['hydra:member']
+      .filter(w => w.project == project && w.team == team && w.sprint == sprint);
+    return workitems.map(w => { return {id: w['@id'], title: w.name}; });
+  }
+
+  getBoardData() {
+    const data = {};
+    const columns = [];
+    const unsignedColumnWidth = 15;
+    for (let settings of this.props.projectSettings) {
+      let columnsPerRow = settings.sprints.length;
+      let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
+      let teams = new Set(settings.capacity.map(c => c.team));
+      teams = [null, ...teams];
+      let sprints = [null, ...settings.sprints];
+      for (let team of teams) {
+        for (let index in sprints) {
+          let sprint = sprints[index];
+          const id = [this.props.epic, settings.project, team, sprint].join(':');
+          columns.push({
+            id: id,
+            title: `${team} ${index}`,
+            // label: team,
+            cards: this.getBoardCards(settings.project, team, sprint),
+            style: {
+              width: `${null === sprint ? unsignedColumnWidth : columnWith}%`
+            }
+          });
+        }
+      }
+    }
+
+    data.lanes = columns;
+    return data;
+  }
+
   render() {
     return (
       <div>
@@ -38,11 +78,9 @@ class List extends Component {
           <div className="alert alert-danger">{this.props.error}</div>
         )}
 
-        <ul>
-          {this.props.retrieved && this.props.retrieved['hydra:member'].map(item => (
-            <li key={item['@id']}>{item['name']}</li>
-          ))}
-        </ul>
+        {this.props.retrieved && (
+          <Board id={this.props.epic} data={this.getBoardData()} editable={false}/>
+        )}
       </div>
     );
   }

@@ -1,0 +1,30 @@
+div.react-trello-board {
+    height: auto;
+    padding: 0;
+    background-color: white;
+    width: 2500px;
+}
+
+.react-trello-board .smooth-dnd-container.horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    white-space: normal;
+}
+
+.react-trello-board .react-trello-lane {
+    margin: 0 0 5px;
+    border: 1px solid white;
+}
+
+.react-trello-board .react-trello-lane > div {
+    min-width: auto;
+}
+
+.react-trello-board .react-trello-card {
+    min-width: inherit;
+    max-width: inherit;
+}
+.react-trello-board .react-trello-card header>span {
+    width: auto;
+}

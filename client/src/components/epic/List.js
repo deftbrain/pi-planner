@@ -59,20 +59,13 @@ class List extends Component {
         )}
 
         <div className={this.props.classes.root}>
-
-          {this.props.retrieved &&
-          this.props.retrieved['hydra:member'].map(item => (
-            <ExpansionPanel key={item['@id']} TransitionProps={{ unmountOnExit: true }}>
-              <ExpansionPanelSummary
-                expandIcon={<ExpandMoreIcon/>}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography
-                  className={this.props.classes.heading}>{item['name']}</Typography>
+          {this.props.retrieved && this.props.retrieved['hydra:member'].map(item => (
+            <ExpansionPanel key={item['@id']} TransitionProps={{unmountOnExit: true}}>
+              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                <Typography className={this.props.classes.heading}>{item['name']}</Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                <WorkitemList epic={item['@id']}/>
+                  <WorkitemList epic={item['@id']} projectSettings={this.props.projectSettings}/>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           ))}
