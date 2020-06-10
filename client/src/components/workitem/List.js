@@ -79,7 +79,7 @@ class List extends Component {
         )}
 
         {this.props.retrieved && (
-          <Board id={this.props.epic} data={this.getBoardData()} editable={false}/>
+          <Board id={this.props.epic} data={this.getBoardData()} editable={true}/>
         )}
       </div>
     );
