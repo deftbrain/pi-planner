@@ -6,7 +6,7 @@
 parameters:
     version_one.access_token: '%env(VERSION_ONE_ACCESS_TOKEN)%'
     version_one.server_base_uri: '%env(VERSION_ONE_SERVER_BASE_URI)%'
-    version_one.api_base_uri: '%version_one.server_base_uri%/api/asset'
+    version_one.api_asset: '%version_one.server_base_uri%/api/asset'
     version_one.filter.epic.status_name: 'Parking Lot'
 
 services:

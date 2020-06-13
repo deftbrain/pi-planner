@@ -19,7 +19,7 @@ httplug:
                           type: bearer
                           token: '%version_one.access_token%'
                 - base_uri:
-                      uri: '%version_one.api_base_uri%'
+                      uri: '%version_one.api_asset%'
                 - header_set:
                       headers:
                           Accept: application/json
