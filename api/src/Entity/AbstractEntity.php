@@ -25,6 +25,11 @@ abstract class AbstractEntity
     private $externalId;
 
     /**
+     * @var string|null
+     */
+    private $externalUrl;
+
+    /**
      * @Assert\NotBlank
      * @ApiProperty(iri="http://schema.org/name")
      * @ORM\Column(type="string", length=255)
@@ -51,6 +56,18 @@ abstract class AbstractEntity
     public function setExternalId(?string $externalId): self
     {
         $this->externalId = $externalId;
+
+        return $this;
+    }
+
+    public function getExternalUrl(): ?string
+    {
+        return $this->externalUrl;
+    }
+
+    public function setExternalUrl(?string $externalUrl): self
+    {
+        $this->externalUrl = $externalUrl;
 
         return $this;
     }

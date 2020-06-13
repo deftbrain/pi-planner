@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {list, reset} from '../../actions/workitem/list';
 import Board from 'react-trello';
+import ExternalLink from '../entity/ExternalLink';
 import './List.css'
 
 class List extends Component {
@@ -32,7 +33,9 @@ class List extends Component {
   getBoardCards(project, team, sprint) {
     const workitems = this.props.retrieved['hydra:member']
       .filter(w => w.project == project && w.team == team && w.sprint == sprint);
-    return workitems.map(w => { return {id: w['@id'], title: w.name}; });
+    return workitems.map(w => {
+      return {id: w['@id'], title: <ExternalLink entity={w}/>};
+    });
   }
 
   getBoardData() {

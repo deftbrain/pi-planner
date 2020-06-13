@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {list, reset} from '../../actions/epic/list';
 import WorkitemList from '../workitem/List';
-
+import ExternalLink from '../entity/ExternalLink';
 import {withStyles} from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -62,7 +62,9 @@ class List extends Component {
           {this.props.retrieved && this.props.retrieved['hydra:member'].map(item => (
             <ExpansionPanel key={item['@id']} TransitionProps={{unmountOnExit: true}}>
               <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                <Typography className={this.props.classes.heading}>{item['name']}</Typography>
+                <Typography className={this.props.classes.heading}>
+                  <ExternalLink entity={item}/>
+                </Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
                   <WorkitemList epic={item['@id']} projectSettings={this.props.projectSettings}/>

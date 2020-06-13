@@ -7,6 +7,7 @@ parameters:
     version_one.access_token: '%env(VERSION_ONE_ACCESS_TOKEN)%'
     version_one.server_base_uri: '%env(VERSION_ONE_SERVER_BASE_URI)%'
     version_one.api_asset: '%version_one.server_base_uri%/api/asset'
+    version_one.api_asset_detail: '%version_one.server_base_uri%/assetdetail.v1'
     version_one.filter.epic.status_name: 'Parking Lot'
 
 services:
@@ -33,3 +34,9 @@ services:
     App\VersionOne\ApiClient:
         arguments:
             Psr\Http\Client\ClientInterface: '@httplug.client.version_one'
+
+    App\Entity\Listener\AbstractEntityListener:
+        tags:
+            - name: doctrine.orm.entity_listener
+              event: postLoad
+              entity: App\Entity\AbstractEntity
