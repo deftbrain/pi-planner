@@ -1,5 +1,5 @@
-import { ENTRYPOINT } from '../config/entrypoint';
-import { SubmissionError } from 'redux-form';
+import {ENTRYPOINT} from '../config/entrypoint';
+import {SubmissionError} from 'redux-form';
 import get from 'lodash/get';
 import has from 'lodash/has';
 import mapValues from 'lodash/mapValues';
@@ -19,7 +19,18 @@ export function fetch(id, options = {}, searchParams) {
     options.headers.set('Content-Type', MIME_TYPE);
 
   if (searchParams) {
-    id += '?' + searchParams.toString();
+    const params = new URLSearchParams();
+    for (let param in searchParams) {
+      if (Array.isArray(searchParams[param])) {
+        let paramArray = `${param}[]`;
+        for (let value of searchParams[param]) {
+          params.append(paramArray, value);
+        }
+      } else {
+        params.append(param, searchParams[param]);
+      }
+    }
+    id += '?' + params.toString();
   }
   const url = new URL(id , ENTRYPOINT);
 

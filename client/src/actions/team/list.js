@@ -1,24 +1,29 @@
-import {extractHubURL, fetch, mercureSubscribe as subscribe, normalize} from '../../utils/dataAccess';
-import {success as deleteSuccess} from './delete';
+import {
+  fetch,
+  normalize,
+  extractHubURL,
+  mercureSubscribe as subscribe
+} from '../../utils/dataAccess';
+import { success as deleteSuccess } from './delete';
 
 export function error(error) {
-  return {type: 'EPIC_LIST_ERROR', error};
+  return { type: 'TEAM_LIST_ERROR', error };
 }
 
 export function loading(loading) {
-  return {type: 'EPIC_LIST_LOADING', loading};
+  return { type: 'TEAM_LIST_LOADING', loading };
 }
 
 export function success(retrieved) {
-  return { type: 'EPIC_LIST_SUCCESS', retrieved };
+  return { type: 'TEAM_LIST_SUCCESS', retrieved };
 }
 
-export function list(projects = []) {
+export function retrieve(ids) {
   return dispatch => {
     dispatch(loading(true));
     dispatch(error(''));
 
-    fetch('epics', {}, {project: projects})
+    fetch('teams', {}, {id: ids})
       .then(response =>
         response
           .json()
@@ -49,7 +54,7 @@ export function reset(eventSource) {
   return dispatch => {
     if (eventSource) eventSource.close();
 
-    dispatch({ type: 'EPIC_LIST_RESET' });
+    dispatch({ type: 'TEAM_LIST_RESET' });
     dispatch(deleteSuccess(null));
   };
 }
@@ -65,16 +70,16 @@ export function mercureSubscribe(hubURL, topics) {
 }
 
 export function mercureOpen(eventSource) {
-  return { type: 'EPIC_LIST_MERCURE_OPEN', eventSource };
+  return { type: 'TEAM_LIST_MERCURE_OPEN', eventSource };
 }
 
 export function mercureMessage(retrieved) {
   return dispatch => {
     if (1 === Object.keys(retrieved).length) {
-      dispatch({ type: 'EPIC_LIST_MERCURE_DELETED', retrieved });
+      dispatch({ type: 'TEAM_LIST_MERCURE_DELETED', retrieved });
       return;
     }
 
-    dispatch({ type: 'EPIC_LIST_MERCURE_MESSAGE', retrieved });
+    dispatch({ type: 'TEAM_LIST_MERCURE_MESSAGE', retrieved });
   };
 }

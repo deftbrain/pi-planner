@@ -8,6 +8,9 @@ import './List.css'
 class List extends Component {
   static propTypes = {
     epic: PropTypes.string.isRequired,
+    projects: PropTypes.array.isRequired,
+    teams: PropTypes.array.isRequired,
+    sprints: PropTypes.array.isRequired,
     projectSettings: PropTypes.array.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
@@ -36,23 +39,34 @@ class List extends Component {
     const data = {};
     const columns = [];
     const unsignedColumnWidth = 15;
+    const unsignedTeam = {'@id': null, 'name': 'Unsigned'};
+    const unsignedSprint = {'@id': null, 'name': 'Unsigned'};
     for (let settings of this.props.projectSettings) {
       let columnsPerRow = settings.sprints.length;
       let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
-      let teams = new Set(settings.capacity.map(c => c.team));
-      teams = [null, ...teams];
-      let sprints = [null, ...settings.sprints];
+      let teamIds = new Set();
+      for (let capacity of settings.capacity || []) {
+        teamIds.add(capacity.team);
+      }
+      let teams = this.props.teams.filter(t => teamIds.has(t['@id']));
+      teams = [unsignedTeam, ...teams];
+      let sprints = this.props.sprints.filter(s => settings.sprints.indexOf(s['@id']) !== -1);
+      sprints = sprints.sort((a, b) => {
+        a = new Date(a.startDate);
+        b = new Date(b.startDate);
+        return a.getTime() - b.getTime();
+      })
+      sprints = [unsignedSprint, ...sprints];
       for (let team of teams) {
-        for (let index in sprints) {
-          let sprint = sprints[index];
-          const id = [this.props.epic, settings.project, team, sprint].join(':');
+        for (let sprintIndex in sprints) {
+          let sprint = sprints[sprintIndex];
           columns.push({
-            id: id,
-            title: `${team} ${index}`,
-            // label: team,
-            cards: this.getBoardCards(settings.project, team, sprint),
+            id: [this.props.epic, settings.project, team['@id'], sprint['@id']].join(':'),
+            title: `Sprint ${'Unsigned' === sprint.name ? sprint.name : sprintIndex}`,
+            label: team.name,
+            cards: this.getBoardCards(settings.project, team['@id'], sprint['@id']),
             style: {
-              width: `${null === sprint ? unsignedColumnWidth : columnWith}%`
+              width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
             }
           });
         }
@@ -94,7 +108,17 @@ const mapStateToProps = (state, ownProps) => {
     eventSource,
     deletedItem
   } = state.workitem.list;
-  return {retrieved: retrieved[ownProps.epic], loading, error, eventSource, deletedItem};
+
+  return {
+    projects: state.project.list.retrieved['hydra:member'],
+    teams: state.team.list.retrieved['hydra:member'],
+    sprints: state.sprint.list.retrieved['hydra:member'],
+    retrieved: retrieved[ownProps.epic],
+    loading,
+    error,
+    eventSource,
+    deletedItem
+  };
 };
 
 const mapDispatchToProps = dispatch => ({

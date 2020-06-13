@@ -1,17 +1,12 @@
-import {
-  fetch,
-  normalize,
-  extractHubURL,
-  mercureSubscribe as subscribe
-} from '../../utils/dataAccess';
-import { success as deleteSuccess } from './delete';
+import {extractHubURL, fetch, mercureSubscribe as subscribe, normalize} from '../../utils/dataAccess';
+import {success as deleteSuccess} from './delete';
 
 export function error(error) {
-  return { type: 'WORKITEM_LIST_ERROR', error };
+  return {type: 'WORKITEM_LIST_ERROR', error};
 }
 
 export function loading(loading) {
-  return { type: 'WORKITEM_LIST_LOADING', loading };
+  return {type: 'WORKITEM_LIST_LOADING', loading};
 }
 
 export function success(retrieved, epic) {
@@ -23,9 +18,7 @@ export function list(epic) {
     dispatch(loading(true));
     dispatch(error(''));
 
-    const searchParams = new URLSearchParams();
-    searchParams.append('epic', epic);
-    fetch('workitems', {}, searchParams)
+    fetch('workitems', {}, {epic: epic})
       .then(response =>
         response
           .json()

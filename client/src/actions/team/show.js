@@ -1,24 +1,27 @@
-import {extractHubURL, fetch, mercureSubscribe as subscribe, normalize} from '../../utils/dataAccess';
-import {success as deleteSuccess} from './delete';
+import {
+  fetch,
+  extractHubURL,
+  normalize,
+  mercureSubscribe as subscribe
+} from '../../utils/dataAccess';
 
 export function error(error) {
-  return {type: 'EPIC_LIST_ERROR', error};
+  return { type: 'TEAM_SHOW_ERROR', error };
 }
 
 export function loading(loading) {
-  return {type: 'EPIC_LIST_LOADING', loading};
+  return { type: 'TEAM_SHOW_LOADING', loading };
 }
 
 export function success(retrieved) {
-  return { type: 'EPIC_LIST_SUCCESS', retrieved };
+  return { type: 'TEAM_SHOW_SUCCESS', retrieved };
 }
 
-export function list(projects = []) {
+export function retrieve(id) {
   return dispatch => {
     dispatch(loading(true));
-    dispatch(error(''));
 
-    fetch('epics', {}, {project: projects})
+    return fetch(id)
       .then(response =>
         response
           .json()
@@ -30,13 +33,7 @@ export function list(projects = []) {
         dispatch(loading(false));
         dispatch(success(retrieved));
 
-        if (hubURL && retrieved['hydra:member'].length)
-          dispatch(
-            mercureSubscribe(
-              hubURL,
-              retrieved['hydra:member'].map(i => i['@id'])
-            )
-          );
+        if (hubURL) dispatch(mercureSubscribe(hubURL, retrieved['@id']));
       })
       .catch(e => {
         dispatch(loading(false));
@@ -49,14 +46,15 @@ export function reset(eventSource) {
   return dispatch => {
     if (eventSource) eventSource.close();
 
-    dispatch({ type: 'EPIC_LIST_RESET' });
-    dispatch(deleteSuccess(null));
+    dispatch({ type: 'TEAM_SHOW_RESET' });
+    dispatch(error(null));
+    dispatch(loading(false));
   };
 }
 
-export function mercureSubscribe(hubURL, topics) {
+export function mercureSubscribe(hubURL, topic) {
   return dispatch => {
-    const eventSource = subscribe(hubURL, topics);
+    const eventSource = subscribe(hubURL, [topic]);
     dispatch(mercureOpen(eventSource));
     eventSource.addEventListener('message', event =>
       dispatch(mercureMessage(normalize(JSON.parse(event.data))))
@@ -65,16 +63,16 @@ export function mercureSubscribe(hubURL, topics) {
 }
 
 export function mercureOpen(eventSource) {
-  return { type: 'EPIC_LIST_MERCURE_OPEN', eventSource };
+  return { type: 'TEAM_SHOW_MERCURE_OPEN', eventSource };
 }
 
 export function mercureMessage(retrieved) {
   return dispatch => {
     if (1 === Object.keys(retrieved).length) {
-      dispatch({ type: 'EPIC_LIST_MERCURE_DELETED', retrieved });
+      dispatch({ type: 'TEAM_SHOW_MERCURE_DELETED', retrieved });
       return;
     }
 
-    dispatch({ type: 'EPIC_LIST_MERCURE_MESSAGE', retrieved });
+    dispatch({ type: 'TEAM_SHOW_MERCURE_MESSAGE', retrieved });
   };
 }
