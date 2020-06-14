@@ -5,6 +5,7 @@ import {list, reset} from '../../actions/workitem/list';
 import Board from 'react-trello';
 import ExternalLink from '../entity/ExternalLink';
 import './List.css'
+import {update} from '../../actions/workitem/update';
 
 class List extends Component {
   static propTypes = {
@@ -19,7 +20,8 @@ class List extends Component {
     eventSource: PropTypes.instanceOf(EventSource),
     deletedItem: PropTypes.object,
     list: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired
+    reset: PropTypes.func.isRequired,
+    update: PropTypes.func.isRequired,
   };
 
   componentDidMount() {
@@ -80,6 +82,14 @@ class List extends Component {
     return data;
   }
 
+  onDragEnd(cardId, sourceLaneId, targetLaneId, position, cardDetails) {
+    // TODO: Replace with extracting info from a lane object
+    const [, project, team, sprint] = targetLaneId.split(':')
+    const workitem = this.props.retrieved['hydra:member']
+      .find(w => w['@id'] === cardId);
+    this.props.update(workitem, {project, team: team ? team : null, sprint: sprint ? sprint : null});
+  }
+
   render() {
     return (
       <div>
@@ -96,7 +106,7 @@ class List extends Component {
         )}
 
         {this.props.retrieved && (
-          <Board id={this.props.epic} data={this.getBoardData()} editable={true}/>
+          <Board id={this.props.epic} data={this.getBoardData()} editable={true} handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
       </div>
     );
@@ -126,7 +136,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => ({
   list: epic => dispatch(list(epic)),
-  reset: eventSource => dispatch(reset(eventSource))
+  reset: eventSource => dispatch(reset(eventSource)),
+  update: (workitem, values) => dispatch(update(workitem, values)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(List);

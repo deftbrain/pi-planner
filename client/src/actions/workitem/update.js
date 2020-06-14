@@ -64,8 +64,8 @@ export function update(item, values) {
     dispatch(updateLoading(true));
 
     return fetch(item['@id'], {
-      method: 'PUT',
-      headers: new Headers({ 'Content-Type': 'application/ld+json' }),
+      method: 'PATCH',
+      headers: new Headers({ 'Content-Type': 'application/merge-patch+json' }),
       body: JSON.stringify(values)
     })
       .then(response =>
