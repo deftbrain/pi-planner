@@ -9,6 +9,7 @@ use App\VersionOne\AssetMetadata\Workitem;
 use App\VersionOne\Sync\FilterProvider\EpicFilterProvider;
 use App\VersionOne\Sync\FilterProvider\FilterProviderInterface;
 use App\VersionOne\Sync\FilterProvider\WorkitemFilterProvider;
+use App\VersionOne\Sync\Serializer\Normalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -89,7 +90,7 @@ class AssetImporter
         foreach ($assets as $asset) {
             try {
                 echo $asset[Asset::ATTRIBUTE_ID] . PHP_EOL;
-                $entity = $this->serializer->denormalize($asset, $entityClassName);
+                $entity = $this->serializer->denormalize($asset, $entityClassName, Normalizer::FORMAT_V1_JSON);
                 $this->entityManager->persist($entity);
             } catch (\DomainException $exception) {
                 echo $exception->getMessage() . PHP_EOL;

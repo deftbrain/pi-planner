@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class Normalizer extends ObjectNormalizer
 {
+    public const FORMAT_V1_JSON = 'v1+json';
+
     /**
      * @var EntityManagerInterface
      */
@@ -63,7 +65,7 @@ class Normalizer extends ObjectNormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return in_array($type, AssetToEntityMap::MAP, true);
+        return in_array($type, AssetToEntityMap::MAP, true) && self::FORMAT_V1_JSON === $format;
     }
 
     /**
