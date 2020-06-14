@@ -82,12 +82,21 @@ class List extends Component {
     return data;
   }
 
-  onDragEnd(cardId, sourceLaneId, targetLaneId, position, cardDetails) {
+  onDragEnd(cardId, sourceLaneId, targetLaneId) {
     // TODO: Replace with extracting info from a lane object
-    const [, project, team, sprint] = targetLaneId.split(':')
+    const [, sourceProject] = sourceLaneId.split(':')
+    const [, targetProject, targetTeam, targetSprint] = targetLaneId.split(':')
     const workitem = this.props.retrieved['hydra:member']
       .find(w => w['@id'] === cardId);
-    this.props.update(workitem, {project, team: team ? team : null, sprint: sprint ? sprint : null});
+    let patch = {
+      project: targetProject,
+      team: targetTeam ? targetTeam : null,
+      sprint: targetSprint ? targetSprint : null
+    };
+    if (targetProject !== sourceProject) {
+      patch.backlogGroup = this.props.projectSettings.find(s => s.project === targetProject).defaultBacklogGroup;
+    }
+    this.props.update(workitem, patch);
   }
 
   render() {

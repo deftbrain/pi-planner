@@ -53,7 +53,17 @@ class ApiClient
             ->filter($filter)
             ->getQuery();
 
-        return $this->sendQuery($query);
+        return $this->sendQuery($query)['queryResult']['results'][0];
+    }
+
+    public function updateAsset(string $oid, array $values): void
+    {
+        $query = $this->makeQueryBuilder()
+            ->from($oid)
+            ->update($values)
+            ->getQuery();
+
+        $this->sendQuery($query);
     }
 
     private function makeQueryBuilder(): QueryBuilder
@@ -81,6 +91,6 @@ class ApiClient
             throw new \RuntimeException(json_encode($contents['commandFailures']['commands']));
         }
 
-        return $contents['queryResult']['results'][0];
+        return $contents;
     }
 }

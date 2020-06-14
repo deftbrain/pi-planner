@@ -4,6 +4,7 @@ namespace App\Entity\Listener;
 
 use App\Entity\AbstractEntity;
 use App\VersionOne\AssetDetailUrlProvider;
+use App\VersionOne\Sync\AssetExporter;
 
 class AbstractEntityListener
 {
@@ -12,9 +13,15 @@ class AbstractEntityListener
      */
     private $urlProvider;
 
-    public function __construct(AssetDetailUrlProvider $urlProvider)
+    /**
+     * @var AssetExporter
+     */
+    private $assetExporter;
+
+    public function __construct(AssetDetailUrlProvider $urlProvider, AssetExporter $assetExporter)
     {
         $this->urlProvider = $urlProvider;
+        $this->assetExporter = $assetExporter;
     }
 
     public function postLoad(AbstractEntity $entity): void
@@ -22,5 +29,10 @@ class AbstractEntityListener
         $entity->setExternalUrl(
             $this->urlProvider->getUrl($entity->getExternalId())
         );
+    }
+
+    public function preUpdate(AbstractEntity $entity): void
+    {
+        $this->assetExporter->exportAsset($entity);
     }
 }

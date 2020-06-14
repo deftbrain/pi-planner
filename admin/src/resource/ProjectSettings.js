@@ -8,6 +8,7 @@ export const ProjectSettings = props => {
   const resetDependentInputs = () => {
     form.change(props.getSource('sprints'), null);
     form.change(props.getSource('capacity'), null);
+    form.change(props.getSource('defaultBacklogGroup'), null);
   }
 
   return (
@@ -16,6 +17,11 @@ export const ProjectSettings = props => {
                       onChange={resetDependentInputs}>
         <SelectInput/>
       </ReferenceInput>
+      {props.scopedFormData && props.scopedFormData.project &&
+      <ReferenceInput label="Default Backlog Group" source={props.getSource('defaultBacklogGroup')}
+                      reference="backlog_groups">
+        <AutocompleteInput/>
+      </ReferenceInput>}
       {props.scopedFormData && props.scopedFormData.project && <ProjectSprintArrayInput {...props}/>}
       {props.scopedFormData && props.scopedFormData.sprints &&
       <ArrayInput label="Team Sprint Capacity" source={props.getSource('capacity')}>

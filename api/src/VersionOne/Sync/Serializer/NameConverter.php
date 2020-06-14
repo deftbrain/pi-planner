@@ -13,7 +13,10 @@ class NameConverter implements AdvancedNameConverterInterface
      */
     public function normalize($propertyName, string $class = null, string $format = null, array $context = [])
     {
-        throw new \LogicException('Normalization is not supported');
+        /** @var Asset $assetMetadataClassName */
+        $assetMetadataClassName = array_search($class, AssetToEntityMap::MAP);
+        $map = $assetMetadataClassName::getAssetToEntityPropertyMap();
+        return array_search($propertyName, $map, true);
     }
 
     /**

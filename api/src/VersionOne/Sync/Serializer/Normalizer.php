@@ -17,6 +17,8 @@ class Normalizer extends ObjectNormalizer
 {
     public const FORMAT_V1_JSON = 'v1+json';
 
+    public const PARENT_CLASS = 'parentClass';
+
     /**
      * @var EntityManagerInterface
      */
@@ -27,6 +29,11 @@ class Normalizer extends ObjectNormalizer
      */
     private $validator;
 
+    /**
+     * @var callable
+     */
+    private $objectClassResolver = '\Doctrine\Common\Util\ClassUtils::getClass';
+
     public function __construct(
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
@@ -34,9 +41,7 @@ class Normalizer extends ObjectNormalizer
         NameConverter $nameConverter = null,
         PropertyAccessorInterface $propertyAccessor = null,
         PropertyTypeExtractorInterface $propertyTypeExtractor = null,
-        ClassDiscriminatorResolverInterface $classDiscriminatorResolver = null,
-        callable $objectClassResolver = null,
-        array $defaultContext = []
+        ClassDiscriminatorResolverInterface $classDiscriminatorResolver = null
     ) {
         parent::__construct(
             $classMetadataFactory,
@@ -44,8 +49,7 @@ class Normalizer extends ObjectNormalizer
             $propertyAccessor,
             $propertyTypeExtractor,
             $classDiscriminatorResolver,
-            $objectClassResolver,
-            $defaultContext
+            $this->objectClassResolver
         );
 
         $this->entityManager = $entityManager;
@@ -57,7 +61,7 @@ class Normalizer extends ObjectNormalizer
      */
     public function supportsNormalization($data, string $format = null): bool
     {
-        return false;
+        return $data instanceof AbstractEntity && self::FORMAT_V1_JSON === $format;
     }
 
     /**
@@ -112,5 +116,17 @@ class Normalizer extends ObjectNormalizer
     private function findEntity(string $entityClassName, string $versionOneId): ?AbstractEntity
     {
         return $this->entityManager->getRepository($entityClassName)->findOneBy(['externalId' => $versionOneId]);
+    }
+
+    /**
+     * @param AbstractEntity $object
+     */
+    public function normalize($object, string $format = null, array $context = [])
+    {
+        if (($this->objectClassResolver)($object) === $context[self::PARENT_CLASS]) {
+            return parent::normalize($object, $format, $context);
+        }
+
+        return $object->getExternalId();
     }
 }
