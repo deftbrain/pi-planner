@@ -9,13 +9,13 @@ use App\VersionOne\AssetMetadata\Project;
 use App\VersionOne\AssetMetadata\Sprint;
 use App\VersionOne\AssetMetadata\Team;
 use App\VersionOne\AssetMetadata\Workitem;
-use App\VersionOne\Sync\Synchronizer;
+use App\VersionOne\Sync\AssetImporter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class SyncCommand extends Command
+class ImportCommand extends Command
 {
     private const ASSETS = [
         BacklogGroup::class,
@@ -30,18 +30,18 @@ class SyncCommand extends Command
     /**
      * @inheritDoc
      */
-    protected static $defaultName = 'sync';
+    protected static $defaultName = 'import';
 
     /**
-     * @var Synchronizer
+     * @var AssetImporter
      */
-    private $synchronizer;
+    private $importer;
 
-    public function __construct(Synchronizer $synchronizer)
+    public function __construct(AssetImporter $importer)
     {
         parent::__construct();
 
-        $this->synchronizer = $synchronizer;
+        $this->importer = $importer;
     }
 
     /**
@@ -60,11 +60,11 @@ class SyncCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         foreach (self::ASSETS as $className) {
-            $io->note("Synchronizing $className...");
-            $this->synchronizer->syncAssets($className);
+            $io->note("Importing $className...");
+            $this->importer->importAssets($className);
         }
 
-        $io->success('The entities have been successfully synchronized.');
+        $io->success('The entities have been successfully imported.');
 
         return 0;
     }

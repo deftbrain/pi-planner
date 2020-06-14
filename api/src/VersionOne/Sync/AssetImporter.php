@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class Synchronizer
+class AssetImporter
 {
     private const FILTER_PROVIDER = [
         Epic::class => EpicFilterProvider::class,
@@ -46,7 +46,7 @@ class Synchronizer
      */
     private $router;
 
-    private $assetsToSync = [];
+    private $assetTypesToImport = [];
 
     public function __construct(
         ApiClient $v1ApiClient,
@@ -65,14 +65,14 @@ class Synchronizer
     /**
      * @param string|Asset $assetClassName
      */
-    public function syncAssets(string $assetClassName): void
+    public function importAssets(string $assetClassName): void
     {
-        if (in_array($assetClassName, $this->assetsToSync, true)) {
+        if (in_array($assetClassName, $this->assetTypesToImport, true)) {
             return;
         }
-        $this->assetsToSync[] = $assetClassName;
+        $this->assetTypesToImport[] = $assetClassName;
 
-        $this->syncAssetDependencies($assetClassName);
+        $this->importAssetDependencies($assetClassName);
 
         /** @var FilterProviderInterface|null $filterProviderClassName */
         $filterProviderClassName = self::FILTER_PROVIDER[$assetClassName] ?? null;
@@ -99,7 +99,7 @@ class Synchronizer
         $this->entityManager->flush();
     }
 
-    private function syncAssetDependencies($assetClassName): void
+    private function importAssetDependencies($assetClassName): void
     {
         $dependencies = array_keys(
             array_intersect_key(
@@ -108,7 +108,7 @@ class Synchronizer
             )
         );
         foreach ($dependencies as $dependencyClassName) {
-            $this->syncAssets($dependencyClassName);
+            $this->importAssets($dependencyClassName);
         }
     }
 }
