@@ -42,7 +42,7 @@ export function retrieved(state = {}, action) {
 
     case 'WORKITEM_LIST_MERCURE_MESSAGE':
       newState = Object.assign({}, state);
-      newState[action.retrieved.epic]['hydra:member'] = newState[action.epic]['hydra:member'].map(item =>
+      newState[action.retrieved.epic]['hydra:member'] = newState[action.retrieved.epic]['hydra:member'].map(item =>
         item['@id'] === action.retrieved['@id'] ? action.retrieved : item
       )
       return newState;
