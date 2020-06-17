@@ -6,6 +6,8 @@ import Board from 'react-trello';
 import ExternalLink from '../entity/ExternalLink';
 import './List.css'
 import {update} from '../../actions/workitem/update';
+import Estimate from './Estimate';
+import upperFirst from 'lodash/upperFirst';
 
 class List extends Component {
   static propTypes = {
@@ -32,11 +34,21 @@ class List extends Component {
     this.props.reset(this.props.eventSource);
   }
 
+  onEstimateChange(workitem, event) {
+    const value = event.target.value.length > 0 ? parseFloat(event.target.value) : null;
+    const estimateFieldName = `estimate${upperFirst(event.target.name)}`;
+    this.props.update(workitem, {[estimateFieldName]: value});
+  }
+
   getBoardCards(project, team, sprint) {
     const workitems = this.props.retrieved[this.props.epic]['hydra:member']
       .filter(w => w.project == project && w.team == team && w.sprint == sprint);
-    return workitems.map(w => {
-      return {id: w['@id'], title: <ExternalLink entity={w}/>};
+    return workitems.map(workitem => {
+      return {
+        id: workitem['@id'],
+        title: <ExternalLink entity={workitem}/>,
+        label: <Estimate workitem={workitem} onChange={this.onEstimateChange.bind(this, workitem)}/>
+      };
     });
   }
 
