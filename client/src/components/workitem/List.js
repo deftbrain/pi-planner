@@ -33,7 +33,7 @@ class List extends Component {
   }
 
   getBoardCards(project, team, sprint) {
-    const workitems = this.props.retrieved['hydra:member']
+    const workitems = this.props.retrieved[this.props.epic]['hydra:member']
       .filter(w => w.project == project && w.team == team && w.sprint == sprint);
     return workitems.map(w => {
       return {id: w['@id'], title: <ExternalLink entity={w}/>};
@@ -86,7 +86,7 @@ class List extends Component {
     // TODO: Replace with extracting info from a lane object
     const [, sourceProject] = sourceLaneId.split(':')
     const [, targetProject, targetTeam, targetSprint] = targetLaneId.split(':')
-    const workitem = this.props.retrieved['hydra:member']
+    const workitem = this.props.retrieved[this.props.epic]['hydra:member']
       .find(w => w['@id'] === cardId);
     let patch = {
       project: targetProject,
@@ -114,7 +114,7 @@ class List extends Component {
           <div className="alert alert-danger">{this.props.error}</div>
         )}
 
-        {this.props.retrieved && (
+        {this.props.retrieved && this.props.retrieved[this.props.epic] && (
           <Board id={this.props.epic} data={this.getBoardData()} editable={true} handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
       </div>
@@ -135,7 +135,7 @@ const mapStateToProps = (state, ownProps) => {
     projects: state.project.list.retrieved['hydra:member'],
     teams: state.team.list.retrieved['hydra:member'],
     sprints: state.sprint.list.retrieved['hydra:member'],
-    retrieved: retrieved[ownProps.epic],
+    retrieved: retrieved,
     loading,
     error,
     eventSource,
