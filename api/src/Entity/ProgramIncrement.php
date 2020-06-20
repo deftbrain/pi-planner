@@ -4,11 +4,25 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetProgramIncrementEstimates;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @todo Figure out how to make Swagger show entity different from ProgramIncrement as returned type for the get_estimates operation
+ * @ApiResource(
+ *     collectionOperations={"get", "post"},
+ *     itemOperations={
+ *         "get",
+ *         "put",
+ *         "delete",
+ *         "get_estimates": {
+ *             "method": "GET",
+ *             "path": "/program_increments/{id}/estimates",
+ *             "controller": GetProgramIncrementEstimates::class
+ *         }
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\ProgramIncrementRepository")
  */
 class ProgramIncrement
