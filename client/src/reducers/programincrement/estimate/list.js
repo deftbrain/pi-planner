@@ -13,6 +13,9 @@ export function loading(state = false, action) {
   switch (action.type) {
     case 'PROGRAMINCREMENT_ESTIMATE_LIST_LOADING':
       return action.loading;
+    // TODO: Find out a better way (should we know nothing about other components?)
+    case 'WORKITEM_UPDATE_UPDATE_LOADING':
+      return action.updateLoading ? true : state;
     default:
       return state;
   }

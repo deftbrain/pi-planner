@@ -19,6 +19,7 @@ export function mercureSubscribe(hubURL, topic) {
     eventSource.addEventListener('message', event => {
       const data = JSON.parse(event.data);
       dispatch(mercureMessage(data));
+      dispatch(loading(false));
     });
   };
 }
