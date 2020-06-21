@@ -8,6 +8,7 @@ import './List.css'
 import {update} from '../../actions/workitem/update';
 import Estimate from './Estimate';
 import upperFirst from 'lodash/upperFirst';
+import TeamSprintRemainingCapacity from '../programincrement/TeamSprintRemainingCapacity';
 
 class List extends Component {
   static propTypes = {
@@ -79,8 +80,9 @@ class List extends Component {
           let sprint = sprints[sprintIndex];
           columns.push({
             id: [this.props.epic, settings.project, team['@id'], sprint['@id']].join(':'),
-            title: `Sprint ${'Unsigned' === sprint.name ? sprint.name : sprintIndex}`,
-            label: team.name,
+            title: `${team.name} ${'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex}`,
+            label: <TeamSprintRemainingCapacity epic={this.props.epic} team={team['@id']} sprint={sprint['@id']}
+                                                projectSettings={settings}/>,
             cards: this.getBoardCards(settings.project, team['@id'], sprint['@id']),
             style: {
               width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`

@@ -2,6 +2,7 @@ import {fetch, normalize} from '../../utils/dataAccess';
 import {retrieve as retrieveProjects} from '../project/list';
 import {retrieve as retrieveTeams} from '../team/list';
 import {retrieve as retrieveSprints} from '../sprint/list';
+import {retrieve as retrieveEstimates} from './estimate/list';
 
 export function error(error) {
   return {type: 'PROGRAMINCREMENT_SHOW_ERROR', error};
@@ -40,6 +41,7 @@ export function retrieve(id) {
         dispatch(retrieveProjects(projects));
         dispatch(retrieveTeams([...teams]));
         dispatch(retrieveSprints(sprints));
+        dispatch(retrieveEstimates(id));
         dispatch(loading(false));
         dispatch(success(retrieved));
       })

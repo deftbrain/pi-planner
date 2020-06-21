@@ -21,7 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
  *             "path": "/program_increments/{id}/estimates",
  *             "controller": GetProgramIncrementEstimates::class
  *         }
- *     }
+ *     },
+ *     mercure=true
  * )
  * @ORM\Entity(repositoryClass="App\Repository\ProgramIncrementRepository")
  */
