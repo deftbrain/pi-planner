@@ -1,37 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {applyMiddleware, combineReducers, createStore} from 'redux';
 import {Provider} from 'react-redux';
-import thunk from 'redux-thunk';
-import {reducer as form} from 'redux-form';
 import {Route, Switch} from 'react-router-dom';
-import {createBrowserHistory} from 'history';
-import {ConnectedRouter, connectRouter, routerMiddleware} from 'connected-react-router';
+import {ConnectedRouter} from 'connected-react-router';
 
 import * as serviceWorker from './serviceWorker';
 import Welcome from './Welcome';
-import programincrement from './reducers/programincrement/';
 import programincrementRoutes from './routes/programincrement';
-import project from './reducers/project/';
-import team from './reducers/team/';
-import sprint from './reducers/sprint/';
-import epic from './reducers/epic/';
-import workitem from './reducers/workitem/';
-
-const history = createBrowserHistory();
-const store = createStore(
-  combineReducers({
-    router: connectRouter(history),
-    form,
-    programincrement,
-    project,
-    team,
-    sprint,
-    epic,
-    workitem,
-  }),
-  applyMiddleware(routerMiddleware(history), thunk)
-);
+import {history, store} from './store';
 
 ReactDOM.render(
   <Provider store={store}>
