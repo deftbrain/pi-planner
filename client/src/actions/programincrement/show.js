@@ -1,4 +1,4 @@
-import {fetch, normalize} from '../../utils/dataAccess';
+import {extractHubURL, fetch, mercureSubscribe as subscribe, normalize} from '../../utils/dataAccess';
 import {retrieve as retrieveProjects} from '../project/list';
 import {retrieve as retrieveTeams} from '../team/list';
 import {retrieve as retrieveSprints} from '../sprint/list';
@@ -24,9 +24,9 @@ export function retrieve(id) {
       .then(response =>
         response
           .json()
-          .then(retrieved => ({...retrieved}))
+          .then(retrieved => ({retrieved, hubURL: extractHubURL(response)}))
       )
-      .then((retrieved) => {
+      .then(({retrieved, hubURL}) => {
         retrieved = normalize(retrieved);
         let projects = [];
         let teams = new Set();
@@ -44,10 +44,32 @@ export function retrieve(id) {
         dispatch(retrieveEstimates(id));
         dispatch(loading(false));
         dispatch(success(retrieved));
+
+        if (hubURL) dispatch(mercureSubscribe(hubURL, retrieved['@id']));
       })
       .catch(e => {
         dispatch(loading(false));
         dispatch(error(e.message));
       });
+  };
+}
+
+export function mercureSubscribe(hubURL, topic) {
+  return dispatch => {
+    const eventSource = subscribe(hubURL, [topic]);
+    dispatch(mercureOpen(eventSource));
+    eventSource.addEventListener('message', event =>
+      dispatch(mercureMessage(normalize(JSON.parse(event.data))))
+    );
+  };
+}
+
+export function mercureOpen(eventSource) {
+  return {type: 'PROGRAMINCREMENT_SHOW_MERCURE_OPEN', eventSource};
+}
+
+export function mercureMessage(retrieved) {
+  return dispatch => {
+    dispatch({type: 'PROGRAMINCREMENT_SHOW_MERCURE_MESSAGE', retrieved});
   };
 }
