@@ -33,6 +33,9 @@ class AbstractEntityListener
 
     public function preUpdate(AbstractEntity $entity): void
     {
-        $this->assetExporter->exportAsset($entity);
+        if (PHP_SAPI !== 'cli') {
+            // Prevent exporting to V1 updates given from V1 itself during importing (can be run via cli only)
+            $this->assetExporter->exportAsset($entity);
+        }
     }
 }
