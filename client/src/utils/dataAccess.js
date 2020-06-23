@@ -64,7 +64,8 @@ export function fetch(id, options = {}, searchParams) {
 
 export function mercureSubscribe(url, topics) {
   topics.forEach(topic =>
-    url.searchParams.append('topic', new URL(topic, ENTRYPOINT))
+    // Add decoding to allow using patterns (e.g. /workitems/{id}) as a topic
+    url.searchParams.append('topic', decodeURIComponent(new URL(topic, ENTRYPOINT)))
   );
 
   return new EventSource(url.toString());

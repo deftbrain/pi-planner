@@ -41,10 +41,19 @@ export function retrieved(state = {}, action) {
       return newState;
 
     case 'WORKITEM_LIST_MERCURE_MESSAGE':
+      const retrieved = action.retrieved;
+      if (!state[retrieved.epic]) {
+        // Ignore changes not related to open epics
+        return state;
+      }
       newState = Object.assign({}, state);
-      newState[action.retrieved.epic]['hydra:member'] = newState[action.retrieved.epic]['hydra:member'].map(item =>
-        item['@id'] === action.retrieved['@id'] ? action.retrieved : item
-      )
+      const retrievedId = retrieved['@id'];
+      const index = state[retrieved.epic]['hydra:member'].findIndex((w) => w['@id'] === retrievedId);
+      if (-1 === index) {
+        newState[retrieved.epic]['hydra:member'].push(retrieved);
+      } else {
+        newState[retrieved.epic]['hydra:member'][index] = retrieved;
+      }
       return newState;
 
     case 'WORKITEM_LIST_MERCURE_DELETED':

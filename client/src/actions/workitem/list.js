@@ -30,11 +30,11 @@ export function list(epic) {
         dispatch(loading(false));
         dispatch(success(retrieved, epic));
 
-        if (hubURL && retrieved['hydra:member'].length)
+        if (hubURL && retrieved['@id'])
           dispatch(
             mercureSubscribe(
               hubURL,
-              retrieved['hydra:member'].map(i => i['@id'])
+              [retrieved['@id'] + '/{id}']
             )
           );
       })
