@@ -57,14 +57,16 @@ export function retrieved(state = {}, action) {
       return newState;
 
     case 'WORKITEM_LIST_MERCURE_DELETED':
-      const removedWorkitemId = action.retrieved['@id'];
-      newState = Object.assign({}, state);
-      for (let epic in newState) {
-        newState[epic]['hydra:member'] = newState[epic]['hydra:member'].filter(
-          item => item['@id'] !== removedWorkitemId
-        )
+      const removedId = action.retrieved['@id'];
+      for (let epic in state) {
+        const index = state[epic]['hydra:member'].findIndex(w => w['@id'] === removedId);
+        if (-1 !== index) {
+          newState = Object.assign({}, state);
+          delete newState[epic]['hydra:member'][index];
+          return newState;
+        }
       }
-      return newState;
+      return state;
 
     default:
       return state;
