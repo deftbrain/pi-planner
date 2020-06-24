@@ -5,9 +5,6 @@ export function error(state = null, action) {
     case 'WORKITEM_LIST_ERROR':
       return action.error;
 
-    case 'WORKITEM_LIST_MERCURE_DELETED':
-      return `${action.retrieved['@id']} has been deleted by another user.`;
-
     case 'WORKITEM_LIST_RESET':
       return null;
 
@@ -58,15 +55,9 @@ export function retrieved(state = {}, action) {
 
     case 'WORKITEM_LIST_MERCURE_DELETED':
       const removedId = action.retrieved['@id'];
-      for (let epic in state) {
-        const index = state[epic]['hydra:member'].findIndex(w => w['@id'] === removedId);
-        if (-1 !== index) {
-          newState = Object.assign({}, state);
-          delete newState[epic]['hydra:member'][index];
-          return newState;
-        }
-      }
-      return state;
+      newState = Object.assign({}, state);
+      newState[action.retrieved.epic]['hydra:member'].filter(w => w['@id'] !== removedId);
+      return newState;
 
     default:
       return state;
