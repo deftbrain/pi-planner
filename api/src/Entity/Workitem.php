@@ -6,15 +6,17 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(mercure=true)
- * @ApiFilter(SearchFilter::class, properties={"epic": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={"epic": "exact", "isDeleted": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\WorkitemRepository")
  */
 class Workitem extends AbstractEntity
 {
     /**
+     * @Assert\NotBlank
      * @ORM\ManyToOne(targetEntity="App\Entity\Project")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -31,12 +33,14 @@ class Workitem extends AbstractEntity
     private $sprint;
 
     /**
+     * @Assert\NotBlank
      * @ORM\ManyToOne(targetEntity="App\Entity\Epic")
      * @ORM\JoinColumn(nullable=false)
      */
     private $epic;
 
     /**
+     * @Assert\NotBlank
      * @ORM\ManyToOne(targetEntity="App\Entity\BacklogGroup")
      * @ORM\JoinColumn(nullable=false)
      */

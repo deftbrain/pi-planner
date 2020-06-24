@@ -77,6 +77,10 @@ class Normalizer extends ObjectNormalizer
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
+        if (null === $data) {
+            return null;
+        }
+
         $existingEntity = $this->findEntity($type, $data[Asset::ATTRIBUTE_ID]);
         if ($existingEntity) {
             if (!isset($data[Asset::ATTRIBUTE_CHANGE_DATE])) {
@@ -108,6 +112,10 @@ class Normalizer extends ObjectNormalizer
     {
         if (isset($value[Asset::ATTRIBUTE_ID]) && 'NULL' === $value[Asset::ATTRIBUTE_ID]) {
             return null;
+        }
+
+        if (in_array($value, ['True', 'False'], true)) {
+            return 'True' === $value;
         }
 
         return $value;

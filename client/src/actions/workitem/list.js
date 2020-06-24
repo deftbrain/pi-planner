@@ -18,7 +18,7 @@ export function list(epic) {
     dispatch(loading(true));
     dispatch(error(''));
 
-    fetch('workitems', {}, {epic: epic})
+    fetch('workitems', {}, {epic: epic, isDeleted: false})
       .then(response =>
         response
           .json()
@@ -70,7 +70,7 @@ export function mercureOpen(eventSource) {
 
 export function mercureMessage(retrieved) {
   return dispatch => {
-    if (1 === Object.keys(retrieved).length) {
+    if (retrieved.isDeleted) {
       dispatch({ type: 'WORKITEM_LIST_MERCURE_DELETED', retrieved });
       return;
     }

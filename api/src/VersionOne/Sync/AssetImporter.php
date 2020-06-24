@@ -2,7 +2,9 @@
 
 namespace App\VersionOne\Sync;
 
+use App\Entity\AbstractEntity;
 use App\VersionOne\ApiClient;
+use App\VersionOne\AssetMetadata;
 use App\VersionOne\AssetMetadata\Asset;
 use App\VersionOne\AssetMetadata\Epic;
 use App\VersionOne\AssetMetadata\Workitem;
@@ -75,25 +77,59 @@ class AssetImporter
 
         $this->importAssetDependencies($assetClassName);
 
+        echo "Importing {$assetClassName::getType()}..." . PHP_EOL;
+
         /** @var FilterProviderInterface|null $filterProviderClassName */
         $filterProviderClassName = self::FILTER_PROVIDER[$assetClassName] ?? null;
         if ($filterProviderClassName) {
-            $filter = (new $filterProviderClassName($this->entityManager, $this->params, $this->router))->getFilter();
-            if (!$filter) {
+            $assetSpecificFilter = (new $filterProviderClassName(
+                $this->entityManager, $this->params, $this->router
+            ))->getFilter();
+            if (!$assetSpecificFilter) {
+                // If a filter is not given - required data doesn't exist yet
                 return;
             }
         } else {
-            $filter = [];
+            $assetSpecificFilter = [];
         }
         $entityClassName = AssetToEntityMap::MAP[$assetClassName];
-        $assets = $this->versionOneApiClient->find($assetClassName, $filter);
-        foreach ($assets as $asset) {
+        $assetType = $assetClassName::getType();
+        $relevantAssetsQuery = $this->versionOneApiClient
+            ->makeQueryBuilder()
+            ->from($assetType)
+            ->select($assetClassName::getAttributesToSelect())
+            ->filter($assetSpecificFilter)
+            ->getQuery();
+        $deletedAssetsQuery = $this->versionOneApiClient
+            ->makeQueryBuilder()
+            ->from($assetType)
+            ->filter(array_merge([AssetMetadata\Asset::ATTRIBUTE_IS_DELETED => true], $assetSpecificFilter))
+            ->getQuery();
+        [$relevantAssets, $deletedAssets] = $this->versionOneApiClient->find($relevantAssetsQuery, $deletedAssetsQuery);
+        foreach ($relevantAssets as $asset) {
             try {
-                echo $asset[Asset::ATTRIBUTE_ID] . PHP_EOL;
                 $entity = $this->serializer->denormalize($asset, $entityClassName, Normalizer::FORMAT_V1_JSON);
                 $this->entityManager->persist($entity);
             } catch (\DomainException $exception) {
                 echo $exception->getMessage() . PHP_EOL;
+            }
+        }
+
+        $externalIdsToRemove = array_column($deletedAssets, Asset::ATTRIBUTE_ID);
+        if ($externalIdsToRemove) {
+            $entitiesToMarkAsDeleted = $this->entityManager
+                ->getRepository($entityClassName)
+                ->findBy(['externalId' => $externalIdsToRemove]);
+            /** @var AbstractEntity $entity */
+            foreach ($entitiesToMarkAsDeleted as $entity) {
+                // Mark entities as deleted via objects to let entity listeners know
+                // about changes and send updates to the client app automatically via Mercure
+                $entity->setIsDeleted(true);
+            }
+
+            $count = count($entitiesToMarkAsDeleted);
+            if ($count) {
+                echo "Number of assets marked as entitiesToMarkAsDeleted: $count" . PHP_EOL;
             }
         }
 

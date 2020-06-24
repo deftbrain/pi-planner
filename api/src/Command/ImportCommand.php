@@ -60,7 +60,6 @@ class ImportCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         foreach (self::ASSETS as $className) {
-            $io->note("Importing $className...");
             $this->importer->importAssets($className);
         }
 

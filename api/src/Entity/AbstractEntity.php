@@ -43,6 +43,11 @@ abstract class AbstractEntity
      */
     private $changedAt;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,6 +97,18 @@ abstract class AbstractEntity
     public function setChangedAt(\DateTimeInterface $changedAt): self
     {
         $this->changedAt = $changedAt;
+
+        return $this;
+    }
+
+    public function getIsDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
 
         return $this;
     }

@@ -23,37 +23,12 @@ class ApiClient
         $this->requestFactory = $requestFactory;
     }
 
-    public function find(string $assetMetadataClassName, array $filter = []): array
-    {
-        return $this->findAssets(
-            $assetMetadataClassName,
-            array_merge(
-                [
-                    AssetMetadata\Asset::ATTRIBUTE_STATE => [
-                        AssetMetadata\Asset::ATTRIBUTE_STATE_ACTIVE,
-                        AssetMetadata\Asset::ATTRIBUTE_STATE_FUTURE,
-                    ],
-                ],
-                $filter
-            )
-        );
-    }
-
     /**
-     * @param string|AssetMetadata\Asset $assetMetadataClassName
-     * @param array $filter
      * @return array
      */
-    private function findAssets(string $assetMetadataClassName, array $filter = []): array
+    public function find(...$queries): array
     {
-        /** @var  $assetMetadataClassName */
-        $query = $this->makeQueryBuilder()
-            ->from($assetMetadataClassName::getType())
-            ->select($assetMetadataClassName::getAttributesToSelect())
-            ->filter($filter)
-            ->getQuery();
-
-        return $this->sendQuery($query)['queryResult']['results'][0];
+        return $this->sendQuery($queries)['queryResult']['results'];
     }
 
     public function updateAsset(string $oid, array $values): void
@@ -66,7 +41,7 @@ class ApiClient
         $this->sendQuery($query);
     }
 
-    private function makeQueryBuilder(): QueryBuilder
+    public function makeQueryBuilder(): QueryBuilder
     {
         return new QueryBuilder;
     }
