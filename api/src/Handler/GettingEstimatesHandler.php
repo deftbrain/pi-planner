@@ -48,6 +48,7 @@ final class GettingEstimatesHandler
                 'SUM(w.estimateFrontend) AS frontend',
                 'SUM(w.estimateBackend) AS backend'
             )
+            ->andWhere('w.isDeleted = false')
             ->andWhere($qb->expr()->in('w.project', $projectIds))
             ->andWhere($qb->expr()->orX('w.estimateFrontend > 0', 'w.estimateBackend > 0'))
             ->groupBy('w.epic', 'w.team', 'w.sprint')

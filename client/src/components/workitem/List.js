@@ -129,7 +129,8 @@ class List extends Component {
         )}
 
         {this.props.retrieved && this.props.retrieved[this.props.epic] && (
-          <Board id={this.props.epic} data={this.getBoardData()} editable={true} handleDragEnd={this.onDragEnd.bind(this)}/>
+          <Board id={this.props.epic} data={this.getBoardData()} editable={true} laneDraggable={false}
+                 handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
       </div>
     );
