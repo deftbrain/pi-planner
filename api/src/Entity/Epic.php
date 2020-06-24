@@ -4,12 +4,14 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource(attributes={"order"={"wsjf": "DESC"}})
+ * @ApiResource()
  * @ApiFilter(SearchFilter::class, properties={"project": "exact"})
+ * @ApiFilter(OrderFilter::class, properties={"wsjf": {"nulls_comparison": OrderFilter::NULLS_SMALLEST}})
  * @ORM\Entity(repositoryClass="App\Repository\EpicRepository")
  */
 class Epic extends AbstractEntity

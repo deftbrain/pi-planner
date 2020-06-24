@@ -10,6 +10,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import WSJF from './WSJF';
 
 const styles = theme => ({
   root: {
@@ -18,6 +19,10 @@ const styles = theme => ({
   heading: {
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
+  },
+  wsjf: {
+    fontSize: theme.typography.pxToRem(12),
+    marginLeft: '10px',
   },
 });
 
@@ -64,6 +69,7 @@ class List extends Component {
               <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
                 <Typography className={this.props.classes.heading}>
                   <ExternalLink entity={item}/>
+                  <WSJF value={item.wsjf} className={this.props.classes.wsjf}/>
                 </Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>

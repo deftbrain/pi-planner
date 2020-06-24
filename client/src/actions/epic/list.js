@@ -18,7 +18,7 @@ export function list(projects = []) {
     dispatch(loading(true));
     dispatch(error(''));
 
-    fetch('epics', {}, {project: projects})
+    fetch('epics', {}, {project: projects, 'order[wsjf]': 'desc'})
       .then(response =>
         response
           .json()
