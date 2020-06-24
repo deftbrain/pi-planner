@@ -46,7 +46,7 @@ class AssetExporter
         /** @var Asset $assetMetadataClassName */
         $assetMetadataClassName = array_search(get_class($entity), AssetToEntityMap::MAP);
         $map = $assetMetadataClassName::getAssetToEntityPropertyMap();
-        unset($map[Asset::ATTRIBUTE_ID], $map[Asset::ATTRIBUTE_CHANGE_DATE]);
+        unset($map[Asset::ATTRIBUTE_ID], $map[Asset::ATTRIBUTE_CHANGE_DATE], $map[Asset::ATTRIBUTE_IS_DELETED]);
         return array_values($map);
     }
 }
