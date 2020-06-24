@@ -54,6 +54,11 @@ export function retrieved(state = {}, action) {
       return newState;
 
     case 'WORKITEM_LIST_MERCURE_DELETED':
+      if (!state[action.retrieved.epic]) {
+        // Ignore changes not related to open epics
+        return state;
+      }
+
       const removedId = action.retrieved['@id'];
       newState = Object.assign({}, state);
       newState[action.retrieved.epic]['hydra:member'].filter(w => w['@id'] !== removedId);
