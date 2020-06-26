@@ -109,16 +109,19 @@ class AssetImporter
             $entitiesToMarkAsDeleted = $this->entityManager
                 ->getRepository($entityClassName)
                 ->findBy(['externalId' => $externalIdsToRemove]);
+            $deletedEntitiesCount = 0;
             /** @var AbstractEntity $entity */
             foreach ($entitiesToMarkAsDeleted as $entity) {
-                // Mark entities as deleted via objects to let entity listeners know
-                // about changes and send updates to the client app automatically via Mercure
-                $entity->setIsDeleted(true);
+                if (!$entity->getIsDeleted()) {
+                    // Mark entities as deleted via objects to let entity listeners know
+                    // about changes and send updates to the client app automatically via Mercure
+                    $entity->setIsDeleted(true);
+                    ++$deletedEntitiesCount;
+                }
             }
 
-            $count = count($entitiesToMarkAsDeleted);
-            if ($count) {
-                echo "Number of assets marked as entitiesToMarkAsDeleted: $count" . PHP_EOL;
+            if ($deletedEntitiesCount) {
+                echo "Number of assets marked as entitiesToMarkAsDeleted: $deletedEntitiesCount" . PHP_EOL;
             }
         }
 
