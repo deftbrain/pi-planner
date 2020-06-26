@@ -106,7 +106,7 @@ class ImportCommand extends Command
      */
     private function importAssets($assetClassName): void
     {
-        echo "Importing {$assetClassName::getType()}..." . PHP_EOL;
+        $this->io->writeln(sprintf('Importing %s...', $assetClassName::getType()), OutputInterface::VERBOSITY_VERBOSE);
         $this->importer->importAssets($assetClassName);
     }
 
