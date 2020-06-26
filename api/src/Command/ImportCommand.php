@@ -2,14 +2,10 @@
 
 namespace App\Command;
 
-use App\VersionOne\AssetMetadata\BacklogGroup;
-use App\VersionOne\AssetMetadata\Epic;
-use App\VersionOne\AssetMetadata\EpicStatus;
-use App\VersionOne\AssetMetadata\Project;
-use App\VersionOne\AssetMetadata\Sprint;
-use App\VersionOne\AssetMetadata\Team;
+use App\VersionOne\AssetMetadata\Asset;
 use App\VersionOne\AssetMetadata\Workitem;
 use App\VersionOne\Sync\AssetImporter;
+use App\VersionOne\Sync\AssetToEntityMap;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,16 +13,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ImportCommand extends Command
 {
-    private const ASSETS = [
-        BacklogGroup::class,
-        Epic::class,
-        EpicStatus::class,
-        Project::class,
-        Sprint::class,
-        Team::class,
-        Workitem::class,
-    ];
-
     /**
      * @inheritDoc
      */
@@ -36,6 +22,8 @@ class ImportCommand extends Command
      * @var AssetImporter
      */
     private $importer;
+
+    private $assetTypesToImport = [];
 
     public function __construct(AssetImporter $importer)
     {
@@ -59,12 +47,39 @@ class ImportCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        foreach (self::ASSETS as $className) {
-            $this->importer->importAssets($className);
-        }
+        $this->importAssets(Workitem::class);
 
         $io->success('The entities have been successfully imported.');
 
         return 0;
+    }
+
+    /**
+     * @param string|Asset $assetClassName
+     */
+    private function importAssets(string $assetClassName): void
+    {
+        if (in_array($assetClassName, $this->assetTypesToImport, true)) {
+            return;
+        }
+        $this->assetTypesToImport[] = $assetClassName;
+
+        $this->importAssetDependencies($assetClassName);
+
+        echo "Importing {$assetClassName::getType()}..." . PHP_EOL;
+        $this->importer->importAssets($assetClassName);
+    }
+
+    private function importAssetDependencies($assetClassName): void
+    {
+        $dependencies = array_keys(
+            array_intersect_key(
+                $assetClassName::getAttributesToSelect(),
+                AssetToEntityMap::MAP
+            )
+        );
+        foreach ($dependencies as $dependencyClassName) {
+            $this->importAssets($dependencyClassName);
+        }
     }
 }

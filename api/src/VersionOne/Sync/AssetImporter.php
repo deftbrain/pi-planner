@@ -49,8 +49,6 @@ class AssetImporter
      */
     private $router;
 
-    private $assetTypesToImport = [];
-
     public function __construct(
         ApiClient $v1ApiClient,
         EntityManagerInterface $entityManager,
@@ -70,15 +68,6 @@ class AssetImporter
      */
     public function importAssets(string $assetClassName): void
     {
-        if (in_array($assetClassName, $this->assetTypesToImport, true)) {
-            return;
-        }
-        $this->assetTypesToImport[] = $assetClassName;
-
-        $this->importAssetDependencies($assetClassName);
-
-        echo "Importing {$assetClassName::getType()}..." . PHP_EOL;
-
         /** @var FilterProviderInterface|null $filterProviderClassName */
         $filterProviderClassName = self::FILTER_PROVIDER[$assetClassName] ?? null;
         if ($filterProviderClassName) {
@@ -134,18 +123,5 @@ class AssetImporter
         }
 
         $this->entityManager->flush();
-    }
-
-    private function importAssetDependencies($assetClassName): void
-    {
-        $dependencies = array_keys(
-            array_intersect_key(
-                $assetClassName::getAttributesToSelect(),
-                AssetToEntityMap::MAP
-            )
-        );
-        foreach ($dependencies as $dependencyClassName) {
-            $this->importAssets($dependencyClassName);
-        }
     }
 }
