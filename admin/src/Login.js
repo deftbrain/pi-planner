@@ -13,7 +13,7 @@ export default ({theme}) => {
     <ThemeProvider theme={theme}>
       <MicrosoftLogin clientId={process.env.REACT_APP_MICROSOFT_OAUTH_CLIENT_ID}
                       tenantUrl={process.env.REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT}
-                      authCallback={authCallback}/>
+                      authCallback={authCallback} redirectUri={encodeURI(window.location.href)}/>
       <Notification/>
     </ThemeProvider>
   );

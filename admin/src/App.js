@@ -16,7 +16,7 @@ import LoginPage from './Login';
 
 const entrypoint = process.env.REACT_APP_API_ENTRYPOINT;
 const token = window.localStorage.getItem('token');
-const fetchHeaders = token ? {Authorization: `Bearer ${token.rawIdToken}`} : {};
+const fetchHeaders = token ? {Authorization: 'Bearer ' + token} : {};
 const fetchHydra = (url, options = {}) => baseFetchHydra(url, {
   ...options,
   headers: new Headers(fetchHeaders),
