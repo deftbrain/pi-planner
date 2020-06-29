@@ -1,0 +1,10 @@
+jose:
+    jku_factory:
+        enabled: true
+        client: httplug.client.jwt_authenticator
+        request_factory: nyholm.psr7.psr17_factory
+
+    key_sets:
+        microsoft:
+            jku:
+                url: '%microsoft.oauth.public_keys_url%'

@@ -2,6 +2,10 @@ httplug:
     plugins:
         retry:
             retry: 1
+        cache:
+            cache_pool: cache.app
+            config:
+                default_ttl: 1800
 
     discovery:
         client: auto
@@ -12,6 +16,10 @@ httplug:
             plugins:
                 - httplug.plugin.content_length
                 - httplug.plugin.redirect
+        jwt_authenticator:
+            factory: httplug.factory.auto
+            plugins: 
+                - httplug.plugin.cache
         version_one:
             plugins:
                 - authentication:

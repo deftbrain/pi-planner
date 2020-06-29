@@ -8,8 +8,9 @@
         "api-platform/api-pack": "^1.1",
         "doctrine/doctrine-migrations-bundle": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
+        "nyholm/psr7": "^1.3",
         "opsway/doctrine-dbal-postgresql": "^0.8.1",
-        "php-http/guzzle6-adapter": "^2.0",
+        "php-http/cache-plugin": "^1.7",
         "php-http/httplug-bundle": "^1.18",
         "symfony/console": "5.0.*",
         "symfony/dotenv": "5.0.*",
@@ -17,8 +18,11 @@
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "5.0.*",
         "symfony/mercure-bundle": "^0.2",
+        "symfony/security-bundle": "5.0.*",
         "symfony/validator": "5.0.*",
-        "symfony/yaml": "5.0.*"
+        "symfony/yaml": "5.0.*",
+        "web-token/jwt-bundle": "^2.1",
+        "web-token/jwt-easy": "^2.1"
     },
     "require-dev": {
         "api-platform/schema-generator": "^2.1",

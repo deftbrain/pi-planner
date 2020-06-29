@@ -33,6 +33,8 @@ CMD ["yarn", "start"]
 FROM api_platform_client_development AS api_platform_client_build
 
 ARG REACT_APP_API_ENTRYPOINT
+ARG REACT_APP_MICROSOFT_OAUTH_CLIENT_ID
+ARG REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT
 
 RUN set -eux; \
 	yarn build

@@ -8,14 +8,17 @@ import * as serviceWorker from './serviceWorker';
 import Welcome from './Welcome';
 import programincrementRoutes from './routes/programincrement';
 import {history, store} from './store';
+import PrivateRoute from './PrivateRoute';
+import Login from './Login';
 
 ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <Switch>
-        <Route path="/" component={Welcome} strict={true} exact={true}/>
+        <Route path="/login" component={Login}/>
+        <PrivateRoute path="/" component={Welcome} strict={true} exact={true}/>
         {programincrementRoutes}
-        <Route render={() => <h1>Not Found</h1>} />
+        <Route render={() => <h1>Not Found</h1>}/>
       </Switch>
     </ConnectedRouter>
   </Provider>,

@@ -1,13 +1,19 @@
-import {ENTRYPOINT} from '../config/entrypoint';
+import {ENTRYPOINT} from '../config/app';
 import {SubmissionError} from 'redux-form';
 import get from 'lodash/get';
 import has from 'lodash/has';
 import mapValues from 'lodash/mapValues';
+import {store} from '../store';
 
 const MIME_TYPE = 'application/ld+json';
 
+
 export function fetch(id, options = {}, searchParams) {
   if ('undefined' === typeof options.headers) options.headers = new Headers();
+
+  const token = store.getState().user.account.identity.token;
+  options.headers.set('Authorization', 'Bearer ' + token);
+
   if (null === options.headers.get('Accept'))
     options.headers.set('Accept', MIME_TYPE);
 

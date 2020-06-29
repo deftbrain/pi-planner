@@ -18,6 +18,12 @@ services:
       - VERSION_ONE_ACCESS_TOKEN=${VERSION_ONE_ACCESS_TOKEN:?}
       # Example: https://www2.v1host.com/CompanyName
       - VERSION_ONE_SERVER_BASE_URI=${VERSION_ONE_SERVER_BASE_URI:?}
+      # Example: 8265b5cf-b19b-492e-8c7d-a70ce72b6703
+      - MICROSOFT_OAUTH_CLIENT_ID=${MICROSOFT_OAUTH_CLIENT_ID:?}
+      # Example: eb80478c-899d-4783-950d-73b2391d9c7b
+      - MICROSOFT_OAUTH_TENANT_ID=${MICROSOFT_OAUTH_TENANT_ID:?}
+      # Example: https://login.microsoftonline.com/common/discovery/keys
+      - MICROSOFT_OAUTH_PUBLIC_KEYS_URL=${MICROSOFT_OAUTH_PUBLIC_KEYS_URL:?}
     healthcheck:
       interval: 10s
       timeout: 3s

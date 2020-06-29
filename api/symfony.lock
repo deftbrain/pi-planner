@@ -113,6 +113,9 @@
     "easyrdf/easyrdf": {
         "version": "0.9.1"
     },
+    "fgrosse/phpasn1": {
+        "version": "v2.1.1"
+    },
     "fig/link-util": {
         "version": "1.1.0"
     },
@@ -129,7 +132,7 @@
         ]
     },
     "guzzlehttp/guzzle": {
-        "version": "6.5.2"
+        "version": "6.5.5"
     },
     "guzzlehttp/promises": {
         "version": "v1.3.1"
@@ -164,6 +167,18 @@
     "nikic/php-parser": {
         "version": "v4.3.0"
     },
+    "nyholm/psr7": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "7c0a9352a57376f04f5444e74565102c3a23d0c7"
+        },
+        "files": [
+            "config/packages/nyholm_psr7.yaml"
+        ]
+    },
     "ocramius/package-versions": {
         "version": "1.7.0"
     },
@@ -179,14 +194,14 @@
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
     },
+    "php-http/cache-plugin": {
+        "version": "1.7.0"
+    },
     "php-http/client-common": {
         "version": "2.1.0"
     },
     "php-http/discovery": {
         "version": "1.7.4"
-    },
-    "php-http/guzzle6-adapter": {
-        "version": "v2.0.1"
     },
     "php-http/httplug": {
         "version": "2.1.0"
@@ -239,6 +254,9 @@
     "psr/http-client": {
         "version": "1.0.0"
     },
+    "psr/http-factory": {
+        "version": "1.0.1"
+    },
     "psr/http-message": {
         "version": "1.0.1"
     },
@@ -250,6 +268,12 @@
     },
     "ralouphie/getallheaders": {
         "version": "3.0.3"
+    },
+    "spomky-labs/aes-key-wrap": {
+        "version": "v5.0.0"
+    },
+    "spomky-labs/base64url": {
+        "version": "v2.0.1"
     },
     "symfony/asset": {
         "version": "v5.0.7"
@@ -515,6 +539,15 @@
     },
     "twig/twig": {
         "version": "v3.0.3"
+    },
+    "web-token/jwt-bundle": {
+        "version": "v2.1.7"
+    },
+    "web-token/jwt-easy": {
+        "version": "v2.1.7"
+    },
+    "web-token/jwt-framework": {
+        "version": "v2.1.8"
     },
     "webimpress/safe-writer": {
         "version": "2.0.1"

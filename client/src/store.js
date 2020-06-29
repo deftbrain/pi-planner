@@ -11,6 +11,7 @@ import team from './reducers/team/';
 import sprint from './reducers/sprint/';
 import epic from './reducers/epic/';
 import workitem from './reducers/workitem/';
+import user from './reducers/user';
 
 const history = createBrowserHistory();
 const store = createStore(
@@ -24,6 +25,7 @@ const store = createStore(
     sprint,
     epic,
     workitem,
+    user,
   }),
   applyMiddleware(routerMiddleware(history), thunk)
 );
