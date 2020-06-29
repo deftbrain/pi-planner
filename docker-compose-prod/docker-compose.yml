@@ -28,8 +28,10 @@ services:
     restart: always
     depends_on:
       - api
+      - letsencrypt
     environment:
       - VIRTUAL_HOST=${API_HOST:?API_HOST is not set or empty}
+      - LETSENCRYPT_HOST=${API_HOST:?API_HOST is not set or empty}
     tmpfs:
       - /usr/local/var/varnish:exec
 
@@ -55,6 +57,9 @@ services:
       - CORS_ALLOWED_ORIGINS=${MERCURE_CORS_ALLOWED_ORIGINS:?MERCURE_CORS_ALLOWED_ORIGINS is not set or empty}
       - JWT_KEY=${MERCURE_JWT_KEY:?MERCURE_JWT_KEY is not set or empty}
       - VIRTUAL_HOST=${MERCURE_HOST:?MERCURE_HOST is not set or empty}
+      - LETSENCRYPT_HOST=${MERCURE_HOST:?MERCURE_HOST is not set or empty}
+    depends_on:
+      - letsencrypt
 
   client:
     # in production, we may want to use a static website hosting service
@@ -63,6 +68,9 @@ services:
     restart: always
     environment:
       - VIRTUAL_HOST=${CLIENT_HOST:?CLIENT_HOST is not set or empty}
+      - LETSENCRYPT_HOST=${CLIENT_HOST:?CLIENT_HOST is not set or empty}
+    depends_on:
+      - letsencrypt
 
   admin:
     # in production, we may want to use a static website hosting service
@@ -71,6 +79,9 @@ services:
     restart: always
     environment:
       - VIRTUAL_HOST=${ADMIN_HOST:?ADMIN_HOST is not set or empty}
+      - LETSENCRYPT_HOST=${ADMIN_HOST:?ADMIN_HOST is not set or empty}
+    depends_on:
+      - letsencrypt
 
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
@@ -85,4 +96,20 @@ services:
     volumes:
       - ./docker/nginx-proxy/certs:/etc/nginx/certs:ro
       - ./docker/nginx-proxy/vhost.d:/etc/nginx/vhost.d:ro
+      - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    environment:
+      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL:?LETSENCRYPT_EMAIL is not set or empty}
+    depends_on:
+      - nginx-proxy
+    volumes:
+      - ./docker/nginx-proxy/certs:/etc/nginx/certs
+      - ./docker/nginx-proxy/vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  html:
