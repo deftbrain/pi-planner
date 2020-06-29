@@ -41,6 +41,8 @@ services:
       target: api_platform_client_nginx
       args:
         - REACT_APP_API_ENTRYPOINT=${REACT_APP_API_ENTRYPOINT:?REACT_APP_API_ENTRYPOINT is not set or empty}
+        - REACT_APP_MICROSOFT_OAUTH_CLIENT_ID=${REACT_APP_MICROSOFT_OAUTH_CLIENT_ID:?REACT_APP_MICROSOFT_OAUTH_CLIENT_ID is not set or empty}
+        - REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT=${REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT:?REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT is not set or empty}
       cache_from:
         - ${CLIENT_IMAGE:?CLIENT_IMAGE is not set or empty}
     image: ${CLIENT_IMAGE:?CLIENT_IMAGE is not set or empty}
@@ -53,6 +55,8 @@ services:
       target: api_platform_admin_nginx
       args:
         - REACT_APP_API_ENTRYPOINT=${REACT_APP_API_ENTRYPOINT:?REACT_APP_API_ENTRYPOINT is not set or empty}
+        - REACT_APP_MICROSOFT_OAUTH_CLIENT_ID=${REACT_APP_MICROSOFT_OAUTH_CLIENT_ID:?REACT_APP_MICROSOFT_OAUTH_CLIENT_ID is not set or empty}
+        - REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT=${REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT:?REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT is not set or empty}
       cache_from:
         - ${ADMIN_IMAGE:?ADMIN_IMAGE is not set or empty}
     image: ${ADMIN_IMAGE:?ADMIN_IMAGE is not set or empty}
