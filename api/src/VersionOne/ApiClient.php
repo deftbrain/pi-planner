@@ -51,15 +51,14 @@ class ApiClient
         $body = json_encode($query);
         $request = $this->requestFactory->createRequest('POST', '', [], $body);
         $response = $this->httpClient->sendRequest($request);
-        $contents = $response->getBody()->getContents();
-        $contents = json_decode($contents, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException(json_last_error_msg(), json_last_error());
+        if ($response->getStatusCode() !== 200) {
+            throw new \RuntimeException($response->getReasonPhrase(), $response->getStatusCode());
         }
 
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException($contents['Exceptions'][0], $response->getStatusCode());
+        $contents = $response->getBody()->getContents();
+        $contents = json_decode($contents, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
         if ($contents['commandFailures']['count']) {

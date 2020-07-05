@@ -4,8 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    router.request_context.scheme: https
-    router.request_context.host: localhost:8443
+    router.request_context.scheme: '%env(ROUTER_REQUEST_CONTEXT_SCHEME)%'
+    router.request_context.host: '%env(ROUTER_REQUEST_CONTEXT_HOST)%'
     version_one.access_token: '%env(VERSION_ONE_ACCESS_TOKEN)%'
     version_one.server_base_uri: '%env(VERSION_ONE_SERVER_BASE_URI)%'
     version_one.api_asset: '%version_one.server_base_uri%/api/asset'

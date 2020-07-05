@@ -1,0 +1,90 @@
+version: '3.4'
+
+x-react-app-env-vars: &react-app-env-vars
+  REACT_APP_API_ENTRYPOINT: ${API_ENTRYPOINT:?}
+  REACT_APP_MICROSOFT_OAUTH_CLIENT_ID: ${MICROSOFT_OAUTH_CLIENT_ID:?}
+  REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT: ${MICROSOFT_OAUTH_TENANT_ENDPOINT:?}
+
+services:
+  php:
+    environment:
+      XDEBUG_CONFIG: >-
+        remote_enable=1
+        remote_host=host.docker.internal
+      PHP_IDE_CONFIG: serverName=api-platform
+    depends_on:
+      - dev-tls
+    volumes:
+      - ./api:/srv/api:rw,cached
+      - ./api/docker/php/conf.d/api-platform.dev.ini:/usr/local/etc/php/conf.d/api-platform.ini
+      - dev-certs:/certs:ro,nocopy
+  api:
+    volumes:
+      - ./api/public:/srv/api/public:ro
+
+  db:
+    ports:
+      - 5432:5432
+
+  admin:
+    environment: *react-app-env-vars
+    depends_on:
+      - dev-tls
+    volumes:
+      - ./admin:/usr/src/admin:rw,cached
+      - dev-certs:/usr/src/admin/node_modules/webpack-dev-server/ssl:ro,nocopy
+    tty: true # https://github.com/facebook/create-react-app/issues/8688
+    ports:
+      - 444:3000
+
+  client:
+    environment:
+      <<: *react-app-env-vars
+      API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT: http://api
+      API_PLATFORM_CLIENT_GENERATOR_OUTPUT: src
+    depends_on:
+      - dev-tls
+    volumes:
+      - ./client:/usr/src/client:rw,cached
+      - dev-certs:/usr/src/client/node_modules/webpack-dev-server/ssl:ro,nocopy
+    tty: true # https://github.com/facebook/create-react-app/issues/8688
+    ports:
+      - 443:3000
+
+  mercure:
+    image: dunglas/mercure
+    environment:
+      DEMO: 1
+      CERT_FILE: /certs/localhost.crt
+      KEY_FILE: /certs/localhost.key
+    depends_on:
+      - dev-tls
+    volumes:
+      - dev-certs:/certs:ro,nocopy
+    ports:
+      - 1337:443
+
+  vulcain:
+    image: dunglas/vulcain
+    environment:
+      CERT_FILE: /certs/localhost.crt
+      KEY_FILE: /certs/localhost.key
+      UPSTREAM: http://api
+    depends_on:
+      - api
+      - dev-tls
+    volumes:
+      - dev-certs:/certs:ro,nocopy
+    ports:
+      - 8443:443
+
+  dev-tls:
+    build:
+      context: ./docker/dev-tls
+    volumes:
+      - dev-certs:/certs:rw
+    ports:
+      - 80:80
+
+volumes:
+  dev-certs:

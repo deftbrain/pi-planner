@@ -84,17 +84,15 @@ WORKDIR /srv/api
 
 # build for production
 ARG APP_ENV=prod
+ARG DATABASE_URL
+ARG ROUTER_REQUEST_CONTEXT_SCHEME
+ARG ROUTER_REQUEST_CONTEXT_HOST
 
 # prevent the reinstallation of vendors at every changes in the source code
 COPY composer.json composer.lock symfony.lock ./
 RUN set -eux; \
 	composer install --prefer-dist --no-dev --no-scripts --no-progress --no-suggest; \
 	composer clear-cache
-
-# do not use .env files in production
-COPY .env ./
-RUN composer dump-env prod; \
-	rm .env
 
 # copy only specifically what we need
 COPY bin bin/
@@ -112,7 +110,7 @@ VOLUME /srv/api/var
 COPY docker/php/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
 RUN chmod +x /usr/local/bin/docker-healthcheck
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
+HEALTHCHECK --start-period=30s --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
@@ -121,7 +119,7 @@ ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
 
-FROM api_platform_php as api_platform_php_dev
+FROM api_platform_php as api_platform_php_development
 
 ARG XDEBUG_VERSION=2.9.2
 RUN set -eux; \
