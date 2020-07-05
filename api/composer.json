@@ -21,8 +21,7 @@
         "symfony/security-bundle": "5.0.*",
         "symfony/validator": "5.0.*",
         "symfony/yaml": "5.0.*",
-        "web-token/jwt-bundle": "^2.1",
-        "web-token/jwt-easy": "^2.1"
+        "web-token/jwt-bundle": "^2.1"
     },
     "require-dev": {
         "api-platform/schema-generator": "^2.1",

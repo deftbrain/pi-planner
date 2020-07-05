@@ -543,9 +543,6 @@
     "web-token/jwt-bundle": {
         "version": "v2.1.7"
     },
-    "web-token/jwt-easy": {
-        "version": "v2.1.7"
-    },
     "web-token/jwt-framework": {
         "version": "v2.1.8"
     },
