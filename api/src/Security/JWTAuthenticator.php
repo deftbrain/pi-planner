@@ -2,12 +2,14 @@
 
 namespace App\Security;
 
+use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Core\JWKSet;
 use Jose\Easy\Load;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -16,7 +18,7 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class JWTAuthenticator extends AbstractGuardAuthenticator
 {
-    private const TOKEN_PREFIX = 'Bearer ';
+    private const AUTHENTICATION_SCHEME = 'Bearer';
     private const HEADER_AUTHORIZATION = 'Authorization';
 
     /**
@@ -59,14 +61,18 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
             return null;
         }
 
-        $jwt = Load::jws($credentials)
-            ->alg('RS256')
-            ->nbf()
-            ->exp()
-            ->aud($this->params->get('microsoft.oauth.client_id'))
-            ->claim('tid', $this->params->get('microsoft.oauth.tenant_id'))
-            ->keyset($this->jwkSet)
-            ->run();
+        try {
+            $jwt = Load::jws($credentials)
+                ->alg('RS256')
+                ->nbf()
+                ->exp()
+                ->aud($this->params->get('microsoft.oauth.client_id'))
+                ->claim('tid', $this->params->get('microsoft.oauth.tenant_id'))
+                ->keyset($this->jwkSet)
+                ->run();
+        } catch (InvalidClaimException $exception) {
+            throw new UnauthorizedHttpException(self::AUTHENTICATION_SCHEME, $exception->getMessage());
+        }
 
         return (new User)->setEmail($jwt->claims->get('email'));
     }
@@ -93,6 +99,11 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
 
     private function getJWT(Request $request): ?string
     {
-        return substr($request->headers->get(self::HEADER_AUTHORIZATION), strlen(self::TOKEN_PREFIX)) ?: null;
+        $authHeaderComponents = explode(' ', trim($request->headers->get(self::HEADER_AUTHORIZATION)), 2);
+        if (count($authHeaderComponents) != 2 || $authHeaderComponents[0] !== self::AUTHENTICATION_SCHEME) {
+            return null;
+        }
+
+        return $authHeaderComponents[1];
     }
 }
