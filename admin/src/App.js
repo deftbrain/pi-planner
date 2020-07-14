@@ -11,12 +11,11 @@ import {WorkitemList} from './resource/WorkitemList';
 import {ProgramIncrementList} from './resource/ProgramIncrementList';
 import {ProgramIncrementCreate} from './resource/ProgramIncremenCreate';
 import {ProgramIncrementEdit} from './resource/ProgramIncremenEdit';
-import authProvider from './authProvider';
+import authProvider, {AUTHENTICATION_SCHEME, getToken, isTokenValid} from './authProvider';
 import LoginPage from './Login';
 
 const entrypoint = process.env.REACT_APP_API_ENTRYPOINT;
-const token = window.localStorage.getItem('token');
-const fetchHeaders = token ? {Authorization: 'Bearer ' + token} : {};
+const fetchHeaders = isTokenValid() ? {Authorization: [AUTHENTICATION_SCHEME, getToken()].join(' ')} : {};
 const fetchHydra = (url, options = {}) => baseFetchHydra(url, {
   ...options,
   headers: new Headers(fetchHeaders),
@@ -31,7 +30,7 @@ const apiDocumentationParser = entrypoint => parseHydraDocumentation(entrypoint,
             api: result.api,
             customRoutes: [
               <Route path="/" render={() => {
-                return window.localStorage.getItem('token') ? window.location.reload() : <Redirect to="/login"/>
+                return isTokenValid() ? window.location.reload() : <Redirect to="/login"/>;
               }}/>
             ],
           });
