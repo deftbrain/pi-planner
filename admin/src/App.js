@@ -3,11 +3,10 @@ import {Redirect, Route} from 'react-router-dom';
 import {
   fetchHydra as baseFetchHydra,
   HydraAdmin,
-  hydraDataProvider as baseHydraDataProvider,
-  ResourceGuesser
+  hydraDataProvider as baseHydraDataProvider
 } from '@api-platform/admin';
+import {Resource} from 'react-admin';
 import parseHydraDocumentation from "@api-platform/api-doc-parser/lib/hydra/parseHydraDocumentation";
-import {WorkitemList} from './resource/WorkitemList';
 import {ProgramIncrementList} from './resource/ProgramIncrementList';
 import {ProgramIncrementCreate} from './resource/ProgramIncremenCreate';
 import {ProgramIncrementEdit} from './resource/ProgramIncremenEdit';
@@ -44,15 +43,15 @@ const dataProvider = baseHydraDataProvider(entrypoint, fetchHydra, apiDocumentat
 export default () => (
   <HydraAdmin entrypoint={entrypoint} dataProvider={dataProvider} authProvider={authProvider}
               loginPage={LoginPage}>
-    <ResourceGuesser name="backlog_groups"/>
-    <ResourceGuesser name="epics"/>
-    <ResourceGuesser name="epic_statuses"/>
-    <ResourceGuesser name="program_increments" list={ProgramIncrementList} create={ProgramIncrementCreate}
-                     edit={ProgramIncrementEdit}/>
-    <ResourceGuesser name="projects"/>
-    <ResourceGuesser name="sprints"/>
-    <ResourceGuesser name="sprint_schedules"/>
-    <ResourceGuesser name="teams"/>
-    <ResourceGuesser name="workitems" list={WorkitemList}/>
+    <Resource name="program_increments" list={ProgramIncrementList} create={ProgramIncrementCreate}
+              edit={ProgramIncrementEdit}/>
+    <Resource name="backlog_groups"/>
+    <Resource name="epics"/>
+    <Resource name="epic_statuses"/>
+    <Resource name="projects"/>
+    <Resource name="sprints"/>
+    <Resource name="sprint_schedules"/>
+    <Resource name="teams"/>
+    <Resource name="workitems"/>
   </HydraAdmin>
 );
