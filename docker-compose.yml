@@ -14,7 +14,7 @@ services:
       ROUTER_REQUEST_CONTEXT_SCHEME: ${ROUTER_REQUEST_CONTEXT_SCHEME:?}
       ROUTER_REQUEST_CONTEXT_HOST: ${ROUTER_REQUEST_CONTEXT_HOST:?}
       MERCURE_JWT_TOKEN: ${MERCURE_JWT_TOKEN:?}
-      MERCURE_PUBLISH_URL: http://mercure/.well-known/mercure
+      MERCURE_PUBLISH_URL: https://mercure/.well-known/mercure
       MERCURE_SUBSCRIBE_URL: ${MERCURE_SUBSCRIBE_URL:?}
       VERSION_ONE_ACCESS_TOKEN: ${VERSION_ONE_ACCESS_TOKEN:?}
       # Example: https://www2.v1host.com/CompanyName
