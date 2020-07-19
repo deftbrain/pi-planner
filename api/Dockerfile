@@ -112,6 +112,8 @@ RUN chmod +x /usr/local/bin/docker-healthcheck
 
 HEALTHCHECK --start-period=30s --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 
+RUN echo '* * * * * /srv/api/bin/scheduler >> /srv/api/var/log/scheduler.log 2>&1' | crontab -
+
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 

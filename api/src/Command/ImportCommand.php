@@ -13,13 +13,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ImportCommand extends Command
 {
+    public const NAME = 'app:import-v1-assets';
     private const OPTION_IGNORE_DEPENDENCIES = 'ignore-dependencies';
     private const ARGUMENT_ASSET_TYPE = 'asset-type';
 
     /**
      * @inheritDoc
      */
-    protected static $defaultName = 'app:import-v1-assets';
+    protected static $defaultName = self::NAME;
 
     /**
      * @var SymfonyStyle
