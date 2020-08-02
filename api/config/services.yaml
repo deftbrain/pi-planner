@@ -49,6 +49,17 @@ services:
               event: preUpdate
               entity: App\Entity\AbstractEntity
 
+    App\Entity\Listener\ProgramIncrementEntityListener:
+        tags:
+            - name: doctrine.orm.entity_listener
+              event: postPersist
+              method: importEntities
+              entity: App\Entity\ProgramIncrement
+            - name: doctrine.orm.entity_listener
+              event: postUpdate
+              method: importEntities
+              entity: App\Entity\ProgramIncrement
+
     App\ServerSentEvent\EstimateChangesListener:
         tags:
             - name: doctrine.event_listener

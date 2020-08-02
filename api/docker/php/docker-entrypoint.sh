@@ -36,6 +36,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	fi
 
 	bin/console app:import-v1-assets
+	bin/console messenger:consume -vv >> var/log/messenger.log 2>&1 &
 
 	crond -L $PWD/var/log/crond.log
 fi
