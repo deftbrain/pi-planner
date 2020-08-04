@@ -15,21 +15,16 @@ RUN apk add --no-cache \
 WORKDIR /certs
 
 ARG MKCERT_VERSION=1.4.1
+ARG COMMON_HOST
+ARG CERT_FILE=${COMMON_HOST}.crt
+ARG KEY_FILE=${COMMON_HOST}.key
 RUN set -eux; \
 	wget -O /usr/local/bin/mkcert https://github.com/FiloSottile/mkcert/releases/download/v$MKCERT_VERSION/mkcert-v$MKCERT_VERSION-linux-amd64; \
 	chmod +x /usr/local/bin/mkcert; \
-	mkcert --cert-file localhost.crt --key-file localhost.key localhost 127.0.0.1 ::1 mercure; \
+	mkcert --cert-file $CERT_FILE --key-file $KEY_FILE ${COMMON_HOST} "api.${COMMON_HOST}" "mercure.${COMMON_HOST}" "admin.${COMMON_HOST}"; \
 	# the file must be named server.pem - the default certificate path in webpack-dev-server
-	cat localhost.key localhost.crt > server.pem; \
+	cat $KEY_FILE $CERT_FILE > server.pem; \
 	# export the root CA cert, but not the root CA key
 	cp "$(mkcert -CAROOT)/rootCA.pem" /certs/localCA.crt
 
 VOLUME /certs
-
-# add redirect from http://localhost to https://localhost
-RUN set -eux; \
-	{ \
-		echo 'server {'; \
-		echo '    return 301 https://$host$request_uri;'; \
-		echo '}'; \
-	} | tee /etc/nginx/conf.d/default.conf

@@ -5,9 +5,6 @@
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG PHP_VERSION=7.4
-ARG OPENRESTY_VERSION=1.15.8.3
-ARG VARNISH_VERSION=6.3
-
 
 # "php" stage
 FROM php:${PHP_VERSION}-fpm-alpine AS api_platform_php
@@ -62,6 +59,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
 COPY docker/php/conf.d/api-platform.prod.ini $PHP_INI_DIR/conf.d/api-platform.ini
+COPY docker/nginx/vhost.d/_location.dist /etc/nginx/vhost.d/_location.dist
 
 RUN set -eux; \
 	{ \
@@ -86,7 +84,7 @@ WORKDIR /srv/api
 ARG APP_ENV=prod
 ARG DATABASE_URL
 ARG ROUTER_REQUEST_CONTEXT_SCHEME
-ARG ROUTER_REQUEST_CONTEXT_HOST
+ARG API_HOST
 
 # prevent the reinstallation of vendors at every changes in the source code
 COPY composer.json composer.lock symfony.lock ./
@@ -129,25 +127,3 @@ RUN set -eux; \
 	pecl install xdebug-$XDEBUG_VERSION; \
 	docker-php-ext-enable xdebug; \
 	apk del .build-deps
-
-
-# "nginx" stage
-# depends on the "php" stage above
-# The OpenResty distribution of NGINX is only needed for Kubernetes compatiblity (dynamic upstream resolution)
-FROM openresty/openresty:${OPENRESTY_VERSION}-alpine AS api_platform_nginx
-
-RUN echo -e "env UPSTREAM;\n$(cat /usr/local/openresty/nginx/conf/nginx.conf)" > /usr/local/openresty/nginx/conf/nginx.conf
-COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
-
-WORKDIR /srv/api/public
-
-COPY --from=api_platform_php /srv/api/public ./
-
-
-# "varnish" stage
-# does not depend on any of the above stages, but placed here to keep everything in one Dockerfile
-FROM varnish:${VARNISH_VERSION} AS api_platform_varnish
-
-COPY docker/varnish/conf/default.vcl /etc/varnish/default.vcl
-
-CMD ["varnishd", "-F", "-f", "/etc/varnish/default.vcl", "-p", "http_resp_hdr_len=65536", "-p", "http_resp_size=98304"]

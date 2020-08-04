@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource(mercure=true)
+ * @ApiResource(mercure={"private": true})
  * @ApiFilter(SearchFilter::class, properties={"epic": "exact", "isDeleted": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\WorkitemRepository")
  */

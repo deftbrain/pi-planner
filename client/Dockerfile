@@ -23,8 +23,7 @@ COPY . ./
 
 VOLUME /usr/src/client/node_modules
 
-ENV HTTPS true
-
+EXPOSE 3000
 CMD ["yarn", "start"]
 
 

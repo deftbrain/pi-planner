@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
  *             "controller": GetProgramIncrementEstimates::class
  *         }
  *     },
- *     mercure=true
+ *     mercure={"private": true}
  * )
  * @ORM\Entity(repositoryClass="App\Repository\ProgramIncrementRepository")
  */

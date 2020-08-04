@@ -9,6 +9,7 @@ const MIME_TYPE = 'application/ld+json';
 
 
 export function fetch(id, options = {}, searchParams) {
+  options.credentials = 'include';
   if ('undefined' === typeof options.headers) options.headers = new Headers();
 
   const token = store.getState().user.account.identity.token;
@@ -74,7 +75,7 @@ export function mercureSubscribe(url, topics) {
     url.searchParams.append('topic', decodeURIComponent(new URL(topic, ENTRYPOINT)))
   );
 
-  return new EventSource(url.toString());
+  return new EventSource(url.toString(), {withCredentials: true});
 }
 
 export function normalize(data) {

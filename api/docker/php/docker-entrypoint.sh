@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -eu
 
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
@@ -12,6 +12,8 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 		PHP_INI_RECOMMENDED="$PHP_INI_DIR/php.ini-development"
 	fi
 	ln -sf "$PHP_INI_RECOMMENDED" "$PHP_INI_DIR/php.ini"
+
+	ln -sf /etc/nginx/vhost.d/_location.dist /etc/nginx/vhost.d/${API_HOST}_location
 
 	mkdir -p var/cache var/log
 	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX var

@@ -5,7 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     router.request_context.scheme: '%env(ROUTER_REQUEST_CONTEXT_SCHEME)%'
-    router.request_context.host: '%env(ROUTER_REQUEST_CONTEXT_HOST)%'
+    router.request_context.host: '%env(API_HOST)%'
     version_one.access_token: '%env(VERSION_ONE_ACCESS_TOKEN)%'
     version_one.server_base_uri: '%env(VERSION_ONE_SERVER_BASE_URI)%'
     version_one.api_asset: '%version_one.server_base_uri%/api/asset'
@@ -14,6 +14,7 @@ parameters:
     microsoft.oauth.client_id: '%env(MICROSOFT_OAUTH_CLIENT_ID)%'
     microsoft.oauth.tenant_id: '%env(MICROSOFT_OAUTH_TENANT_ID)%'
     microsoft.oauth.public_keys_url: '%env(MICROSOFT_OAUTH_PUBLIC_KEYS_URL)%'
+    mercure.jwt_secret: '%env(MERCURE_JWT_SECRET)%'
 
 services:
     # default configuration for services in *this* file
@@ -68,3 +69,10 @@ services:
     App\Security\JWTAuthenticator:
         arguments:
             Jose\Component\Core\JWKSet: '@jose.key_set.microsoft'
+            
+    App\Mercure\JWTProvider:
+        arguments: ['%mercure.jwt_secret%'] 
+        
+    App\Mercure\AuthorizationCookieProvider:
+        arguments: 
+            $commonHost: '%env(COMMON_HOST)%'

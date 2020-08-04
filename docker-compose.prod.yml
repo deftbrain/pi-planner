@@ -1,55 +1,20 @@
 version: '3.4'
 
 services:
-  php:
-    restart: always
-    environment:
-      VARNISH_URL: ${VARNISH_URL:?}
-
   api:
     restart: always
-
-  cache-proxy:
-    restart: always
-    image: ${VARNISH_IMAGE:?}
     environment:
-      VIRTUAL_HOST: ${API_HOST:?}
       LETSENCRYPT_HOST: ${API_HOST:?}
-    depends_on:
-      - api
-      - letsencrypt
-    tmpfs:
-      - /usr/local/var/varnish:exec
-
-  nginx-proxy:
-    image: jwilder/nginx-proxy:alpine
-    labels:
-      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
-    restart: always
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - certs:/etc/nginx/certs:ro
-      - vhostd:/etc/nginx/vhost.d:ro
-      - html:/usr/share/nginx/html:ro
-      - /var/run/docker.sock:/tmp/docker.sock:ro
 
   client:
     restart: always
     environment:
-      VIRTUAL_HOST: ${CLIENT_HOST:?}
       LETSENCRYPT_HOST: ${CLIENT_HOST:?}
-    depends_on:
-      - letsencrypt
 
   admin:
     restart: always
     environment:
-      VIRTUAL_HOST: ${ADMIN_HOST:?}
       LETSENCRYPT_HOST: ${ADMIN_HOST:?}
-    depends_on:
-      - letsencrypt
 
   db:
     restart: always
@@ -57,12 +22,17 @@ services:
   mercure:
     restart: always
     environment:
-      VIRTUAL_HOST: ${MERCURE_HOST:?}
-      ACME_HOSTS: ${MERCURE_HOST:?}
-    depends_on:
-      - letsencrypt
+      LETSENCRYPT_HOST: ${MERCURE_HOST:?}
+
+  nginx-proxy:
+    restart: always
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    volumes:
+      - html:/usr/share/nginx/html:ro
 
   letsencrypt:
+    restart: always
     image: jrcs/letsencrypt-nginx-proxy-companion
     environment:
       DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL:?}
@@ -70,11 +40,10 @@ services:
       - nginx-proxy
     volumes:
       - certs:/etc/nginx/certs
-      - vhostd:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
+      - vhostd:/etc/nginx/vhost.d
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
 volumes:
-  certs:
   html:
-  vhostd:
+

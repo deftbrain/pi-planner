@@ -5,39 +5,17 @@ x-react-app-env-vars: &react-app-env-vars
   REACT_APP_MICROSOFT_OAUTH_CLIENT_ID: ${MICROSOFT_OAUTH_CLIENT_ID:?}
   REACT_APP_MICROSOFT_OAUTH_TENANT_ENDPOINT: ${MICROSOFT_OAUTH_TENANT_ENDPOINT:?}
 
-x-api-build-cache-from: &api-build-cache-from
-  cache_from:
-    - ${NGINX_IMAGE:?}
-    - ${PHP_IMAGE:?}
-    - ${VARNISH_IMAGE:?}
-
-x-api-build-args: &api-build-args
-  args:
-    DATABASE_URL: ${DATABASE_URL:?}
-    ROUTER_REQUEST_CONTEXT_SCHEME: ${ROUTER_REQUEST_CONTEXT_SCHEME:?}
-    ROUTER_REQUEST_CONTEXT_HOST: ${ROUTER_REQUEST_CONTEXT_HOST:?}
-
 services:
-  php:
-    build:
-      context: ./api
-      target: ${PHP_IMAGE_TARGET:?}
-      <<: *api-build-args
-      <<: *api-build-cache-from
-
   api:
     build:
       context: ./api
-      target: api_platform_nginx
-      <<: *api-build-args
-      <<: *api-build-cache-from
-
-  cache-proxy:
-    build:
-      context: ./api
-      target: api_platform_varnish
-      <<: *api-build-args
-      <<: *api-build-cache-from
+      target: ${PHP_IMAGE_TARGET:?}
+      cache_from:
+        - ${PHP_IMAGE:?}
+      args:
+        DATABASE_URL: ${DATABASE_URL:?}
+        ROUTER_REQUEST_CONTEXT_SCHEME: ${ROUTER_REQUEST_CONTEXT_SCHEME:?}
+        API_HOST: ${API_HOST:?}
 
   client:
     build:
