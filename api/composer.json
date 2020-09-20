@@ -1,7 +1,7 @@
 {
     "license": "MIT",
     "require": {
-        "php": "^7.2.5",
+        "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
@@ -13,16 +13,17 @@
         "peppeocchi/php-cron-scheduler": "^3.0",
         "php-http/cache-plugin": "^1.7",
         "php-http/httplug-bundle": "^1.18",
-        "symfony/console": "5.0.*",
-        "symfony/event-dispatcher": "5.0.*",
+        "symfony/console": "^5.1",
+        "symfony/dependency-injection": "^5.1.5",
+        "symfony/event-dispatcher": "^5.1",
         "symfony/flex": "^1.1",
-        "symfony/framework-bundle": "5.0.*",
+        "symfony/framework-bundle": "^5.1",
         "symfony/mercure-bundle": "^0.2",
-        "symfony/messenger": "5.0.*",
-        "symfony/security-bundle": "5.0.*",
-        "symfony/validator": "5.0.*",
-        "symfony/web-link": "5.0.*",
-        "symfony/yaml": "5.0.*",
+        "symfony/messenger": "^5.1",
+        "symfony/security-bundle": "^5.1",
+        "symfony/validator": "^5.1",
+        "symfony/web-link": "^5.1",
+        "symfony/yaml": "^5.1",
         "web-token/jwt-bundle": "^2.1"
     },
     "require-dev": {
@@ -72,7 +73,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "5.0.*"
+            "require": "^5.1"
         }
     }
 }

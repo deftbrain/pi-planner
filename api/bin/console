@@ -27,8 +27,6 @@ if ($input->hasParameterOption('--no-debug', true)) {
     putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
 }
 
-require dirname(__DIR__).'/vendor/autoload.php';
-
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
 

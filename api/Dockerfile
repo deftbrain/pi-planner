@@ -83,8 +83,8 @@ WORKDIR /srv/api
 # build for production
 ARG APP_ENV=prod
 ARG DATABASE_URL
-ARG ROUTER_REQUEST_CONTEXT_SCHEME
 ARG API_HOST
+ARG API_SCHEME
 
 # prevent the reinstallation of vendors at every changes in the source code
 COPY composer.json composer.lock symfony.lock ./
