@@ -7,7 +7,12 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            logout:
+                path: logout
+                success_handler: App\Security\LogoutSuccessHandler 
             stateless: true
             guard:
                 authenticators:
-                    - App\Security\JWTAuthenticator
+                    - App\Security\CookieJWTAuthenticator
+                    - App\Security\HeaderJWTAuthenticator
+                entry_point: App\Security\CookieJWTAuthenticator

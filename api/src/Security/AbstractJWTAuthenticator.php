@@ -4,6 +4,7 @@ namespace App\Security;
 
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Core\JWKSet;
+use Jose\Easy\JWT;
 use Jose\Easy\Load;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,10 +17,17 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-class JWTAuthenticator extends AbstractGuardAuthenticator
+abstract class AbstractJWTAuthenticator extends AbstractGuardAuthenticator
 {
-    private const AUTHENTICATION_SCHEME = 'Bearer';
-    private const HEADER_AUTHORIZATION = 'Authorization';
+    /**
+     * @var AuthenticationCookieProvider
+     */
+    protected $authCookieProvider;
+
+    /**
+     * @var string
+     */
+    protected $commonHost;
 
     /**
      * @var ParameterBagInterface
@@ -31,38 +39,44 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      */
     private $jwkSet;
 
-    public function __construct(ParameterBagInterface $params, JWKSet $jwkSet)
-    {
+    public function __construct(
+        AuthenticationCookieProvider $authCookieProvider,
+        ParameterBagInterface $params,
+        JWKSet $jwkSet
+    ) {
+        $this->authCookieProvider = $authCookieProvider;
         $this->params = $params;
         $this->jwkSet = $jwkSet;
     }
 
+    abstract protected function getAuthenticationScheme(): string;
+
+    abstract protected function getJwt(Request $request): ?string;
+
     public function start(Request $request, AuthenticationException $authException = null)
     {
         return new JsonResponse(
-            ['message' => $authException ? $authException->getMessage() : 'Authorization via JWT is required'],
+            ['message' => $authException ? $authException->getMessage() : 'Authorization using a JWT is required'],
             Response::HTTP_UNAUTHORIZED
         );
     }
 
     public function supports(Request $request)
     {
-        return (bool) $this->getJWT($request);
+        return (bool) $this->getJwt($request);
     }
 
+    /**
+     * @return array [
+     *     'jwt' => string,
+     *     'decodedJwt' => JWT
+     * ]
+     */
     public function getCredentials(Request $request)
     {
-        return $this->getJWT($request);
-    }
-
-    public function getUser($credentials, UserProviderInterface $userProvider)
-    {
-        if (!$credentials) {
-            return null;
-        }
-
         try {
-            $jwt = Load::jws($credentials)
+            $jwt = $this->getJwt($request);
+            $decodedJwt = Load::jws($jwt)
                 ->alg('RS256')
                 ->nbf()
                 ->exp()
@@ -70,10 +84,16 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
                 ->claim('tid', $this->params->get('microsoft.oauth.tenant_id'))
                 ->keyset($this->jwkSet)
                 ->run();
+            return ['jwt' => $jwt, 'decodedJwt' => $decodedJwt];
         } catch (InvalidClaimException $exception) {
-            throw new UnauthorizedHttpException(self::AUTHENTICATION_SCHEME, $exception->getMessage());
+            throw new UnauthorizedHttpException($this->getAuthenticationScheme(), $exception->getMessage());
         }
+    }
 
+    public function getUser($credentials, UserProviderInterface $userProvider)
+    {
+        /** @var JWT $jwt */
+        $jwt = $credentials['decodedJwt'];
         return (new User)->setEmail($jwt->claims->get('email'));
     }
 
@@ -95,15 +115,5 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe()
     {
         return false;
-    }
-
-    private function getJWT(Request $request): ?string
-    {
-        $authHeaderComponents = explode(' ', trim($request->headers->get(self::HEADER_AUTHORIZATION)), 2);
-        if (count($authHeaderComponents) != 2 || $authHeaderComponents[0] !== self::AUTHENTICATION_SCHEME) {
-            return null;
-        }
-
-        return $authHeaderComponents[1];
     }
 }

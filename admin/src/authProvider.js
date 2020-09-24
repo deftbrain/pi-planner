@@ -1,43 +1,48 @@
-import React from 'react';
+import {API_ENTRYPOINT} from './config/app';
 
-const TOKEN_KEY = 'token';
-const TOKEN_EXPIRES_AT_KEY = 'tokenExpiresAt';
-export const AUTHENTICATION_SCHEME = 'Bearer';
+const STORAGE_KEY = 'userSession';
 
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+export function isUserAuthenticated() {
+  const userSessionEncoded = window.localStorage.getItem(STORAGE_KEY);
+  return userSessionEncoded && JSON.parse(userSessionEncoded).expiresAt > Date.now() / 1000;
 }
 
-export function isTokenValid() {
-  return getToken() && localStorage.getItem(TOKEN_EXPIRES_AT_KEY) > Date.now();
+function startUserSession(data) {
+  return window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+export function finishUserSession() {
+  return window.localStorage.removeItem(STORAGE_KEY);
 }
 
 export default {
-  login: ({error, data}) => {
+  login: ({data, error}) => {
     if (error) {
       return Promise.reject(error);
     }
-    const idToken = data.authResponseWithAccessToken.idToken;
-    localStorage.setItem(TOKEN_KEY, idToken.rawIdToken);
-    localStorage.setItem(TOKEN_EXPIRES_AT_KEY, idToken.claims.exp * 1000);
-    return Promise.resolve();
+    const idToken = data.authResponseWithAccessToken.idToken.rawIdToken;
+    const request = new Request(API_ENTRYPOINT + '/login', {
+      credentials: 'include',
+      headers: new Headers({'Authorization': 'Bearer ' + idToken}),
+    });
+    return fetch(request)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
+
+        return response.json()
+          .then(data => {
+            startUserSession(data);
+          });
+      });
   },
-  checkAuth: () => {
-    return isTokenValid() ? Promise.resolve() : Promise.reject()
-  },
-  checkError: (error) => {
-    const status = error.status;
-    if (status === 401 || status === 403) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
-      return Promise.reject();
-    }
-    return Promise.resolve();
-  },
+  checkAuth: () => isUserAuthenticated() ? Promise.resolve() : Promise.reject(),
+  checkError: error => Promise.reject(error),
   logout: () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
-    return Promise.resolve();
+    finishUserSession()
+    const request = new Request(API_ENTRYPOINT + '/logout', {credentials: 'include'});
+    return fetch(request).then(() => Promise.resolve());
   },
   getPermissions: () => Promise.resolve()
 };

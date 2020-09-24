@@ -19,6 +19,8 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $commonHost: '%env(COMMON_HOST)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -68,13 +70,21 @@ services:
             - name: doctrine.event_listener
               event: onFlush
 
-    App\Security\JWTAuthenticator:
+    App\Security\AbstractJWTAuthenticator:
+        abstract: true
+        autowire: true
         arguments:
             Jose\Component\Core\JWKSet: '@jose.key_set.microsoft'
-            
+
+    App\Security\CookieJWTAuthenticator:
+        autowire: true
+        autoconfigure: false
+        parent: App\Security\AbstractJWTAuthenticator
+
+    App\Security\HeaderJWTAuthenticator:
+        autowire: true
+        autoconfigure: false
+        parent: App\Security\AbstractJWTAuthenticator
+
     App\Mercure\JWTProvider:
-        arguments: ['%mercure.jwt_secret%'] 
-        
-    App\Mercure\AuthorizationCookieProvider:
-        arguments: 
-            $commonHost: '%env(COMMON_HOST)%'
+        arguments: ['%mercure.jwt_secret%']

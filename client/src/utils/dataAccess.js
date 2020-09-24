@@ -1,19 +1,16 @@
-import {ENTRYPOINT} from '../config/app';
+import {API_ENTRYPOINT} from '../config/app';
 import {SubmissionError} from 'redux-form';
 import get from 'lodash/get';
 import has from 'lodash/has';
 import mapValues from 'lodash/mapValues';
-import {store} from '../store';
+import {finishUserSession} from '../authProvider';
 
 const MIME_TYPE = 'application/ld+json';
 
-
 export function fetch(id, options = {}, searchParams) {
   options.credentials = 'include';
-  if ('undefined' === typeof options.headers) options.headers = new Headers();
-
-  const token = store.getState().user.account.identity.token;
-  options.headers.set('Authorization', 'Bearer ' + token);
+  if ('undefined' === typeof options.headers)
+    options.headers = new Headers();
 
   if (null === options.headers.get('Accept'))
     options.headers.set('Accept', MIME_TYPE);
@@ -39,43 +36,48 @@ export function fetch(id, options = {}, searchParams) {
     }
     id += '?' + params.toString();
   }
-  const url = new URL(id , ENTRYPOINT);
+  const url = new URL(id, API_ENTRYPOINT);
 
-  return global.fetch(url, options).then(response => {
-    if (response.ok) return response;
-
-    return response.json().then(
-      json => {
-        const error =
-          json['hydra:description'] ||
-          json['hydra:title'] ||
-          'An error occurred.';
-        if (!json.violations) throw Error(error);
-
-        let errors = { _error: error };
-        json.violations.forEach(violation =>
-          errors[violation.propertyPath]
-            ? (errors[violation.propertyPath] +=
-                '\n' + errors[violation.propertyPath])
-            : (errors[violation.propertyPath] = violation.message)
-        );
-
-        throw new SubmissionError(errors);
-      },
-      () => {
-        throw new Error(response.statusText || 'An error occurred.');
+  return global.fetch(url, options)
+    .then(response => {
+      if (response.ok) {
+        return response;
       }
-    );
-  });
+
+      if ([401, 403].indexOf(response.status) !== -1) {
+        finishUserSession();
+        window.location.reload();
+      }
+
+      return response.json()
+        .then(json => {
+          const error =
+            json['hydra:description'] ||
+            json['hydra:title'] ||
+            'An error occurred.';
+          if (!json.violations) throw Error(error);
+
+          let errors = {_error: error};
+          json.violations.forEach(violation =>
+            errors[violation.propertyPath]
+              ? (errors[violation.propertyPath] +=
+              '\n' + errors[violation.propertyPath])
+              : (errors[violation.propertyPath] = violation.message)
+          );
+
+          throw new SubmissionError(errors);
+        })
+        .catch(error => Promise.reject(new Error(error.message || 'An error occurred.')));
+    });
 }
 
 export function mercureSubscribe(url, topics) {
   topics.forEach(topic =>
     // Add decoding to allow using patterns (e.g. /workitems/{id}) as a topic
-    url.searchParams.append('topic', decodeURIComponent(new URL(topic, ENTRYPOINT)))
+    url.searchParams.append('topic', decodeURIComponent(new URL(topic, API_ENTRYPOINT)))
   );
 
-  return new EventSource(url.toString(), {withCredentials: true});
+  return new EventSource(url.toString());
 }
 
 export function normalize(data) {
@@ -102,5 +104,5 @@ export function extractHubURL(response) {
     /<([^>]+)>;\s+rel=(?:mercure|"[^"]*mercure[^"]*")/
   );
 
-  return matches && matches[1] ? new URL(matches[1], ENTRYPOINT) : null;
+  return matches && matches[1] ? new URL(matches[1], API_ENTRYPOINT) : null;
 }
