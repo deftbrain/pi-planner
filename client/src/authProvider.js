@@ -6,13 +6,18 @@ function startUserSession(data) {
   return window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+export function getUserData() {
+  const encodedData = window.localStorage.getItem(STORAGE_KEY);
+  return encodedData && JSON.parse(encodedData);
+}
+
 export function finishUserSession() {
   return window.localStorage.removeItem(STORAGE_KEY);
 }
 
 export function isUserAuthenticated() {
-  const userSessionEncoded = window.localStorage.getItem(STORAGE_KEY);
-  return userSessionEncoded && JSON.parse(userSessionEncoded).expiresAt > Date.now() / 1000;
+  const userData = getUserData();
+  return userData && userData.expiresAt > Date.now() / 1000;
 }
 
 export function login(idToken) {

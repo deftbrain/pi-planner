@@ -36,8 +36,10 @@ class HeaderJWTAuthenticator extends AbstractJWTAuthenticator
     {
         $credentials = $this->getCredentials($request);
         $expiresAt = $credentials['decodedJwt']->claims->get('exp');
+        $name = $credentials['decodedJwt']->claims->get('name');
         $response = new JsonResponse([
             'username' => $token->getUser()->getUsername(),
+            'name' => $name,
             'expiresAt' => $expiresAt,
         ]);
         $this->authCookieProvider->setCookieValueTo($response, $credentials['jwt'], $expiresAt);
