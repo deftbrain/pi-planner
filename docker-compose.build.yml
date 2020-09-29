@@ -21,7 +21,9 @@ services:
     build:
       context: ./client
       target: ${CLIENT_IMAGE_TARGET:?}
-      args: *react-app-env-vars
+      args: 
+        <<: *react-app-env-vars
+        REACT_APP_ADMIN_URL: ${ADMIN_URL:?}
       cache_from:
         - ${CLIENT_IMAGE:?}
 
