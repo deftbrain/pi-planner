@@ -30,7 +30,7 @@ class List extends Component {
   render() {
     return (
       <div>
-        <h1>ProgramIncrement List</h1>
+        <h1>Program Increments</h1>
 
         {this.props.loading && (
           <div className="alert alert-info">Loading...</div>
