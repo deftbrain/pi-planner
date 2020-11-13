@@ -77,7 +77,9 @@ export function mercureSubscribe(url, topics) {
     url.searchParams.append('topic', decodeURIComponent(new URL(topic, API_ENTRYPOINT)))
   );
 
-  return new EventSource(url.toString());
+  return new EventSource(url.toString(), {
+    withCredentials: true
+  });
 }
 
 export function normalize(data) {
