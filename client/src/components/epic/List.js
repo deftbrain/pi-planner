@@ -29,7 +29,7 @@ const styles = theme => ({
 class List extends Component {
   static propTypes = {
     classes: PropTypes.object.isRequired,
-    projectSettings: PropTypes.array.isRequired,
+    programIncrement: PropTypes.object.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
     error: PropTypes.string,
@@ -40,7 +40,7 @@ class List extends Component {
   };
 
   componentDidMount() {
-    const projects = this.props.projectSettings.map(s => s.project);
+    const projects = [this.props.programIncrement.project];
     this.props.list(projects);
   }
 
@@ -73,7 +73,7 @@ class List extends Component {
                 </Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                  <WorkitemList epic={item['@id']} projectSettings={this.props.projectSettings}/>
+                  <WorkitemList epic={item['@id']} programIncrement={this.props.programIncrement}/>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           ))}

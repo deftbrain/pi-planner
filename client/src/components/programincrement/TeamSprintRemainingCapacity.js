@@ -5,10 +5,10 @@ import {store} from '../../store'
 
 class TeamSprintRemainingCapacity extends React.Component {
   static propTypes = {
-    projectSettings: PropTypes.object.isRequired,
+    programIncrement: PropTypes.object.isRequired,
     epic: PropTypes.string.isRequired,
-    team: PropTypes.string.isRequired,
-    sprint: PropTypes.string.isRequired,
+    team: PropTypes.string,
+    sprint: PropTypes.string,
 
     estimate: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
@@ -21,14 +21,14 @@ class TeamSprintRemainingCapacity extends React.Component {
       return {frontend: 0, backend: 0};
     }
 
-    const capacities = this.props.projectSettings.capacity;
+    const capacities = this.props.programIncrement.teamSprintCapacities;
     const capacity = capacities
         .find(c => this.props.team === c.team && this.props.sprint === c.sprint)
       || capacities.find(c => this.props.team === c.team && !c.sprint);
 
     return {
-      frontend: (capacity && capacity.frontend) || 0,
-      backend: (capacity && capacity.backend) || 0,
+      frontend: (capacity && capacity.capacity.frontend) || 0,
+      backend: (capacity && capacity.capacity.backend) || 0,
     }
   }
 

@@ -40,21 +40,17 @@ class EpicFilterProvider implements FilterProviderInterface
 
     public function getFilter(): array
     {
-        $projectIris = $this->entityManager->createQueryBuilder()
-            ->from(ProgramIncrement::class, 'pi')
-            ->distinct()
-            ->select('GET_JSON_FIELD(JSON_ARRAY_ELEM(pi.projectSettings), \'project\')')
-            ->getQuery()
-            ->getScalarResult();
-
-        if (!$projectIris) {
+        $projectIds = array_column(
+            $this->entityManager->createQueryBuilder()
+                ->from(ProgramIncrement::class, 'pi')
+                ->distinct()
+                ->select('IDENTITY(pi.project) AS project')
+                ->getQuery()
+                ->getScalarResult(),
+            'project'
+        );
+        if (!$projectIds) {
             return [];
-        }
-
-        $projectIds = [];
-        foreach ($projectIris as $projectIri) {
-            $parameters = $this->router->match(reset($projectIri));
-            $projectIds[] = $parameters['id'];
         }
 
         $projects = $this->entityManager->createQueryBuilder()

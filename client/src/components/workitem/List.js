@@ -16,7 +16,7 @@ class List extends Component {
     projects: PropTypes.array.isRequired,
     teams: PropTypes.array.isRequired,
     sprints: PropTypes.array.isRequired,
-    projectSettings: PropTypes.array.isRequired,
+    programIncrement: PropTypes.object.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
     error: PropTypes.string,
@@ -59,36 +59,35 @@ class List extends Component {
     const unsignedColumnWidth = 15;
     const unsignedTeam = {'@id': null, 'name': 'Unsigned'};
     const unsignedSprint = {'@id': null, 'name': 'Unsigned'};
-    for (let settings of this.props.projectSettings) {
-      let columnsPerRow = settings.sprints.length;
-      let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
-      let teamIds = new Set();
-      for (let capacity of settings.capacity || []) {
-        teamIds.add(capacity.team);
-      }
-      let teams = this.props.teams.filter(t => teamIds.has(t['@id']));
-      teams = [unsignedTeam, ...teams];
-      let sprints = this.props.sprints.filter(s => settings.sprints.indexOf(s['@id']) !== -1);
-      sprints = sprints.sort((a, b) => {
-        a = new Date(a.startDate);
-        b = new Date(b.startDate);
-        return a.getTime() - b.getTime();
-      })
-      sprints = [unsignedSprint, ...sprints];
-      for (let team of teams) {
-        for (let sprintIndex in sprints) {
-          let sprint = sprints[sprintIndex];
-          columns.push({
-            id: [this.props.epic, settings.project, team['@id'], sprint['@id']].join(':'),
-            title: `${team.name} ${'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex}`,
-            label: <TeamSprintRemainingCapacity epic={this.props.epic} team={team['@id']} sprint={sprint['@id']}
-                                                projectSettings={settings}/>,
-            cards: this.getBoardCards(settings.project, team['@id'], sprint['@id']),
-            style: {
-              width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
-            }
-          });
-        }
+    const programIncrement = this.props.programIncrement;
+    let columnsPerRow = programIncrement.sprints.length;
+    let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
+    let teamIds = new Set();
+    for (let capacity of programIncrement.teamSprintCapacities) {
+      teamIds.add(capacity.team);
+    }
+    let teams = this.props.teams.filter(t => teamIds.has(t['@id']));
+    teams = [unsignedTeam, ...teams];
+    let sprints = this.props.sprints.filter(s => programIncrement.sprints.indexOf(s['@id']) !== -1);
+    sprints = sprints.sort((a, b) => {
+      a = new Date(a.startDate);
+      b = new Date(b.startDate);
+      return a.getTime() - b.getTime();
+    })
+    sprints = [unsignedSprint, ...sprints];
+    for (let team of teams) {
+      for (let sprintIndex in sprints) {
+        let sprint = sprints[sprintIndex];
+        columns.push({
+          id: [this.props.epic, programIncrement.project, team['@id'], sprint['@id']].join(':'),
+          title: `${team.name} ${'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex}`,
+          label: <TeamSprintRemainingCapacity epic={this.props.epic} team={team['@id']} sprint={sprint['@id']}
+                                              programIncrement={programIncrement}/>,
+          cards: this.getBoardCards(programIncrement.project, team['@id'], sprint['@id']),
+          style: {
+            width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
+          }
+        });
       }
     }
 
@@ -108,7 +107,7 @@ class List extends Component {
       sprint: targetSprint ? targetSprint : null
     };
     if (targetProject !== sourceProject) {
-      patch.backlogGroup = this.props.projectSettings.find(s => s.project === targetProject).defaultBacklogGroup;
+      patch.backlogGroup = this.props.programIncrement.defaultBacklogGroup;
     }
     this.props.update(workitem, patch);
   }

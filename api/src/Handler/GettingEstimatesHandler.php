@@ -27,17 +27,6 @@ final class GettingEstimatesHandler
 
     public function __invoke(ProgramIncrement $programIncrement): array
     {
-        $projectIris = array_column($programIncrement->getProjectSettings(), 'project');
-        if (!$projectIris) {
-            return [];
-        }
-
-        $projectIds = [];
-        foreach ($projectIris as $projectIri) {
-            $parameters = $this->router->match($projectIri);
-            $projectIds[] = $parameters['id'];
-        }
-
         $qb = $this->entityManager->createQueryBuilder();
         $result = $qb
             ->from(Workitem::class, 'w')
@@ -49,7 +38,7 @@ final class GettingEstimatesHandler
                 'SUM(w.estimateBackend) AS backend'
             )
             ->andWhere('w.isDeleted = false')
-            ->andWhere($qb->expr()->in('w.project', $projectIds))
+            ->andWhere($qb->expr()->in('w.project', $programIncrement->getProject()->getId()))
             ->andWhere($qb->expr()->orX('w.estimateFrontend > 0', 'w.estimateBackend > 0'))
             ->groupBy('w.epic', 'w.team', 'w.sprint')
             ->getQuery()

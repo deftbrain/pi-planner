@@ -3,13 +3,12 @@ import {Redirect, Route} from 'react-router-dom';
 import {
   fetchHydra as baseFetchHydra,
   HydraAdmin,
-  hydraDataProvider as baseHydraDataProvider
+  hydraDataProvider as baseHydraDataProvider,
 } from '@api-platform/admin';
 import {Resource} from 'react-admin';
 import parseHydraDocumentation from "@api-platform/api-doc-parser/lib/hydra/parseHydraDocumentation";
-import {ProgramIncrementList} from './resource/ProgramIncrementList';
-import {ProgramIncrementCreate} from './resource/ProgramIncremenCreate';
-import {ProgramIncrementEdit} from './resource/ProgramIncremenEdit';
+import programIncrementComponents from './resource/programIncrement';
+import {TeamSprintCapacityCreate, TeamSprintCapacityEdit} from './resource/teamSprintCapacity';
 import LoginPage from './Login';
 import authProvider, {isUserAuthenticated} from './authProvider';
 import {API_ENTRYPOINT} from './config/app';
@@ -44,8 +43,8 @@ const dataProvider = baseHydraDataProvider(API_ENTRYPOINT, fetchHydra, apiDocume
 export default () => (
   <HydraAdmin entrypoint={API_ENTRYPOINT} dataProvider={dataProvider} authProvider={authProvider}
               loginPage={LoginPage}>
-    <Resource name="program_increments" list={ProgramIncrementList} create={ProgramIncrementCreate}
-              edit={ProgramIncrementEdit}/>
+    <Resource name="program_increments" {...programIncrementComponents}/>
+    <Resource name="team_sprint_capacities" create={TeamSprintCapacityCreate} edit={TeamSprintCapacityEdit}/>
     <Resource name="backlog_groups"/>
     <Resource name="epics"/>
     <Resource name="epic_statuses"/>

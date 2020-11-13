@@ -79,29 +79,19 @@ class EstimateChangesListener implements EventSubscriberInterface
         }
 
         $affectedProjectIds = array_unique($this->affectedProjectIds);
-        $affectedProjectIris = array_map(
-            function ($id) {
-                return $this->router->generate('api_projects_get_item', ['id' => $id]);
-            },
-            $affectedProjectIds
-        );
-
         $programIncrements = $this->programIncrementRepository->findAll();
         foreach ($programIncrements as $pi) {
-            foreach ($pi->getProjectSettings() as $settings) {
-                $projectIri = $settings['project'];
-                if (in_array($projectIri, $affectedProjectIris)) {
-                    $piEstimateIri = $this->router->generate(
-                        'api_program_increments_get_estimates_item',
-                        ['id' => $pi->getId()],
-                        RouterInterface::ABSOLUTE_URL
-                    );
-                    $data = json_encode(($this->gettingEstimatesHandler)($pi));
-                    ($this->publisher)(
-                        new Update($piEstimateIri, $data)
-                    );
-                    break;
-                }
+            if (in_array($pi->getProject()->getId(), $affectedProjectIds)) {
+                $piEstimateIri = $this->router->generate(
+                    'api_program_increments_get_estimates_item',
+                    ['id' => $pi->getId()],
+                    RouterInterface::ABSOLUTE_URL
+                );
+                $data = json_encode(($this->gettingEstimatesHandler)($pi));
+                ($this->publisher)(
+                    new Update($piEstimateIri, $data)
+                );
+                break;
             }
         }
     }

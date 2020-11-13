@@ -37,7 +37,7 @@ class Show extends Component {
         )}
 
         {item && (
-          <EpicsList projectSettings={item.projectSettings}/>
+          <EpicsList programIncrement={item}/>
         )}
         <Link to=".." className="btn btn-primary">
           Back to list

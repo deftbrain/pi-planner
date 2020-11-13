@@ -1,18 +1,77 @@
 import React from 'react';
-import {ArrayInput, FormDataConsumer, SimpleForm, SimpleFormIterator, TextInput} from 'react-admin'
-import {ProjectSettings} from './ProjectSettings';
+import {
+  AutocompleteInput,
+  Datagrid,
+  EditButton,
+  FormDataConsumer,
+  FormTab,
+  NumberField,
+  ReferenceField,
+  ReferenceInput,
+  ReferenceManyField,
+  TabbedForm,
+  TextField,
+  TextInput
+} from 'react-admin'
 
-export const ProgramIncrementForm = props => (
-  <SimpleForm {...props} >
-    <TextInput label="Name" source="name"/>
-    <ArrayInput label="Projects" source="projectSettings">
-      <SimpleFormIterator>
-        <FormDataConsumer>
-          {formDataProps => (
-            <ProjectSettings {...formDataProps}/>
-          )}
-        </FormDataConsumer>
-      </SimpleFormIterator>
-    </ArrayInput>
-  </SimpleForm>
+import {ProjectSprintArrayInput} from './ProjectSprintArrayInput';
+import {useForm} from 'react-final-form';
+
+export const ProgramIncrementForm = props => {
+  return (
+    <TabbedForm {...props}>
+      <GeneralFormTab label="General"/>
+      {props.record.id && <CapacityFormTab label="Capacity" path="capacity"/>}
+    </TabbedForm>
+  );
+}
+
+const GeneralFormTab = props => {
+  const form = useForm();
+  const resetProjectDependentInputs = () => {
+    form.change('sprints', null);
+  }
+
+  return (
+    <FormTab {...props}>
+      <TextInput label="Name" source="name"/>
+      <ReferenceInput label="Project" source="project" reference="projects"
+                      onChange={resetProjectDependentInputs}>
+        <AutocompleteInput/>
+      </ReferenceInput>
+      <FormDataConsumer>
+        {({formData}) => formData.project
+          &&
+          <ProjectSprintArrayInput label="Sprints" source="sprints" reference="sprints"
+                                   project={formData.project}/>
+        }
+      </FormDataConsumer>
+    </FormTab>
+  );
+}
+
+const CapacityFormTab = props => (
+  <FormTab {...props}>
+    <ReferenceManyField
+      addLabel={false}
+      reference="team_sprint_capacities"
+      target="programIncrement"
+    >
+      <Datagrid>
+        <ReferenceField source="team" reference="teams">
+          <TextField source="name"/>
+        </ReferenceField>
+        <ReferenceField source="sprint" reference="sprints">
+          <TextField source="name"/>
+        </ReferenceField>
+        <NumberField source="capacity.frontend" label="Frontend capacity"/>
+        <NumberField source="capacity.backend" label="Backend capacity"/>
+        <EditButton/>
+      </Datagrid>
+    </ReferenceManyField>
+  </FormTab>
 );
+
+
+
+

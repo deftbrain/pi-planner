@@ -27,17 +27,12 @@ export function retrieve(id) {
           .then(retrieved => ({retrieved, hubURL: extractHubURL(response)}))
       )
       .then(({retrieved, hubURL}) => {
-        retrieved = normalize(retrieved);
-        let projects = [];
+        let projects = [retrieved.project];
         let teams = new Set();
-        let sprints = [];
-        for (let settings of retrieved.projectSettings) {
-          projects.push(settings.project);
-          for (let capacity of settings.capacity || []) {
-            teams.add(capacity.team);
-          }
-          sprints = sprints.concat(settings.sprints);
+        for (let capacity of retrieved.teamSprintCapacities) {
+          teams.add(capacity.team);
         }
+        let sprints = retrieved.sprints;
         dispatch(retrieveProjects(projects));
         dispatch(retrieveTeams([...teams]));
         dispatch(retrieveSprints(sprints));
