@@ -10,6 +10,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
 use Symfony\Component\Serializer\Mapping\ClassDiscriminatorResolverInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -38,7 +39,7 @@ class Normalizer extends ObjectNormalizer
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         ClassMetadataFactoryInterface $classMetadataFactory = null,
-        NameConverter $nameConverter = null,
+        NameConverterInterface $nameConverter = null,
         PropertyAccessorInterface $propertyAccessor = null,
         PropertyTypeExtractorInterface $propertyTypeExtractor = null,
         ClassDiscriminatorResolverInterface $classDiscriminatorResolver = null

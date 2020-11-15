@@ -46,6 +46,22 @@ services:
             Psr\Http\Client\ClientInterface: '@httplug.client.version_one'
             $bulkEndpoint: '%version_one.endpoint.bulk%'
 
+    app.version_one.serializer.name_converter.yaml_loader:
+        class: Symfony\Component\Serializer\Mapping\Loader\YamlFileLoader
+        arguments: ['%kernel.project_dir%/config/version_one_serializer.yml']  
+        
+    app.version_one.serializer.name_converter.class_metadata:
+        class: Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory
+        arguments: ['@app.version_one.serializer.name_converter.yaml_loader']    
+
+    app.version_one.serializer.name_converter:
+        class: Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter
+        arguments: ['@app.version_one.serializer.name_converter.class_metadata']
+            
+    App\VersionOne\Sync\Serializer\Normalizer:
+        arguments:
+            Symfony\Component\Serializer\NameConverter\NameConverterInterface: '@app.version_one.serializer.name_converter'
+
     App\Entity\Listener\AbstractEntityListener:
         tags:
             - name: doctrine.orm.entity_listener
