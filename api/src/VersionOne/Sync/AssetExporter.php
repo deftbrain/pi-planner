@@ -3,7 +3,7 @@
 namespace App\VersionOne\Sync;
 
 use App\Entity\AbstractEntity;
-use App\VersionOne\ApiClient;
+use App\VersionOne\BulkApiClient;
 use App\VersionOne\AssetMetadata\Asset;
 use App\VersionOne\Sync\Serializer\Normalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class AssetExporter
 {
     /**
-     * @var ApiClient
+     * @var BulkApiClient
      */
     private $apiClient;
 
@@ -20,7 +20,7 @@ class AssetExporter
      */
     private $serializer;
 
-    public function __construct(ApiClient $apiClient, SerializerInterface $serializer)
+    public function __construct(BulkApiClient $apiClient, SerializerInterface $serializer)
     {
         $this->apiClient = $apiClient;
         $this->serializer = $serializer;

@@ -16,8 +16,9 @@ class AssetDetailUrlProvider
     public function getUrl(string $externalId): string
     {
         return sprintf(
-            '%s?%s',
-            $this->params->get('version_one.api_asset_detail'),
+            '%s%s?%s',
+            $this->params->get('version_one.server_base_uri'),
+            $this->params->get('version_one.endpoint.asset_detail'),
             http_build_query(['oid' => $externalId])
         );
     }

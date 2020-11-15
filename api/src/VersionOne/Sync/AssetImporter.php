@@ -3,7 +3,7 @@
 namespace App\VersionOne\Sync;
 
 use App\Entity\AbstractEntity;
-use App\VersionOne\ApiClient;
+use App\VersionOne\BulkApiClient;
 use App\VersionOne\AssetMetadata;
 use App\VersionOne\AssetMetadata\Asset;
 use App\VersionOne\AssetMetadata\Epic;
@@ -25,9 +25,9 @@ class AssetImporter
     ];
 
     /**
-     * @var ApiClient
+     * @var BulkApiClient
      */
-    private $versionOneApiClient;
+    private $apiClient;
 
     /**
      * @var EntityManagerInterface
@@ -50,13 +50,13 @@ class AssetImporter
     private $router;
 
     public function __construct(
-        ApiClient $v1ApiClient,
+        BulkApiClient $apiClient,
         EntityManagerInterface $entityManager,
         SerializerInterface $serializer,
         ParameterBagInterface $params,
         RouterInterface $router
     ) {
-        $this->versionOneApiClient = $v1ApiClient;
+        $this->apiClient = $apiClient;
         $this->entityManager = $entityManager;
         $this->serializer = $serializer;
         $this->params = $params;
@@ -83,18 +83,18 @@ class AssetImporter
         }
         $entityClassName = AssetToEntityMap::MAP[$assetClassName];
         $assetType = $assetClassName::getType();
-        $relevantAssetsQuery = $this->versionOneApiClient
+        $relevantAssetsQuery = $this->apiClient
             ->makeQueryBuilder()
             ->from($assetType)
             ->select($assetClassName::getAttributesToSelect())
             ->filter($assetSpecificFilter)
             ->getQuery();
-        $deletedAssetsQuery = $this->versionOneApiClient
+        $deletedAssetsQuery = $this->apiClient
             ->makeQueryBuilder()
             ->from($assetType)
             ->filter(array_merge([AssetMetadata\Asset::ATTRIBUTE_IS_DELETED => true], $assetSpecificFilter))
             ->getQuery();
-        [$relevantAssets, $deletedAssets] = $this->versionOneApiClient->find($relevantAssetsQuery, $deletedAssetsQuery);
+        [$relevantAssets, $deletedAssets] = $this->apiClient->find($relevantAssetsQuery, $deletedAssetsQuery);
         foreach ($relevantAssets as $asset) {
             try {
                 $entity = $this->serializer->denormalize($asset, $entityClassName, Normalizer::FORMAT_V1_JSON);

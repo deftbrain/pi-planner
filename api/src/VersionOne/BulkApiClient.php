@@ -5,7 +5,7 @@ namespace App\VersionOne;
 use Http\Message\RequestFactory;
 use Psr\Http\Client\ClientInterface;
 
-class ApiClient
+class BulkApiClient
 {
     /**
      * @var ClientInterface
@@ -17,10 +17,16 @@ class ApiClient
      */
     private $requestFactory;
 
-    public function __construct(ClientInterface $client, RequestFactory $requestFactory)
+    /**
+     * @var string
+     */
+    private $bulkEndpoint;
+
+    public function __construct(ClientInterface $client, RequestFactory $requestFactory, string $bulkEndpoint)
     {
         $this->httpClient = $client;
         $this->requestFactory = $requestFactory;
+        $this->bulkEndpoint = $bulkEndpoint;
     }
 
     /**
@@ -49,7 +55,7 @@ class ApiClient
     private function sendQuery(array $query): array
     {
         $body = json_encode($query);
-        $request = $this->requestFactory->createRequest('POST', '', [], $body);
+        $request = $this->requestFactory->createRequest('POST', $this->bulkEndpoint, [], $body);
         $response = $this->httpClient->sendRequest($request);
         if ($response->getStatusCode() !== 200) {
             throw new \RuntimeException($response->getReasonPhrase(), $response->getStatusCode());
