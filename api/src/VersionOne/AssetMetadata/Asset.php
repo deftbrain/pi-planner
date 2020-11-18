@@ -2,15 +2,24 @@
 
 namespace App\VersionOne\AssetMetadata;
 
-abstract class Asset
+abstract class Asset implements AssetInterface
 {
+    protected array $attributes;
     /** @var string This attribute is automatically added to every asset returned by VersionOne API */
     public const ATTRIBUTE_ID = '_oid';
     public const ATTRIBUTE_NAME = 'Name';
     public const ATTRIBUTE_CHANGE_DATE = 'ChangeDateUTC';
     public const ATTRIBUTE_IS_DELETED = 'IsDeleted';
 
-    abstract public static function getType(): string;
+    /**
+     * @return AttributeInterface[]
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
+
+//    abstract public static function getType(): string;
 
     public static function getAttributesToSelect(): array
     {

@@ -1,0 +1,9 @@
+# VersionOne asset type to entity short class name map
+Theme: BacklogGroup
+Epic: Epic
+EpicStatus: EpicStatus
+Scope: Project
+Timebox: Sprint
+Schedule: SprintSchedule
+Team: Team
+PrimaryWorkitem: Workitem
