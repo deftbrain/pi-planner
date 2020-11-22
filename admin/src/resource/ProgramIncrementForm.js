@@ -6,9 +6,11 @@ import {
   FormDataConsumer,
   FormTab,
   NumberField,
+  ReferenceArrayInput,
   ReferenceField,
   ReferenceInput,
   ReferenceManyField,
+  SelectArrayInput,
   TabbedForm,
   TextField,
   TextInput
@@ -39,6 +41,9 @@ const GeneralFormTab = props => {
                       onChange={resetProjectDependentInputs}>
         <AutocompleteInput/>
       </ReferenceInput>
+      <ReferenceArrayInput label="Epic statuses" source="epicStatuses" reference="epic_statuses">
+        <SelectArrayInput/>
+      </ReferenceArrayInput>
       <FormDataConsumer>
         {({formData}) => formData.project
           &&

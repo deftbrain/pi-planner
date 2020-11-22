@@ -6,7 +6,7 @@ use App\Entity\AbstractEntity;
 use App\VersionOne\AssetMetadata\AssetMetadataFactory;
 use App\VersionOne\AssetMetadata\AssetMetadataInterface;
 use App\VersionOne\AssetMetadata\BaseAsset\IDAttribute;
-use App\VersionOne\Sync\AssetImporter;
+use App\VersionOne\Sync\AssetImporter\AssetImporterFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,10 +24,7 @@ class ImportCommand extends Command
      */
     private $io;
 
-    /**
-     * @var AssetImporter
-     */
-    private $importer;
+    private AssetImporterFactory $assetImporterFactory;
 
     private AssetMetadataFactory $assetMetadataFactory;
 
@@ -36,11 +33,11 @@ class ImportCommand extends Command
     private $assetTypesToImport = [];
 
     public function __construct(
-        AssetImporter $importer,
+        AssetImporterFactory $assetImporterFactory,
         AssetMetadataFactory $assetMetadataFactory,
         ClassMetadataFactoryInterface $classMetadataFactory
     ) {
-        $this->importer = $importer;
+        $this->assetImporterFactory = $assetImporterFactory;
         $this->assetMetadataFactory = $assetMetadataFactory;
         $this->classMetadataFactory = $classMetadataFactory;
 
@@ -106,7 +103,7 @@ class ImportCommand extends Command
     private function importAssets(AssetMetadataInterface $assetMetadata): void
     {
         $this->io->writeln(sprintf('Importing %s...', $assetMetadata->getType()), OutputInterface::VERBOSITY_VERBOSE);
-        $this->importer->importAssets($assetMetadata);
+        $this->assetImporterFactory->makeImporter($assetMetadata)->import();
     }
 
     /**

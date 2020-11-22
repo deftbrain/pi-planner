@@ -68,10 +68,17 @@ class ProgramIncrement
      */
     private $teamSprintCapacities;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=EpicStatus::class)
+     * @Groups({"programIncrement"})
+     */
+    private $epicStatuses;
+
     public function __construct()
     {
         $this->sprints = new ArrayCollection();
         $this->teamSprintCapacities = new ArrayCollection();
+        $this->epicStatuses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,6 +162,32 @@ class ProgramIncrement
             if ($teamSprintCapacity->getProgramIncrement() === $this) {
                 $teamSprintCapacity->setProgramIncrement(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EpicStatus[]
+     */
+    public function getEpicStatuses(): Collection
+    {
+        return $this->epicStatuses;
+    }
+
+    public function addEpicStatus(EpicStatus $epicStatus): self
+    {
+        if (!$this->epicStatuses->contains($epicStatus)) {
+            $this->epicStatuses[] = $epicStatus;
+        }
+
+        return $this;
+    }
+
+    public function removeEpicStatus(EpicStatus $epicStatus): self
+    {
+        if ($this->epicStatuses->contains($epicStatus)) {
+            $this->epicStatuses->removeElement($epicStatus);
         }
 
         return $this;
