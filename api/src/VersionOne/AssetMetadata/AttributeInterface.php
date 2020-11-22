@@ -4,7 +4,7 @@ namespace App\VersionOne\AssetMetadata;
 
 interface AttributeInterface
 {
-    public function getName(): string;
+    public static function getName(): string;
 
     public function isMultiValue(): bool;
 

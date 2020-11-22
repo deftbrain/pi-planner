@@ -37,7 +37,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 		bin/console doctrine:migrations:migrate --no-interaction
 	fi
 
-	bin/console app:import-v1-assets
+	bin/console version-one:import-assets
 	bin/console messenger:consume -vv >> var/log/messenger.log 2>&1 &
 
 	crond -L $PWD/var/log/crond.log

@@ -4,16 +4,11 @@ namespace <?= $namespace ?>;
 
 use App\VersionOne\AssetMetadata\AttributeInterface;
 
-final class <?= $class_name ?> implements AttributeInterface
+class <?= $class_name ?> implements AttributeInterface
 {
-    public function getName(): string
+    public static function getName(): string
     {
         return '<?= $name ?>';
-    }
-
-    public function isReadOnly(): bool
-    {
-        return <?= $is_read_only ? 'true' : 'false' ?>;
     }
 
     public function isMultiValue(): bool

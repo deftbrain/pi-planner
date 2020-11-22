@@ -2,8 +2,10 @@
 
 namespace App\VersionOne\AssetMetadata;
 
-interface AssetInterface
+interface AssetMetadataInterface
 {
+    public function getType(): string;
+
     /**
      * @return AttributeInterface[]
      */

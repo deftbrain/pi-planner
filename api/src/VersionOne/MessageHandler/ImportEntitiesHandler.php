@@ -1,9 +1,9 @@
 <?php
 
-namespace App\MessageHandler;
+namespace App\VersionOne\MessageHandler;
 
-use App\Command\ImportCommand;
 use App\Message\ImportEntitiesMessage;
+use App\VersionOne\Command\ImportCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;

@@ -2,6 +2,7 @@
 
 namespace App\Maker;
 
+use App\Entity\AbstractEntity;
 use App\VersionOne\MetaApiClient;
 use Symfony\Bundle\MakerBundle\ConsoleStyle;
 use Symfony\Bundle\MakerBundle\DependencyBuilder;
@@ -13,25 +14,22 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class MakeVersionOneAssetMetadata extends AbstractMaker
 {
     private const ASSET_METADATA_NAMESPACE_PREFIX_TEMPLATE = 'VersionOne\\AssetMetadata\\%s\\';
-    private const ARG_ASSET = 'asset';
+    private const ARG_ASSET_TYPE = 'asset-type';
+    private const BASE_ASSET_TYPE = 'BaseAsset';
 
     private MetaApiClient $apiClient;
-    private ClassMetadataFactoryInterface $metadataFactory;
-    private array $assetTypeToEntityClassMap;
+    private ClassMetadataFactoryInterface $classMetadataFactory;
 
     public function __construct(
         MetaApiClient $apiClient,
-        ClassMetadataFactoryInterface $metadataFactory,
-        string $assetToEntityMapConfigPath
+        ClassMetadataFactoryInterface $classMetadataFactory
     ) {
         $this->apiClient = $apiClient;
-        $this->metadataFactory = $metadataFactory;
-        $this->assetTypeToEntityClassMap = Yaml::parse(file_get_contents($assetToEntityMapConfigPath));
+        $this->classMetadataFactory = $classMetadataFactory;
     }
 
     public static function getCommandName(): string
@@ -41,56 +39,52 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
 
     public function configureCommand(Command $command, InputConfiguration $inputConfig): void
     {
-        $command
-            ->setDescription('Creates classes for the specified VersionOne asset type and its attributes')
-            ->addArgument(self::ARG_ASSET, InputArgument::REQUIRED, 'What asset type do you want to cover?')
-            ->setHelp(<<<TEXT
-                Uses version_one_asset_map.yml and version_one_serializer.yml
-                for getting lists of available asset types and their attributes.
-            TEXT
-            );
-        $inputConfig->setArgumentAsNonInteractive(self::ARG_ASSET);
+        $command->setDescription('Creates classes for the specified VersionOne asset type and its attributes')
+            ->addArgument(self::ARG_ASSET_TYPE, InputArgument::REQUIRED, 'What asset type do you want to cover?');
+        $inputConfig->setArgumentAsNonInteractive(self::ARG_ASSET_TYPE);
     }
 
     public function interact(InputInterface $input, ConsoleStyle $io, Command $command): void
     {
-        if (!$input->getArgument(self::ARG_ASSET)) {
+        if (!$input->getArgument(self::ARG_ASSET_TYPE)) {
             $question = new Question(
                 sprintf(
                     ' <fg=green>%s</>',
-                    $command->getDefinition()->getArgument(self::ARG_ASSET)->getDescription()
+                    $command->getDefinition()->getArgument(self::ARG_ASSET_TYPE)->getDescription()
                 )
             );
-            $question->setAutocompleterValues(array_keys($this->assetTypeToEntityClassMap));
+            $question->setAutocompleterValues($this->getAvailableAssetTypes());
             $event = $io->askQuestion($question);
-            $input->setArgument(self::ARG_ASSET, $event);
+            $input->setArgument(self::ARG_ASSET_TYPE, $event);
         }
     }
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
     {
-        $asset = $input->getArgument(self::ARG_ASSET);
-        $entityShortClassName = $this->assetTypeToEntityClassMap[$asset];
-        $entityClassNameDetails = $generator->createClassNameDetails($entityShortClassName, 'Entity\\');
-        $entityPropertiesMetadata = $this->metadataFactory->getMetadataFor($entityClassNameDetails->getFullName())->getAttributesMetadata();
-        $assetMetadata = $this->apiClient->getMetadata($asset);
+        $assetType = $input->getArgument(self::ARG_ASSET_TYPE);
+        $attributeNames = $this->getAssetAttributeNames($assetType);
+        $assetMetadata = $this->apiClient->getMetadata($assetType);
+
+        if ($assetType !== self::BASE_ASSET_TYPE) {
+            $baseAssetAttributeNames = $this->getAssetAttributeNames(self::BASE_ASSET_TYPE);
+            $attributeNames = array_diff($attributeNames, $baseAssetAttributeNames);
+        }
+
         $attributeShortClassNames = [];
-        foreach ($entityPropertiesMetadata as $propertyMetadata) {
-            $attributeName = $propertyMetadata->getSerializedName();
+        foreach ($attributeNames as $attributeName) {
             $attributeClassNameDetails = $generator->createClassNameDetails(
                 $attributeName,
-                sprintf(self::ASSET_METADATA_NAMESPACE_PREFIX_TEMPLATE, $asset),
+                sprintf(self::ASSET_METADATA_NAMESPACE_PREFIX_TEMPLATE, $assetType),
                 'Attribute'
             );
             $attributeShortClassNames[] = $attributeClassNameDetails->getShortName();
 
-            $attributeMetadata = $assetMetadata['Attributes'][$asset . '.' . $attributeName];
+            $attributeMetadata = $assetMetadata['Attributes'][$assetType . '.' . $attributeName];
             $generator->generateClass(
                 $attributeClassNameDetails->getFullName(),
                 'src/Resources/skeleton/version-one/AssetAttributeMetadata.tpl.php',
                 [
                     'name' => $attributeName,
-                    'is_read_only' => $attributeMetadata['IsReadOnly'],
                     'is_multi_value' => $attributeMetadata['IsMultivalue'],
                     'is_relation' => $attributeMetadata['AttributeType'] === 'Relation',
                     'related_asset' => $attributeMetadata['RelatedAsset']['nameref'] ?? null,
@@ -99,14 +93,18 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
         }
 
         $assetClassNameDetails = $generator->createClassNameDetails(
-            $asset,
-            sprintf(self::ASSET_METADATA_NAMESPACE_PREFIX_TEMPLATE, $asset),
-            'Asset'
+            $assetType,
+            sprintf(self::ASSET_METADATA_NAMESPACE_PREFIX_TEMPLATE, $assetType),
+            'AssetMetadata'
         );
         $generator->generateClass(
             $assetClassNameDetails->getFullName(),
-            'src/Resources/skeleton/version-one/AssetMetadata.tpl.php',
-            ['attribute_classes' => $attributeShortClassNames]
+            'src/Resources/skeleton/version-one/AssetTypeMetadata.tpl.php',
+            [
+                'asset_type' => $assetType,
+                'is_base_type' => $assetType === self::BASE_ASSET_TYPE,
+                'attribute_classes' => $attributeShortClassNames,
+            ]
         );
 
         $generator->writeChanges();
@@ -115,5 +113,40 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
 
     public function configureDependencies(DependencyBuilder $dependencies): void
     {
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getAvailableAssetTypes(): array
+    {
+        return array_keys(
+            $this->classMetadataFactory
+                ->getMetadataFor(AbstractEntity::class)
+                ->getClassDiscriminatorMapping()
+                ->getTypesMapping()
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getAssetAttributeNames(string $assetType): array
+    {
+        $entityClassName = $assetType === self::BASE_ASSET_TYPE
+            ? AbstractEntity::class
+            : $this->getEntityClass($assetType);
+        $attributeMetadata = $this->classMetadataFactory
+            ->getMetadataFor($entityClassName)
+            ->getAttributesMetadata();
+        return array_map(fn($a) => $a->getSerializedName(), $attributeMetadata);
+    }
+
+    private function getEntityClass(string $assetType): string
+    {
+        return $this->classMetadataFactory
+            ->getMetadataFor(AbstractEntity::class)
+            ->getClassDiscriminatorMapping()
+            ->getClassForType($assetType);
     }
 }

@@ -1,0 +1,93 @@
+App\Entity\AbstractEntity:
+    attributes:
+        externalId:
+            serialized_name: ID
+            groups: ['readable']
+        name:
+            serialized_name: Name
+            groups: ['readable']
+        changedAt:
+            serialized_name: ChangeDateUTC
+            groups: ['readable']
+        isDeleted:
+            serialized_name: IsDeleted
+            groups: ['readable']
+    discriminator_map:
+        type_property: AssetType
+        mapping:
+            Theme: App\Entity\BacklogGroup
+            Epic: App\Entity\Epic
+            EpicStatus: App\Entity\EpicStatus
+            Scope: App\Entity\Project
+            Timebox: App\Entity\Sprint
+            Schedule: App\Entity\SprintSchedule
+            Team: App\Entity\Team
+            PrimaryWorkitem: App\Entity\Workitem
+
+App\Entity\BacklogGroup:
+    attributes:
+        project:
+            serialized_name: Scope
+            groups: ['readable']
+
+App\Entity\Epic:
+    attributes:
+        project:
+            serialized_name: Scope
+            groups: ['readable']
+        status:
+            serialized_name: Status
+            groups: ['readable']
+        wsjf:
+            serialized_name: Wsjf
+            groups: ['readable']
+
+App\Entity\EpicStatus:
+    attributes:
+
+App\Entity\Project:
+    attributes:
+        sprintSchedule:
+            serialized_name: Schedule
+            groups: ['readable']
+
+App\Entity\Sprint:
+    attributes:
+        schedule:
+            serialized_name: Schedule
+            groups: ['readable']
+        startDate:
+            serialized_name: BeginDate
+            groups: ['readable']
+        endDate:
+            serialized_name: EndDate
+            groups: ['readable']
+
+App\Entity\SprintSchedule:
+    attributes:
+
+App\Entity\Team:
+    attributes:
+
+App\Entity\Workitem:
+    attributes:
+        backlogGroup:
+            serialized_name: Parent
+            groups: ['readable']
+            max_depth: 0
+        epic:
+            serialized_name: Super
+            groups: ['readable']
+            max_depth: 0
+        project:
+            serialized_name: Scope
+            groups: ['readable']
+            max_depth: 0
+        sprint:
+            serialized_name: Timebox
+            groups: ['readable', 'writable']
+            max_depth: 0
+        team:
+            serialized_name: Team
+            groups: ['readable', 'writable']
+            max_depth: 0

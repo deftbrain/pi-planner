@@ -3,7 +3,7 @@
 namespace App\VersionOne\Sync\FilterProvider;
 
 use App\Entity\Epic;
-use App\VersionOne\AssetMetadata\Workitem;
+use App\VersionOne\AssetMetadata\PrimaryWorkitem\SuperAttribute;
 use Doctrine\ORM\EntityManagerInterface;
 
 class WorkitemFilterProvider implements FilterProviderInterface
@@ -31,6 +31,6 @@ class WorkitemFilterProvider implements FilterProviderInterface
             return [];
         }
 
-        return [Workitem::ATTRIBUTE_SUPER => array_column($epics, 'externalId')];
+        return [SuperAttribute::getName() => array_column($epics, 'externalId')];
     }
 }

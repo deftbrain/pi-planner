@@ -3,8 +3,9 @@
 namespace App\VersionOne\Sync\Serializer;
 
 use App\Entity\AbstractEntity;
-use App\VersionOne\AssetMetadata\Asset;
-use App\VersionOne\Sync\AssetToEntityMap;
+use App\VersionOne\AssetMetadata\AbstractAssetMetadata;
+use App\VersionOne\AssetMetadata\BaseAsset\ChangeDateUTCAttribute;
+use App\VersionOne\AssetMetadata\BaseAsset\IDAttribute;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
@@ -17,8 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class Normalizer extends ObjectNormalizer
 {
     public const FORMAT_V1_JSON = 'v1+json';
-
-    public const PARENT_CLASS = 'parentClass';
+    public const PARENT_OBJECT_CLASS = 'parent_object_class';
 
     /**
      * @var EntityManagerInterface
@@ -35,10 +35,12 @@ class Normalizer extends ObjectNormalizer
      */
     private $objectClassResolver = '\Doctrine\Common\Util\ClassUtils::getClass';
 
+    private array $classDiscriminatorMapping;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
-        ClassMetadataFactoryInterface $classMetadataFactory = null,
+        ClassMetadataFactoryInterface $classMetadataFactory,
         NameConverterInterface $nameConverter = null,
         PropertyAccessorInterface $propertyAccessor = null,
         PropertyTypeExtractorInterface $propertyTypeExtractor = null,
@@ -55,6 +57,10 @@ class Normalizer extends ObjectNormalizer
 
         $this->entityManager = $entityManager;
         $this->validator = $validator;
+        $this->classDiscriminatorMapping = $classMetadataFactory
+            ->getMetadataFor(AbstractEntity::class)
+            ->getClassDiscriminatorMapping()
+            ->getTypesMapping();
     }
 
     /**
@@ -70,7 +76,8 @@ class Normalizer extends ObjectNormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return in_array($type, AssetToEntityMap::MAP, true) && self::FORMAT_V1_JSON === $format;
+        return ($type === AbstractEntity::class || in_array($type, $this->classDiscriminatorMapping, true))
+            && self::FORMAT_V1_JSON === $format;
     }
 
     /**
@@ -82,14 +89,14 @@ class Normalizer extends ObjectNormalizer
             return null;
         }
 
-        $existingEntity = $this->findEntity($type, $data[Asset::ATTRIBUTE_ID]);
+        $existingEntity = $this->findEntity($type, $data[AbstractAssetMetadata::FIELD_OID]);
         if ($existingEntity) {
-            if (!isset($data[Asset::ATTRIBUTE_CHANGE_DATE])) {
+            if (!isset($data[ChangeDateUTCAttribute::getName()])) {
                 // Change date is not set on relations during denormalization
                 return $existingEntity;
             }
 
-            $changedAt = strtotime($data[Asset::ATTRIBUTE_CHANGE_DATE]);
+            $changedAt = strtotime($data[ChangeDateUTCAttribute::getName()]);
             // Use timestamps because V1 API returns time with microseconds but we don't store them for entities in a DB
             $wasEntityChanged = $changedAt !== $existingEntity->getChangedAt()->getTimestamp();
             if (!$wasEntityChanged) {
@@ -99,7 +106,7 @@ class Normalizer extends ObjectNormalizer
             $context[self::OBJECT_TO_POPULATE] = $existingEntity;
         }
 
-        $data = array_map([$this, 'denormalizeAttributeValue'], $data);
+        array_walk($data, [$this, 'denormalizeAttributeValue']);
         $entity = parent::denormalize($data, $type, $format, $context);
         $errors = $this->validator->validate($entity);
         if ($errors->count()) {
@@ -109,17 +116,17 @@ class Normalizer extends ObjectNormalizer
         return $entity;
     }
 
-    private function denormalizeAttributeValue($value)
+    private function denormalizeAttributeValue(&$value, string $attribute)
     {
-        if (isset($value[Asset::ATTRIBUTE_ID]) && 'NULL' === $value[Asset::ATTRIBUTE_ID]) {
-            return null;
+        if (isset($value[AbstractAssetMetadata::FIELD_OID])) {
+            if ($attribute === IDAttribute::getName()) {
+                $value = $value[AbstractAssetMetadata::FIELD_OID];
+            } elseif ($value[AbstractAssetMetadata::FIELD_OID] === 'NULL') {
+                $value = null;
+            }
+        } elseif (in_array($value, ['True', 'False'], true)) {
+            $value = 'True' === $value;
         }
-
-        if (in_array($value, ['True', 'False'], true)) {
-            return 'True' === $value;
-        }
-
-        return $value;
     }
 
     private function findEntity(string $entityClassName, string $versionOneId): ?AbstractEntity
@@ -132,7 +139,7 @@ class Normalizer extends ObjectNormalizer
      */
     public function normalize($object, string $format = null, array $context = [])
     {
-        if (($this->objectClassResolver)($object) === $context[self::PARENT_CLASS]) {
+        if (($this->objectClassResolver)($object) === $context[self::PARENT_OBJECT_CLASS]) {
             return parent::normalize($object, $format, $context);
         }
 

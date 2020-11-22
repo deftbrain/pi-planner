@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\VersionOne\Sync\FilterProvider;
 
 use App\Entity\EpicStatus;
 use App\Entity\ProgramIncrement;
 use App\Entity\Project;
-use App\VersionOne\AssetMetadata\Epic;
+use App\VersionOne\AssetMetadata\Epic\ScopeAttribute;
+use App\VersionOne\AssetMetadata\Epic\StatusAttribute;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -66,8 +66,8 @@ class EpicFilterProvider implements FilterProviderInterface
             ->findOneBy(['name' => $this->params->get('version_one.filter.epic.status_name'),]);
 
         return [
-            Epic::ATTRIBUTE_SCOPE => array_column($projects, 'externalId'),
-            Epic::ATTRIBUTE_STATUS => $epicStatus->getExternalId(),
+            ScopeAttribute::getName() => array_column($projects, 'externalId'),
+            StatusAttribute::getName() => $epicStatus->getExternalId(),
         ];
     }
 }

@@ -22,6 +22,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $commonHost: '%env(COMMON_HOST)%'
+            $classMetadataFactory: '@app.version_one.serializer.class_metadata_factory'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -51,26 +52,22 @@ services:
             Psr\Http\Client\ClientInterface: '@httplug.client.version_one'
             $bulkEndpoint: '%version_one.endpoint.bulk%'
 
-    app.version_one.serializer.name_converter.yaml_loader:
+    app.version_one.serializer.yaml_loader:
         class: Symfony\Component\Serializer\Mapping\Loader\YamlFileLoader
-        arguments: ['%kernel.project_dir%/config/version_one_serializer.yml']  
-        
-    app.version_one.serializer.name_converter.class_metadata_factory:
+        arguments: ['%kernel.project_dir%/src/VersionOne/Resources/config/serializer.yml']
+
+    app.version_one.serializer.class_metadata_factory:
         class: Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory
-        arguments: ['@app.version_one.serializer.name_converter.yaml_loader']    
+        arguments: ['@app.version_one.serializer.yaml_loader']
 
     app.version_one.serializer.name_converter:
-        class: Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter
-        arguments: ['@app.version_one.serializer.name_converter.class_metadata_factory']
-            
+        class: App\VersionOne\Sync\Serializer\MetadataAwareNameConverter
+        arguments: ['@app.version_one.serializer.class_metadata_factory']
+
     App\VersionOne\Sync\Serializer\Normalizer:
         arguments:
+            Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface: '@app.version_one.serializer.class_metadata_factory'
             Symfony\Component\Serializer\NameConverter\NameConverterInterface: '@app.version_one.serializer.name_converter'
-
-    App\Maker\MakeVersionOneAssetMetadata:
-        arguments:
-            $metadataFactory: '@app.version_one.serializer.name_converter.class_metadata_factory'
-            $assetToEntityMapConfigPath: '%kernel.project_dir%/config/version_one_asset_map.yml'
 
     App\Entity\Listener\AbstractEntityListener:
         tags:

@@ -3,11 +3,12 @@
 namespace App\VersionOne\Sync;
 
 use App\Entity\AbstractEntity;
+use App\VersionOne\AssetMetadata\AbstractAssetMetadata;
+use App\VersionOne\AssetMetadata\AssetMetadataInterface;
+use App\VersionOne\AssetMetadata\BaseAsset\IsDeletedAttribute;
+use App\VersionOne\AssetMetadata\Epic\EpicAssetMetadata;
+use App\VersionOne\AssetMetadata\PrimaryWorkitem\PrimaryWorkitemAssetMetadata;
 use App\VersionOne\BulkApiClient;
-use App\VersionOne\AssetMetadata;
-use App\VersionOne\AssetMetadata\Asset;
-use App\VersionOne\AssetMetadata\Epic;
-use App\VersionOne\AssetMetadata\Workitem;
 use App\VersionOne\Sync\FilterProvider\EpicFilterProvider;
 use App\VersionOne\Sync\FilterProvider\FilterProviderInterface;
 use App\VersionOne\Sync\FilterProvider\WorkitemFilterProvider;
@@ -15,13 +16,15 @@ use App\VersionOne\Sync\Serializer\Normalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class AssetImporter
 {
     private const FILTER_PROVIDER = [
-        Epic::class => EpicFilterProvider::class,
-        Workitem::class => WorkitemFilterProvider::class,
+        EpicAssetMetadata::class => EpicFilterProvider::class,
+        PrimaryWorkitemAssetMetadata::class => WorkitemFilterProvider::class,
     ];
 
     /**
@@ -49,27 +52,28 @@ class AssetImporter
      */
     private $router;
 
+    private ClassMetadataFactoryInterface $classMetadataFactory;
+
     public function __construct(
         BulkApiClient $apiClient,
         EntityManagerInterface $entityManager,
         SerializerInterface $serializer,
         ParameterBagInterface $params,
-        RouterInterface $router
+        RouterInterface $router,
+        ClassMetadataFactoryInterface $classMetadataFactory
     ) {
         $this->apiClient = $apiClient;
         $this->entityManager = $entityManager;
         $this->serializer = $serializer;
         $this->params = $params;
         $this->router = $router;
+        $this->classMetadataFactory = $classMetadataFactory;
     }
 
-    /**
-     * @param string|Asset $assetClassName
-     */
-    public function importAssets(string $assetClassName): void
+    public function importAssets(AssetMetadataInterface $assetMetadata): void
     {
         /** @var FilterProviderInterface|null $filterProviderClassName */
-        $filterProviderClassName = self::FILTER_PROVIDER[$assetClassName] ?? null;
+        $filterProviderClassName = self::FILTER_PROVIDER[get_class($assetMetadata)] ?? null;
         if ($filterProviderClassName) {
             $assetSpecificFilter = (new $filterProviderClassName(
                 $this->entityManager, $this->params, $this->router
@@ -81,31 +85,37 @@ class AssetImporter
         } else {
             $assetSpecificFilter = [];
         }
-        $entityClassName = AssetToEntityMap::MAP[$assetClassName];
-        $assetType = $assetClassName::getType();
+        $assetType = $assetMetadata->getType();
+        $attributes = array_map(fn($a) => $a->getName(), $assetMetadata->getAttributes());
         $relevantAssetsQuery = $this->apiClient
             ->makeQueryBuilder()
             ->from($assetType)
-            ->select($assetClassName::getAttributesToSelect())
+            ->select($attributes)
             ->filter($assetSpecificFilter)
             ->getQuery();
         $deletedAssetsQuery = $this->apiClient
             ->makeQueryBuilder()
             ->from($assetType)
-            ->filter(array_merge([AssetMetadata\Asset::ATTRIBUTE_IS_DELETED => true], $assetSpecificFilter))
+            ->filter(array_merge([IsDeletedAttribute::getName() => true], $assetSpecificFilter))
             ->getQuery();
         [$relevantAssets, $deletedAssets] = $this->apiClient->find($relevantAssetsQuery, $deletedAssetsQuery);
         foreach ($relevantAssets as $asset) {
             try {
-                $entity = $this->serializer->denormalize($asset, $entityClassName, Normalizer::FORMAT_V1_JSON);
+                $entity = $this->serializer->denormalize(
+                    $asset,
+                    $this->getEntityClass($assetMetadata->getType()),
+                    Normalizer::FORMAT_V1_JSON,
+                    [AbstractNormalizer::GROUPS => ['readable']]
+                );
                 $this->entityManager->persist($entity);
             } catch (\DomainException $exception) {
                 echo $exception->getMessage() . PHP_EOL;
             }
         }
 
-        $externalIdsToRemove = array_column($deletedAssets, Asset::ATTRIBUTE_ID);
+        $externalIdsToRemove = array_column($deletedAssets, AbstractAssetMetadata::FIELD_OID);
         if ($externalIdsToRemove) {
+            $entityClassName = $this->getEntityClass($assetType);
             $entitiesToMarkAsDeleted = $this->entityManager
                 ->getRepository($entityClassName)
                 ->findBy(['externalId' => $externalIdsToRemove]);
@@ -126,5 +136,13 @@ class AssetImporter
         }
 
         $this->entityManager->flush();
+    }
+
+    private function getEntityClass(string $assetType): string
+    {
+        return $this->classMetadataFactory
+            ->getMetadataFor(AbstractEntity::class)
+            ->getClassDiscriminatorMapping()
+            ->getClassForType($assetType);
     }
 }
