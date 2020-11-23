@@ -16,6 +16,7 @@
         "symfony/console": "^5.1",
         "symfony/dependency-injection": "^5.1.5",
         "symfony/event-dispatcher": "^5.1",
+        "symfony/filesystem": "^5.1",
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "^5.1",
         "symfony/mercure-bundle": "^0.2",

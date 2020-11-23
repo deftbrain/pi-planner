@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 
 class MakeVersionOneAssetMetadata extends AbstractMaker
@@ -23,13 +24,16 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
 
     private MetaApiClient $apiClient;
     private ClassMetadataFactoryInterface $classMetadataFactory;
+    private Filesystem $filesystem;
 
     public function __construct(
         MetaApiClient $apiClient,
-        ClassMetadataFactoryInterface $classMetadataFactory
+        ClassMetadataFactoryInterface $classMetadataFactory,
+        Filesystem $filesystem
     ) {
         $this->apiClient = $apiClient;
         $this->classMetadataFactory = $classMetadataFactory;
+        $this->filesystem = $filesystem;
     }
 
     public static function getCommandName(): string
@@ -80,8 +84,10 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
             $attributeShortClassNames[] = $attributeClassNameDetails->getShortName();
 
             $attributeMetadata = $assetMetadata['Attributes'][$assetType . '.' . $attributeName];
+            $attributeClassName = $attributeClassNameDetails->getFullName();
+            $this->removeClassFileIfExists($attributeClassName);
             $generator->generateClass(
-                $attributeClassNameDetails->getFullName(),
+                $attributeClassName,
                 'src/Resources/skeleton/version-one/AssetAttributeMetadata.tpl.php',
                 [
                     'name' => $attributeName,
@@ -97,8 +103,10 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
             sprintf(self::ASSET_METADATA_NAMESPACE_PREFIX_TEMPLATE, $assetType),
             'AssetMetadata'
         );
+        $assetClassName = $assetClassNameDetails->getFullName();
+        $this->removeClassFileIfExists($assetClassName);
         $generator->generateClass(
-            $assetClassNameDetails->getFullName(),
+            $assetClassName,
             'src/Resources/skeleton/version-one/AssetTypeMetadata.tpl.php',
             [
                 'asset_type' => $assetType,
@@ -148,5 +156,13 @@ class MakeVersionOneAssetMetadata extends AbstractMaker
             ->getMetadataFor(AbstractEntity::class)
             ->getClassDiscriminatorMapping()
             ->getClassForType($assetType);
+    }
+
+    private function removeClassFileIfExists(string $className): void
+    {
+        if (class_exists($className)) {
+            $class = new \ReflectionClass($className);
+            $this->filesystem->remove($class->getFileName());
+        }
     }
 }
