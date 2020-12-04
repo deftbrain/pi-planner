@@ -2,25 +2,22 @@
 
 namespace App\VersionOne\MessageHandler;
 
-use App\Message\ImportEntitiesMessage;
 use App\VersionOne\Command\ImportCommand;
+use App\VersionOne\Message\ImportAllTypesAssetsMessage;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class ImportEntitiesHandler implements MessageHandlerInterface
+class ImportAllTypesAssetsHandler implements MessageHandlerInterface
 {
-    /**
-     * @var ImportCommand
-     */
-    private $importCommand;
+    private ImportCommand $importCommand;
 
     public function __construct(ImportCommand $importCommand)
     {
         $this->importCommand = $importCommand;
     }
 
-    public function __invoke(ImportEntitiesMessage $message)
+    public function __invoke(ImportAllTypesAssetsMessage $message)
     {
         $this->importCommand->run(new ArrayInput([]), new NullOutput);
     }

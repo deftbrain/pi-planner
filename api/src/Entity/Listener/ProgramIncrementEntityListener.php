@@ -2,15 +2,12 @@
 
 namespace App\Entity\Listener;
 
-use App\Message\ImportEntitiesMessage;
+use App\VersionOne\Message\ImportAllTypesAssetsMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProgramIncrementEntityListener
 {
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private MessageBusInterface $bus;
 
     public function __construct(MessageBusInterface $bus)
     {
@@ -19,6 +16,6 @@ class ProgramIncrementEntityListener
 
     public function importEntities(): void
     {
-        $this->bus->dispatch(new ImportEntitiesMessage);
+        $this->bus->dispatch(new ImportAllTypesAssetsMessage);
     }
 }

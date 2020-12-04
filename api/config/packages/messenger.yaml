@@ -1,12 +1,17 @@
 framework:
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
-
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
+            async_priority_high:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: high
+            async_priority_low:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: low
 
         routing:
-            'App\Message\ImportEntitiesMessage': async
+            'App\VersionOne\Message\ImportAllTypesAssetsMessage': async_priority_high
+            'App\VersionOne\Message\ImportAssetsMessage': async_priority_high
+            'App\VersionOne\Message\SetSameTypeRelationsMessage': async_priority_low

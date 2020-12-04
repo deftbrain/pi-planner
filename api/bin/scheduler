@@ -1,7 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-use App\Command\ImportCommand;
+use App\VersionOne\AssetMetadata\PrimaryWorkitem\PrimaryWorkitemAssetMetadata;
+use App\VersionOne\Command\ImportCommand;
 use GO\Scheduler;
 
 $rootDir = dirname(__DIR__);
@@ -17,8 +18,12 @@ $scheduler->raw(implode(' ', [$console, ImportCommand::NAME]), [], ImportCommand
     ->onlyOne()
     ->output($logsDir . '/import-v1-assets.log', true);
 
-// Use the same job ID to prevent importing of workitems when importing of all assets is already in progress
-$scheduler->raw(implode(' ', [$console, ImportCommand::NAME, 'Workitem', '-d']), [], ImportCommand::NAME)
+$scheduler->raw(
+        implode(' ', [$console, ImportCommand::NAME, (new PrimaryWorkitemAssetMetadata)->getType(), '-i']),
+        [],
+        // Use the same job ID to prevent importing of workitems when importing of all assets is already in progress
+        ImportCommand::NAME
+    )
     ->everyMinute(5)
     ->onlyOne()
     ->output($logsDir . '/import-v1-workitems.log', true);

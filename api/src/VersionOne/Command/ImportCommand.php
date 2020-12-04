@@ -4,42 +4,37 @@ namespace App\VersionOne\Command;
 
 use App\Entity\AbstractEntity;
 use App\VersionOne\AssetMetadata\AssetMetadataFactory;
-use App\VersionOne\AssetMetadata\AssetMetadataInterface;
 use App\VersionOne\AssetMetadata\BaseAsset\IDAttribute;
-use App\VersionOne\Sync\AssetImporter\AssetImporterFactory;
+use App\VersionOne\Message\ImportAssetsMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 
 class ImportCommand extends Command
 {
+    public const NAME = 'version-one:import-assets';
     private const ARGUMENT_ASSET_TYPE = 'asset-type';
-    private const OPTION_IGNORE_DEPENDENCIES = 'ignore-dependencies';
+    private const OPTION_IGNORE_RELATED_ASSETS = 'ignore-related-assets';
 
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
-
-    private AssetImporterFactory $assetImporterFactory;
-
+    private SymfonyStyle $io;
     private AssetMetadataFactory $assetMetadataFactory;
-
     private ClassMetadataFactoryInterface $classMetadataFactory;
-
-    private $assetTypesToImport = [];
+    private MessageBusInterface $messageBus;
+    private array $queuedAssetTypes = [];
+    private bool $ignoreRelatedAssets;
 
     public function __construct(
-        AssetImporterFactory $assetImporterFactory,
         AssetMetadataFactory $assetMetadataFactory,
-        ClassMetadataFactoryInterface $classMetadataFactory
+        ClassMetadataFactoryInterface $classMetadataFactory,
+        MessageBusInterface $messageBus
     ) {
-        $this->assetImporterFactory = $assetImporterFactory;
         $this->assetMetadataFactory = $assetMetadataFactory;
         $this->classMetadataFactory = $classMetadataFactory;
+        $this->messageBus = $messageBus;
 
         parent::__construct();
     }
@@ -49,15 +44,14 @@ class ImportCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('version-one:import-assets')
-            ->setDescription('Reflects changes made on entities in VersionOne to entities in the project database.')
+        $this->setName(self::NAME)
+            ->setDescription('Reflects changes made on assets in VersionOne to entities in the project database.')
             ->addArgument(
                 self::ARGUMENT_ASSET_TYPE,
                 InputArgument::OPTIONAL,
-                'An asset type to import. If is not set, assets of all types will be imported. '
-                . 'Available values: ' . implode(', ', $this->getAvailableAssetTypes())
+                'An asset type to import. Available values: ' . implode(', ', $this->getAvailableAssetTypes())
             )
-            ->addOption(self::OPTION_IGNORE_DEPENDENCIES, 'd');
+            ->addOption(self::OPTION_IGNORE_RELATED_ASSETS, 'i');
     }
 
     /**
@@ -66,44 +60,50 @@ class ImportCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
+        $this->ignoreRelatedAssets = $input->getOption(self::OPTION_IGNORE_RELATED_ASSETS);
         $assetType = $input->getArgument(self::ARGUMENT_ASSET_TYPE);
         $assetTypes = $assetType ? [$assetType] : $this->getAvailableAssetTypes();
-        $assetMetadataSet = $this->assetMetadataFactory->getMetadataFor($assetTypes);
-        $mustIgnoreDependencies = $input->getOption(self::OPTION_IGNORE_DEPENDENCIES);
-        foreach ($assetMetadataSet as $assetMetadata) {
-            $mustIgnoreDependencies
-                ? $this->importAssets($assetMetadata)
-                : $this->importAssetsAndDependencies($assetMetadata);
+        $this->io->writeln('Importing...');
+        foreach ($assetTypes as $assetType) {
+            $this->import($assetType);
         }
-
-        $this->io->success('The assets have been successfully imported.');
+        $this->io->success('Importing of assets has been scheduled.');
         return 0;
     }
 
-    private function importAssetsAndDependencies(AssetMetadataInterface $assetMetadata): void
+    private function import(string $assetType): void
     {
-        if (in_array($assetMetadata->getType(), $this->assetTypesToImport, true)) {
+        if (in_array($assetType, $this->queuedAssetTypes, true)) {
             return;
         }
-        $this->assetTypesToImport[] = $assetMetadata->getType();
-        $this->importAssetDependencies($assetMetadata);
-        $this->importAssets($assetMetadata);
+        $this->queuedAssetTypes[] = $assetType;
+        if (!$this->ignoreRelatedAssets) {
+            $this->importRelatedAssets($assetType);
+        }
+        $this->importAssets($assetType);
     }
 
-    private function importAssetDependencies(AssetMetadataInterface $assetMetadata): void
+    private function importRelatedAssets(string $assetType): void
     {
+        $assetMetadata = $this->assetMetadataFactory->makeMetadataFor($assetType);
         foreach ($assetMetadata->getAttributes() as $attribute) {
-            if ($attribute->isRelation() && !$attribute instanceof IDAttribute) {
-                $relatedAssetMetadata = $this->assetMetadataFactory->getMetadataFor([$attribute->getRelatedAsset()])[0];
-                $this->importAssetsAndDependencies($relatedAssetMetadata);
+            if (
+                $attribute->isRelation()
+                // In VersionOne the ID attribute is a relation to the asset itself
+                && !$attribute instanceof IDAttribute
+                && $attribute->getRelatedAsset() !== $assetType
+            ) {
+                $this->import($attribute->getRelatedAsset());
             }
         }
     }
 
-    private function importAssets(AssetMetadataInterface $assetMetadata): void
+    private function importAssets(string $assetType): void
     {
-        $this->io->writeln(sprintf('Importing %s...', $assetMetadata->getType()), OutputInterface::VERBOSITY_VERBOSE);
-        $this->assetImporterFactory->makeImporter($assetMetadata)->import();
+        $this->messageBus->dispatch(new ImportAssetsMessage($assetType));
+        $this->io->writeln(
+            sprintf('Importing of %s assets has been scheduled', $assetType), OutputInterface::VERBOSITY_VERBOSE
+        );
     }
 
     /**
