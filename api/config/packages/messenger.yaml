@@ -12,6 +12,5 @@ framework:
                     queue_name: low
 
         routing:
-            'App\VersionOne\Message\ImportAllTypesAssetsMessage': async_priority_high
-            'App\VersionOne\Message\ImportAssetsMessage': async_priority_high
-            'App\VersionOne\Message\SetSameTypeRelationsMessage': async_priority_low
+            App\VersionOne\Message\ImportAllTypesAssetsMessage: async_priority_low
+            App\VersionOne\Message\ImportAssetsMessage: async_priority_high

@@ -9,10 +9,8 @@ use App\VersionOne\AssetMetadata\AttributeInterface;
 use App\VersionOne\AssetMetadata\BaseAsset\IDAttribute;
 use App\VersionOne\AssetMetadata\BaseAsset\IsDeletedAttribute;
 use App\VersionOne\BulkApiClient;
-use App\VersionOne\Message\SetSameTypeRelationsMessage;
 use App\VersionOne\Sync\Serializer\Normalizer;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -24,20 +22,17 @@ class AssetImporter
     private SerializerInterface $serializer;
     private ClassMetadataFactoryInterface $classMetadataFactory;
     private AssetMetadataInterface $assetMetadata;
-    private MessageBusInterface $messageBus;
 
     public function __construct(
         BulkApiClient $apiClient,
         EntityManagerInterface $entityManager,
         SerializerInterface $serializer,
-        ClassMetadataFactoryInterface $classMetadataFactory,
-        MessageBusInterface $messageBus
+        ClassMetadataFactoryInterface $classMetadataFactory
     ) {
         $this->apiClient = $apiClient;
         $this->entityManager = $entityManager;
         $this->serializer = $serializer;
         $this->classMetadataFactory = $classMetadataFactory;
-        $this->messageBus = $messageBus;
     }
 
     public function setAssetMetadata(AssetMetadataInterface $assetMetadata): void
@@ -68,7 +63,7 @@ class AssetImporter
             ->getQuery();
         [$relevantAssets, $deletedAssets] = $this->apiClient->find($relevantAssetsQuery, $deletedAssetsQuery);
         $entityClassName = $this->getEntityClass($assetType);
-        $this->persistAssets($relevantAssets, $entityClassName);
+        $this->updateOrInsertAssets($relevantAssets, $entityClassName);
         $this->markRelatedEntitiesAsDeleted($deletedAssets, $entityClassName);
     }
 
@@ -80,51 +75,52 @@ class AssetImporter
             ->getClassForType($assetType);
     }
 
-    private function persistAssets(array $assets, string $entityClassName): void
+    private function updateOrInsertAssets(array $assets, string $entityClassName): void
     {
-        foreach ($assets as $asset) {
-            $asset = $this->delaySettingSameTypeRelations($asset, $entityClassName);
-            $this->persistAsset($asset, $entityClassName);
-        }
-    }
-
-    private function delaySettingSameTypeRelations(array $asset, string $entityClassName): array
-    {
+        $assetsWithSameTypeRelations = [];
+        $assetsWithoutSameTypeRelations = [];
         $assetType = $this->assetMetadata->getType();
-        $sameTypeRelations = array_filter(
+        $sameTypeRelationsAttributes = array_filter(
             $this->assetMetadata->getAttributes(),
             fn($a) => $a->isRelation() && $a->getRelatedAsset() === $assetType
         );
-        if (!$sameTypeRelations) {
-            return $asset;
+        if (!$sameTypeRelationsAttributes) {
+            $this->persistAssets($assets, $entityClassName);
         }
-        $sameTypeRelationAttributes = array_map(fn($a) => $a::getName(), $sameTypeRelations);
-        $this->messageBus->dispatch(
-            new SetSameTypeRelationsMessage(
-                array_intersect_key($asset, array_flip($sameTypeRelationAttributes + [IDAttribute::getName()])),
-                $entityClassName
-            )
-        );
-        return array_diff_key($asset, array_flip($sameTypeRelationAttributes));
+
+        $sameTypeRelationAttributeNames = array_map(fn($a) => $a::getName(), $sameTypeRelationsAttributes);
+        foreach ($assets as $asset) {
+            $assetsWithSameTypeRelations[] = array_intersect_key(
+                $asset,
+                array_flip($sameTypeRelationAttributeNames + [IDAttribute::getName()])
+            );
+            $assetsWithoutSameTypeRelations[] = array_diff_key($asset, array_flip($sameTypeRelationAttributeNames));
+        }
+
+        $this->persistAssets($assetsWithoutSameTypeRelations, $entityClassName);
+        $this->persistAssets($assetsWithSameTypeRelations, $entityClassName);
     }
 
-    public function persistAsset(array $asset, string $entityClassName): void
+    private function persistAssets(array $assets, string $entityClassName): void
     {
-        try {
-            $entity = $this->serializer->denormalize(
-                $asset,
-                $entityClassName,
-                Normalizer::FORMAT_V1_JSON,
-                [
-                    ObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true,
-                    ObjectNormalizer::GROUPS => ['readable'],
-                ]
-            );
-            $this->entityManager->persist($entity);
-            $this->entityManager->flush();
-        } catch (\DomainException $exception) {
-            echo $exception->getMessage() . PHP_EOL;
+        foreach ($assets as $asset) {
+            try {
+                $entity = $this->serializer->denormalize(
+                    $asset,
+                    $entityClassName,
+                    Normalizer::FORMAT_V1_JSON,
+                    [
+                        ObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true,
+                        ObjectNormalizer::GROUPS => ['readable'],
+                    ]
+                );
+                $this->entityManager->persist($entity);
+            } catch (\DomainException $exception) {
+                echo $exception->getMessage() . PHP_EOL;
+            }
         }
+
+        $this->entityManager->flush();
     }
 
     private function markRelatedEntitiesAsDeleted(array $assets, string $entityClassName): void
