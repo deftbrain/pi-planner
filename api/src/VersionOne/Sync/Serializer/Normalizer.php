@@ -89,18 +89,26 @@ class Normalizer extends ObjectNormalizer
             return null;
         }
 
+        $isRelatedAsset = count($data) === 1 && isset($data[AbstractAssetMetadata::FIELD_OID]);
         $existingEntity = $this->findEntity($type, $data[AbstractAssetMetadata::FIELD_OID]);
-        if ($existingEntity) {
-            if (!isset($data[ChangeDateUTCAttribute::getName()])) {
-                // Change date is not set on relations during denormalization
+        if ($isRelatedAsset) {
+            if ($existingEntity) {
                 return $existingEntity;
             }
 
-            $changedAt = strtotime($data[ChangeDateUTCAttribute::getName()]);
-            // Use timestamps because V1 API returns time with microseconds but we don't store them for entities in a DB
-            $wasEntityChanged = $changedAt !== $existingEntity->getChangedAt()->getTimestamp();
-            if (!$wasEntityChanged) {
-                return $existingEntity;
+            // TODO: Store information about related objects that are out-of-scope to display a warning in a UI
+            return null;
+        }
+
+        if ($existingEntity) {
+            if (isset($data[ChangeDateUTCAttribute::getName()])) {
+                $changedAt = strtotime($data[ChangeDateUTCAttribute::getName()]);
+                // Use timestamps for comparison because VersionOne API returns the
+                // change date-time with microseconds but in a DB we store only seconds
+                $wasEntityChanged = $changedAt !== $existingEntity->getChangedAt()->getTimestamp();
+                if (!$wasEntityChanged) {
+                    return $existingEntity;
+                }
             }
 
             $context[self::OBJECT_TO_POPULATE] = $existingEntity;
@@ -110,7 +118,7 @@ class Normalizer extends ObjectNormalizer
         $entity = parent::denormalize($data, $type, $format, $context);
         $errors = $this->validator->validate($entity);
         if ($errors->count()) {
-            throw new \DomainException($errors . PHP_EOL . 'Related asset: ' . json_encode($data));
+            throw new \DomainException(sprintf("Unable to import the asset: %s.\n%s", json_encode($data), $errors));
         }
 
         return $entity;

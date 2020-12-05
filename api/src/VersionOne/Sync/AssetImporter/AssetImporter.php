@@ -86,13 +86,14 @@ class AssetImporter
         );
         if (!$sameTypeRelationsAttributes) {
             $this->persistAssets($assets, $entityClassName);
+            return;
         }
 
         $sameTypeRelationAttributeNames = array_map(fn($a) => $a::getName(), $sameTypeRelationsAttributes);
         foreach ($assets as $asset) {
             $assetsWithSameTypeRelations[] = array_intersect_key(
                 $asset,
-                array_flip($sameTypeRelationAttributeNames + [IDAttribute::getName()])
+                array_flip($sameTypeRelationAttributeNames + [AbstractAssetMetadata::FIELD_OID])
             );
             $assetsWithoutSameTypeRelations[] = array_diff_key($asset, array_flip($sameTypeRelationAttributeNames));
         }
