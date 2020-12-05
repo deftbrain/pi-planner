@@ -94,3 +94,11 @@ App\Entity\Workitem:
             serialized_name: Team
             groups: ['readable', 'writable']
             max_depth: 0
+        dependencies:
+            serialized_name: Dependencies
+            groups: ['readable', 'writable']
+            max_depth: 1
+        dependants:
+            serialized_name: Dependants
+            groups: ['readable', 'writable']
+            max_depth: 1

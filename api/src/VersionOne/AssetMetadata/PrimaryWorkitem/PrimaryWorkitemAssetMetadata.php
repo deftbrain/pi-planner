@@ -17,6 +17,8 @@ class PrimaryWorkitemAssetMetadata extends BaseAssetAssetMetadata
                 new ScopeAttribute,
                 new TimeboxAttribute,
                 new TeamAttribute,
+                new DependenciesAttribute,
+                new DependantsAttribute,
             ]
         );
     }
