@@ -9,7 +9,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(attributes={"order"={"sortOrder"}})
  * @ApiFilter(SearchFilter::class, properties={"project": "exact"})
  * @ApiFilter(OrderFilter::class, properties={"wsjf": {"nulls_comparison": OrderFilter::NULLS_SMALLEST}})
  * @ORM\Entity(repositoryClass="App\Repository\EpicRepository")
@@ -32,6 +32,11 @@ class Epic extends AbstractEntity
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $wsjf;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $sortOrder;
 
     public function getStatus(): ?EpicStatus
     {
@@ -65,6 +70,18 @@ class Epic extends AbstractEntity
     public function setWsjf(?float $wsjf): self
     {
         $this->wsjf = $wsjf;
+
+        return $this;
+    }
+
+    public function getSortOrder(): ?int
+    {
+        return $this->sortOrder;
+    }
+
+    public function setSortOrder(int $sortOrder): self
+    {
+        $this->sortOrder = $sortOrder;
 
         return $this;
     }

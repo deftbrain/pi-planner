@@ -41,6 +41,9 @@ App\Entity\Epic:
         wsjf:
             serialized_name: Wsjf
             groups: ['readable']
+        sortOrder:
+            serialized_name: Order
+            groups: ['readable']
 
 App\Entity\EpicStatus:
     attributes:

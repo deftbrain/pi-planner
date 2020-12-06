@@ -15,6 +15,7 @@ class EpicAssetMetadata extends BaseAssetAssetMetadata
                 new ScopeAttribute,
                 new StatusAttribute,
                 new WsjfAttribute,
+                new OrderAttribute,
             ]
         );
     }
