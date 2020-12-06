@@ -48,9 +48,21 @@ class List extends Component {
       return {
         id: workitem['@id'],
         title: <ExternalLink entity={workitem}/>,
-        label: <Estimate workitem={workitem} onChange={this.onEstimateChange.bind(this, workitem)}/>
+        label: <Estimate workitem={workitem} onChange={this.onEstimateChange.bind(this, workitem)}/>,
+        tags: this.getWorkitemTags(workitem),
       };
     });
+  }
+
+  getWorkitemTags(workitem) {
+    const result = [];
+    if (workitem['dependencies'].length > 0) {
+      result.push({title: 'Dependencies: ' + workitem['dependencies'].length, bgcolor: 'red'});
+    }
+    if (workitem['dependants'].length > 0) {
+      result.push({title: 'Dependants: ' + workitem['dependants'].length, bgcolor: 'orange'});
+    }
+    return result;
   }
 
   getBoardData() {
