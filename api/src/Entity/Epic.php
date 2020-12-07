@@ -31,7 +31,7 @@ class Epic extends AbstractEntity
     private $project;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="float", length=255, nullable=true)
      */
     private $wsjf;
 
