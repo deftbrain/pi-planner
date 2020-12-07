@@ -8,6 +8,7 @@ import {
 import {Resource} from 'react-admin';
 import parseHydraDocumentation from "@api-platform/api-doc-parser/lib/hydra/parseHydraDocumentation";
 import programIncrementComponents from './resource/programIncrement';
+import epicComponents from './resource/epic';
 import {TeamSprintCapacityCreate, TeamSprintCapacityEdit} from './resource/teamSprintCapacity';
 import LoginPage from './Login';
 import authProvider, {isUserAuthenticated} from './authProvider';
@@ -46,7 +47,7 @@ export default () => (
     <Resource name="program_increments" {...programIncrementComponents}/>
     <Resource name="team_sprint_capacities" create={TeamSprintCapacityCreate} edit={TeamSprintCapacityEdit}/>
     <Resource name="backlog_groups"/>
-    <Resource name="epics"/>
+    <Resource name="epics" {...epicComponents}/>
     <Resource name="epic_statuses"/>
     <Resource name="projects"/>
     <Resource name="sprints"/>
