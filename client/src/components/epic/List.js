@@ -75,7 +75,7 @@ class List extends Component {
                 </Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                  <WorkitemList epic={item['@id']} programIncrement={this.props.programIncrement}/>
+                <WorkitemList epic={item} programIncrement={this.props.programIncrement}/>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           ))}

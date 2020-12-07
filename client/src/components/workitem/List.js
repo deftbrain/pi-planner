@@ -12,7 +12,7 @@ import TeamSprintRemainingCapacity from '../programincrement/TeamSprintRemaining
 
 class List extends Component {
   static propTypes = {
-    epic: PropTypes.string.isRequired,
+    epic: PropTypes.object.isRequired,
     projects: PropTypes.array.isRequired,
     teams: PropTypes.array.isRequired,
     sprints: PropTypes.array.isRequired,
@@ -28,7 +28,7 @@ class List extends Component {
   };
 
   componentDidMount() {
-    this.props.list(this.props.epic);
+    this.props.list(this.props.epic['@id']);
   }
 
   componentWillUnmount() {
@@ -42,7 +42,7 @@ class List extends Component {
   }
 
   getBoardCards(project, team, sprint) {
-    const workitems = this.props.retrieved[this.props.epic]['hydra:member']
+    const workitems = this.props.retrieved[this.props.epic['@id']]['hydra:member']
       .filter(w => w.project == project && w.team == team && w.sprint == sprint);
     return workitems.map(workitem => {
       return {
@@ -74,11 +74,11 @@ class List extends Component {
     const programIncrement = this.props.programIncrement;
     let columnsPerRow = programIncrement.sprints.length;
     let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
-    let teamIds = new Set();
+    let teamsWithCapacity = new Set();
     for (let capacity of programIncrement.teamSprintCapacities) {
-      teamIds.add(capacity.team);
+      teamsWithCapacity.add(capacity.team);
     }
-    let teams = this.props.teams.filter(t => teamIds.has(t['@id']));
+    let teams = this.props.teams.filter(t => this.props.epic.teams.includes(t['@id']) && teamsWithCapacity.has(t['@id']));
     teams = [unsignedTeam, ...teams];
     let sprints = this.props.sprints.filter(s => programIncrement.sprints.indexOf(s['@id']) !== -1);
     sprints = sprints.sort((a, b) => {
@@ -91,9 +91,9 @@ class List extends Component {
       for (let sprintIndex in sprints) {
         let sprint = sprints[sprintIndex];
         columns.push({
-          id: [this.props.epic, programIncrement.project, team['@id'], sprint['@id']].join(':'),
+          id: [this.props.epic['@id'], programIncrement.project, team['@id'], sprint['@id']].join(':'),
           title: `${team.name} ${'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex}`,
-          label: <TeamSprintRemainingCapacity epic={this.props.epic} team={team['@id']} sprint={sprint['@id']}
+          label: <TeamSprintRemainingCapacity epic={this.props.epic['@id']} team={team['@id']} sprint={sprint['@id']}
                                               programIncrement={programIncrement}/>,
           cards: this.getBoardCards(programIncrement.project, team['@id'], sprint['@id']),
           style: {
@@ -111,7 +111,7 @@ class List extends Component {
     // TODO: Replace with extracting info from a lane object
     const [, sourceProject] = sourceLaneId.split(':')
     const [, targetProject, targetTeam, targetSprint] = targetLaneId.split(':')
-    const workitem = this.props.retrieved[this.props.epic]['hydra:member']
+    const workitem = this.props.retrieved[this.props.epic['@id']]['hydra:member']
       .find(w => w['@id'] === cardId);
     let patch = {
       project: targetProject,
@@ -139,8 +139,8 @@ class List extends Component {
           <div className="alert alert-danger">{this.props.error}</div>
         )}
 
-        {this.props.retrieved && this.props.retrieved[this.props.epic] && (
-          <Board id={this.props.epic} data={this.getBoardData()} editable={true} laneDraggable={false}
+        {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && (
+          <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
                  handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
       </div>
