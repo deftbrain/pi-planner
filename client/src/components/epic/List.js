@@ -10,7 +10,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import WSJF from './WSJF';
+import Teams from './Teams';
 
 const styles = theme => ({
   root: {
@@ -20,7 +20,7 @@ const styles = theme => ({
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
   },
-  wsjf: {
+  teams: {
     fontSize: theme.typography.pxToRem(12),
     marginLeft: '10px',
   },
@@ -36,7 +36,8 @@ class List extends Component {
     eventSource: PropTypes.instanceOf(EventSource),
     deletedItem: PropTypes.object,
     list: PropTypes.func.isRequired,
-    reset: PropTypes.func.isRequired
+    reset: PropTypes.func.isRequired,
+    teams: PropTypes.array.isRequired,
   };
 
   componentDidMount() {
@@ -69,7 +70,8 @@ class List extends Component {
               <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
                 <Typography className={this.props.classes.heading}>
                   <ExternalLink entity={item}/>
-                  <WSJF value={item.wsjf} className={this.props.classes.wsjf}/>
+                  <Teams teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
+                         className={this.props.classes.teams}/>
                 </Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
@@ -91,7 +93,7 @@ const mapStateToProps = state => {
     eventSource,
     deletedItem
   } = state.epic.list;
-  return { retrieved, loading, error, eventSource, deletedItem };
+  return {retrieved, loading, error, eventSource, deletedItem, teams: state.team.list.retrieved};
 };
 
 const mapDispatchToProps = dispatch => ({
