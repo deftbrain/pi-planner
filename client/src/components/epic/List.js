@@ -37,7 +37,7 @@ class List extends Component {
     deletedItem: PropTypes.object,
     list: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
-    teams: PropTypes.array.isRequired,
+    teams: PropTypes.object,
   };
 
   componentDidMount() {
@@ -70,8 +70,10 @@ class List extends Component {
               <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
                 <Typography className={this.props.classes.heading}>
                   <ExternalLink entity={item}/>
-                  <Teams teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
-                         className={this.props.classes.teams}/>
+                  {this.props.teams && (
+                    <Teams teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
+                           className={this.props.classes.teams}/>
+                  )}
                 </Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>

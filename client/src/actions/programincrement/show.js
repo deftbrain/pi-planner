@@ -34,7 +34,9 @@ export function retrieve(id) {
         }
         let sprints = retrieved.sprints;
         dispatch(retrieveProjects(projects));
-        dispatch(retrieveTeams([...teams]));
+        if (teams.size) {
+          dispatch(retrieveTeams([...teams]));
+        }
         dispatch(retrieveSprints(sprints));
         dispatch(retrieveEstimates(id));
         dispatch(loading(false));

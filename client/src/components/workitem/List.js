@@ -14,8 +14,8 @@ class List extends Component {
   static propTypes = {
     epic: PropTypes.object.isRequired,
     projects: PropTypes.array.isRequired,
-    teams: PropTypes.array.isRequired,
-    sprints: PropTypes.array.isRequired,
+    teams: PropTypes.object,
+    sprints: PropTypes.object,
     programIncrement: PropTypes.object.isRequired,
     retrieved: PropTypes.object,
     loading: PropTypes.bool.isRequired,
@@ -78,9 +78,9 @@ class List extends Component {
     for (let capacity of programIncrement.teamSprintCapacities) {
       teamsWithCapacity.add(capacity.team);
     }
-    let teams = this.props.teams.filter(t => this.props.epic.teams.includes(t['@id']) && teamsWithCapacity.has(t['@id']));
+    let teams = this.props.teams['hydra:member'].filter(t => this.props.epic.teams.includes(t['@id']) && teamsWithCapacity.has(t['@id']));
     teams = [unsignedTeam, ...teams];
-    let sprints = this.props.sprints.filter(s => programIncrement.sprints.indexOf(s['@id']) !== -1);
+    let sprints = this.props.sprints['hydra:member'].filter(s => programIncrement.sprints.indexOf(s['@id']) !== -1);
     sprints = sprints.sort((a, b) => {
       a = new Date(a.startDate);
       b = new Date(b.startDate);
@@ -139,7 +139,7 @@ class List extends Component {
           <div className="alert alert-danger">{this.props.error}</div>
         )}
 
-        {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && (
+        {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && this.props.teams && this.props.sprints && (
           <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
                  handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
@@ -159,8 +159,8 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     projects: state.project.list.retrieved['hydra:member'],
-    teams: state.team.list.retrieved['hydra:member'],
-    sprints: state.sprint.list.retrieved['hydra:member'],
+    teams: state.team.list.retrieved,
+    sprints: state.sprint.list.retrieved,
     retrieved: retrieved,
     loading,
     error,
