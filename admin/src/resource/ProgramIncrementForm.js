@@ -2,6 +2,7 @@ import React from 'react';
 import {
   AutocompleteInput,
   Datagrid,
+  DeleteButton,
   EditButton,
   FormDataConsumer,
   FormTab,
@@ -13,7 +14,7 @@ import {
   SelectArrayInput,
   TabbedForm,
   TextField,
-  TextInput
+  TextInput,
 } from 'react-admin'
 
 import {ProjectSprintArrayInput} from './ProjectSprintArrayInput';
@@ -72,6 +73,7 @@ const CapacityFormTab = props => (
         <NumberField source="capacity.frontend" label="Frontend capacity"/>
         <NumberField source="capacity.backend" label="Backend capacity"/>
         <EditButton/>
+        <DeleteButton redirect={false}/>
       </Datagrid>
     </ReferenceManyField>
   </FormTab>
