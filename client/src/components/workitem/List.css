@@ -5,6 +5,10 @@ div.react-trello-board {
     width: 100%;
 }
 
+div.react-trello-board > div {
+    width: 100%;
+}
+
 .react-trello-board .smooth-dnd-container.horizontal {
     display: flex;
     flex-wrap: wrap;

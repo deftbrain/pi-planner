@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {list, reset} from '../../actions/workitem/list';
@@ -126,7 +126,7 @@ class List extends Component {
 
   render() {
     return (
-      <div>
+      <Fragment>
         {this.props.loading && (
           <div className="alert alert-info">Loading...</div>
         )}
@@ -143,7 +143,7 @@ class List extends Component {
           <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
                  handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
-      </div>
+      </Fragment>
     );
   }
 }
