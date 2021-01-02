@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   AutocompleteInput,
+  Button,
   Datagrid,
   DeleteButton,
   EditButton,
@@ -16,6 +17,8 @@ import {
   TextField,
   TextInput,
 } from 'react-admin'
+import GroupAdd from "@material-ui/icons/GroupAdd";
+import {Link} from 'react-router-dom';
 
 import {ProjectSprintArrayInput} from './ProjectSprintArrayInput';
 import {useForm} from 'react-final-form';
@@ -24,7 +27,7 @@ export const ProgramIncrementForm = props => {
   return (
     <TabbedForm {...props}>
       <GeneralFormTab label="General"/>
-      {props.record.id && <CapacityFormTab label="Capacity" path="capacity"/>}
+      {props.record.id && <CapacityFormTab record={props.record} label="Capacity" path="capacity"/>}
     </TabbedForm>
   );
 }
@@ -58,6 +61,16 @@ const GeneralFormTab = props => {
 
 const CapacityFormTab = props => (
   <FormTab {...props}>
+    <Button
+      component={Link}
+      to={{
+        pathname: "/team_sprint_capacities/create",
+        search: `?programIncrement=${props.record.id}`,
+      }}
+      label="Add team capacity"
+    >
+      <GroupAdd/>
+    </Button>
     <ReferenceManyField
       addLabel={false}
       reference="team_sprint_capacities"
