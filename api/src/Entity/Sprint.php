@@ -8,7 +8,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource(attributes={"order"={"schedule", "startDate": "DESC"}})
+ * @ApiResource(attributes={"order"={"schedule", "startDate"}})
  * @ApiFilter(SearchFilter::class, properties={"id": "exact", "schedule": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\SprintRepository")
  */
