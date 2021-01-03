@@ -8,7 +8,6 @@ import './List.css'
 import {update} from '../../actions/workitem/update';
 import Estimate from './Estimate';
 import upperFirst from 'lodash/upperFirst';
-import TeamSprintRemainingCapacity from '../programincrement/TeamSprintRemainingCapacity';
 
 class List extends Component {
   static propTypes = {
@@ -80,21 +79,14 @@ class List extends Component {
     }
     let teams = this.props.teams['hydra:member'].filter(t => this.props.epic.teams.includes(t['@id']) && teamsWithCapacity.has(t['@id']));
     teams = [unsignedTeam, ...teams];
-    let sprints = this.props.sprints['hydra:member'].filter(s => programIncrement.sprints.indexOf(s['@id']) !== -1);
-    sprints = sprints.sort((a, b) => {
-      a = new Date(a.startDate);
-      b = new Date(b.startDate);
-      return a.getTime() - b.getTime();
-    })
-    sprints = [unsignedSprint, ...sprints];
+    const sprints = [unsignedSprint, ...this.props.sprints['hydra:member']];
     for (let team of teams) {
       for (let sprintIndex in sprints) {
         let sprint = sprints[sprintIndex];
         columns.push({
           id: [this.props.epic['@id'], programIncrement.project, team['@id'], sprint['@id']].join(':'),
-          title: `${team.name} ${'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex}`,
-          label: <TeamSprintRemainingCapacity epic={this.props.epic['@id']} team={team['@id']} sprint={sprint['@id']}
-                                              programIncrement={programIncrement}/>,
+          title: team.name,
+          label: 'Unsigned' === sprint.name ? sprint.name : 'Sprint ' + sprintIndex,
           cards: this.getBoardCards(programIncrement.project, team['@id'], sprint['@id']),
           style: {
             width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
