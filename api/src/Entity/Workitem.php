@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource(mercure={"private": true})
+ * @ApiResource(normalizationContext={"skip_null_values": false}, mercure={"private": true})
  * @ApiFilter(SearchFilter::class, properties={"epic": "exact", "isDeleted": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\WorkitemRepository")
  */
