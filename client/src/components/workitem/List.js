@@ -40,9 +40,7 @@ class List extends Component {
     this.props.update(workitem, {[estimateFieldName]: value});
   }
 
-  getBoardCards(project, team, sprint) {
-    const workitems = this.props.retrieved[this.props.epic['@id']]['hydra:member']
-      .filter(w => w.project === project && w.team === team && w.sprint === sprint);
+  getBoardCards(workitems) {
     return workitems.map(workitem => {
       return {
         id: workitem['@id'],
@@ -51,6 +49,10 @@ class List extends Component {
         tags: this.getWorkitemTags(workitem),
       };
     });
+  }
+
+  getWorkitems(filterCallback) {
+    return this.props.retrieved[this.props.epic['@id']]['hydra:member'].filter(filterCallback);
   }
 
   getWorkitemTags(workitem) {
@@ -81,13 +83,15 @@ class List extends Component {
     teams = [unsignedTeam, ...teams];
     const sprints = [unsignedSprint, ...this.props.sprints['hydra:member']];
     for (let team of teams) {
+      let teamWorkitems = this.getWorkitems(w => w.team === team['@id']);
       for (let sprintIndex in sprints) {
         let sprint = sprints[sprintIndex];
+        let teamSprintWorkitems = teamWorkitems.filter(w => w.sprint === sprint['@id']);
         columns.push({
           id: [this.props.epic['@id'], programIncrement.project, team['@id'], sprint['@id']].join(':'),
           title: team.name,
           label: 'Unsigned' === sprint.name ? sprint.name : 'Sprint ' + sprintIndex,
-          cards: this.getBoardCards(programIncrement.project, team['@id'], sprint['@id']),
+          cards: this.getBoardCards(teamSprintWorkitems),
           style: {
             width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
           }
