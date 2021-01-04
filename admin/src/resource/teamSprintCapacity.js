@@ -3,46 +3,25 @@ import {Create, Edit, NumberInput, ReferenceInput, SelectInput, SimpleForm} from
 import {ProjectSprintReferenceInput} from './ProjectSprintReferenceInput';
 import {parse} from 'query-string';
 
-export const TeamSprintCapacityCreate = props => {
-  const {programIncrement} = parse(props.location.search);
-  const redirect = programIncrement ? `/program_increments/${encodeURIComponent(programIncrement)}/capacity` : 'show';
-  // TODO: Figure out why there is redirection to /undefined after creation of a capacity
-  // in case when repeated code is moved into TeamSprintCapacityForm component
+const Form = props => {
+  const queryParams = parse(props.location.search);
+  const programIncrement = props.record.programIncrement || queryParams.programIncrement;
+  const redirect = `/program_increments/${encodeURIComponent(programIncrement)}/capacity`;
+
   return (
-    <Create {...props}>
-      <SimpleForm initialValues={{programIncrement}} redirect={redirect}>
-        <ReferenceInput source="programIncrement" reference="program_increments">
-          <SelectInput source="name"/>
-        </ReferenceInput>
-        <ReferenceInput source="team" reference="teams">
-          <SelectInput source="name"/>
-        </ReferenceInput>
-        <ProjectSprintReferenceInput programIncrement={programIncrement} source="sprint" reference="sprints"/>
-        <NumberInput source="capacity.frontend" label="Frontend capacity"/>
-        <NumberInput source="capacity.backend" label="Backend capacity"/>
-      </SimpleForm>
-    </Create>
+    <SimpleForm {...props} initialValues={{programIncrement}} redirect={redirect}>
+      <ReferenceInput source="programIncrement" reference="program_increments">
+        <SelectInput source="name"/>
+      </ReferenceInput>
+      <ReferenceInput source="team" reference="teams">
+        <SelectInput source="name"/>
+      </ReferenceInput>
+      <ProjectSprintReferenceInput programIncrement={programIncrement} source="sprint" reference="sprints"/>
+      <NumberInput source="capacity.frontend" label="Frontend capacity"/>
+      <NumberInput source="capacity.backend" label="Backend capacity"/>
+    </SimpleForm>
   );
 }
 
-export const TeamSprintCapacityEdit = props => {
-  const {programIncrement} = parse(props.location.search);
-  const redirect = programIncrement ? `/program_increments/${encodeURIComponent(programIncrement)}/capacity` : 'show';
-  // TODO: Figure out why there is redirection to /undefined after creation of a capacity
-  // in case when repeated code is moved into TeamSprintCapacityForm component
-  return (
-    <Edit {...props}>
-      <SimpleForm initialValues={{programIncrement}} redirect={redirect}>
-        <ReferenceInput source="programIncrement" reference="program_increments">
-          <SelectInput source="name"/>
-        </ReferenceInput>
-        <ReferenceInput source="team" reference="teams">
-          <SelectInput source="name"/>
-        </ReferenceInput>
-        <ProjectSprintReferenceInput programIncrement={programIncrement} source="sprint" reference="sprints"/>
-        <NumberInput source="capacity.frontend" label="Frontend capacity"/>
-        <NumberInput source="capacity.backend" label="Backend capacity"/>
-      </SimpleForm>
-    </Edit>
-  );
-}
+export const TeamSprintCapacityCreate = props => <Create {...props}><Form location={props.location}/></Create>;
+export const TeamSprintCapacityEdit = props => <Edit {...props}><Form location={props.location}/></Edit>;
