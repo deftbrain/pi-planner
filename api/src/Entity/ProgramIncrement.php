@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @todo Figure out how to make Swagger show entity different from ProgramIncrement as returned type for the get_estimates operation
@@ -48,37 +47,14 @@ class ProgramIncrement
     private $name;
 
     /**
-     * @Assert\NotBlank
-     * @ORM\ManyToOne(targetEntity=Project::class)
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToMany(targetEntity=ProjectSettings::class, mappedBy="programIncrement", orphanRemoval=true)
      * @Groups({"programIncrement"})
      */
-    private $project;
-
-    /**
-     * @Assert\NotBlank
-     * @ORM\ManyToMany(targetEntity=Sprint::class)
-     * @Groups({"programIncrement"})
-     */
-    private $sprints;
-
-    /**
-     * @ORM\OneToMany(targetEntity=TeamSprintCapacity::class, mappedBy="programIncrement", orphanRemoval=true)
-     * @Groups({"programIncrement"})
-     */
-    private $teamSprintCapacities;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=EpicStatus::class)
-     * @Groups({"programIncrement"})
-     */
-    private $epicStatuses;
+    private $projectsSettings;
 
     public function __construct()
     {
-        $this->sprints = new ArrayCollection();
-        $this->teamSprintCapacities = new ArrayCollection();
-        $this->epicStatuses = new ArrayCollection();
+        $this->projectsSettings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -98,96 +74,32 @@ class ProgramIncrement
         return $this;
     }
 
-    public function getProject(): ?Project
-    {
-        return $this->project;
-    }
-
-    public function setProject(?Project $project): self
-    {
-        $this->project = $project;
-
-        return $this;
-    }
-
     /**
-     * @return Collection|Sprint[]
+     * @return Collection|ProjectSettings[]
      */
-    public function getSprints(): Collection
+    public function getProjectsSettings(): Collection
     {
-        return $this->sprints;
+        return $this->projectsSettings;
     }
 
-    public function addSprint(Sprint $sprint): self
+    public function addProjectSetting(ProjectSettings $projectSetting): self
     {
-        if (!$this->sprints->contains($sprint)) {
-            $this->sprints[] = $sprint;
+        if (!$this->projectsSettings->contains($projectSetting)) {
+            $this->projectsSettings[] = $projectSetting;
+            $projectSetting->setProgramIncrement($this);
         }
 
         return $this;
     }
 
-    public function removeSprint(Sprint $sprint): self
+    public function removeProjectSetting(ProjectSettings $projectSetting): self
     {
-        if ($this->sprints->contains($sprint)) {
-            $this->sprints->removeElement($sprint);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|TeamSprintCapacity[]
-     */
-    public function getTeamSprintCapacities(): Collection
-    {
-        return $this->teamSprintCapacities;
-    }
-
-    public function addTeamSprintCapacity(TeamSprintCapacity $teamSprintCapacity): self
-    {
-        if (!$this->teamSprintCapacities->contains($teamSprintCapacity)) {
-            $this->teamSprintCapacities[] = $teamSprintCapacity;
-            $teamSprintCapacity->setProgramIncrement($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTeamSprintCapacity(TeamSprintCapacity $teamSprintCapacity): self
-    {
-        if ($this->teamSprintCapacities->contains($teamSprintCapacity)) {
-            $this->teamSprintCapacities->removeElement($teamSprintCapacity);
+        if ($this->projectsSettings->contains($projectSetting)) {
+            $this->projectsSettings->removeElement($projectSetting);
             // set the owning side to null (unless already changed)
-            if ($teamSprintCapacity->getProgramIncrement() === $this) {
-                $teamSprintCapacity->setProgramIncrement(null);
+            if ($projectSetting->getProgramIncrement() === $this) {
+                $projectSetting->setProgramIncrement(null);
             }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|EpicStatus[]
-     */
-    public function getEpicStatuses(): Collection
-    {
-        return $this->epicStatuses;
-    }
-
-    public function addEpicStatus(EpicStatus $epicStatus): self
-    {
-        if (!$this->epicStatuses->contains($epicStatus)) {
-            $this->epicStatuses[] = $epicStatus;
-        }
-
-        return $this;
-    }
-
-    public function removeEpicStatus(EpicStatus $epicStatus): self
-    {
-        if ($this->epicStatuses->contains($epicStatus)) {
-            $this->epicStatuses->removeElement($epicStatus);
         }
 
         return $this;

@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(attributes={"order"={"sortOrder"}})
- * @ApiFilter(SearchFilter::class, properties={"project": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={"id": "exact", "project": "exact", "projectSettings": "exact"})
  * @ApiFilter(OrderFilter::class, properties={"wsjf": {"nulls_comparison": OrderFilter::NULLS_SMALLEST}})
  * @ORM\Entity(repositoryClass="App\Repository\EpicRepository")
  */
@@ -44,6 +44,11 @@ class Epic extends AbstractEntity
      * @ORM\ManyToMany(targetEntity=Team::class)
      */
     private $teams;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=ProjectSettings::class, inversedBy="epics")
+     */
+    private $projectSettings;
 
     public function __construct()
     {
@@ -120,6 +125,18 @@ class Epic extends AbstractEntity
         if ($this->teams->contains($team)) {
             $this->teams->removeElement($team);
         }
+
+        return $this;
+    }
+
+    public function getProjectSettings(): ?ProjectSettings
+    {
+        return $this->projectSettings;
+    }
+
+    public function setProjectSettings(?ProjectSettings $projectSettings): self
+    {
+        $this->projectSettings = $projectSettings;
 
         return $this;
     }

@@ -41,8 +41,8 @@ class List extends Component {
   };
 
   componentDidMount() {
-    const projects = [this.props.programIncrement.project];
-    this.props.list(projects);
+    const projectSettingsIds = this.props.programIncrement.projectsSettings.map(ps => ps['@id']);
+    this.props.list(projectSettingsIds);
   }
 
   componentWillUnmount() {
@@ -99,7 +99,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  list: projects => dispatch(list(projects)),
+  list: projectSettingsIds => dispatch(list(projectSettingsIds)),
   reset: eventSource => dispatch(reset(eventSource))
 });
 

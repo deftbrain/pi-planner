@@ -1,11 +1,11 @@
 import React from 'react';
 import {Error, Loading, ReferenceInput, SelectInput, useQueryWithStore} from 'react-admin';
 
-export const ProjectSprintReferenceInput = ({programIncrement, ...rest}) => {
+export const ProjectSprintReferenceInput = ({projectSettings, ...rest}) => {
   const {loading, error, data} = useQueryWithStore({
     type: 'getOne',
-    resource: 'program_increments',
-    payload: {id: programIncrement}
+    resource: 'project_settings',
+    payload: {id: projectSettings}
   });
 
   if (loading) return <Loading/>;

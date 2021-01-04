@@ -91,6 +91,13 @@ services:
               method: importEntities
               entity: App\Entity\ProgramIncrement
 
+    App\Entity\Listener\ProjectSettingsEntityListener:
+        tags:
+            - name: doctrine.orm.entity_listener
+              event: preRemove
+              method: preRemove
+              entity: App\Entity\ProjectSettings
+
     App\ServerSentEvent\EstimateChangesListener:
         tags:
             - name: doctrine.event_listener

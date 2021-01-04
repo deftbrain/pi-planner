@@ -1,22 +1,19 @@
 import React from 'react';
-import {Create, Edit, NumberInput, ReferenceInput, SelectInput, SimpleForm} from 'react-admin'
+import {AutocompleteInput, Create, Edit, NumberInput, ReferenceInput, SimpleForm} from 'react-admin'
 import {ProjectSprintReferenceInput} from './ProjectSprintReferenceInput';
 import {parse} from 'query-string';
 
 const Form = props => {
   const queryParams = parse(props.location.search);
-  const programIncrement = props.record.programIncrement || queryParams.programIncrement;
-  const redirect = `/program_increments/${encodeURIComponent(programIncrement)}/capacity`;
+  const projectSettings = props.record.projectSettings || queryParams.projectSettings;
+  const redirect = `/project_settings/${encodeURIComponent(projectSettings)}/show/capacity`;
 
   return (
-    <SimpleForm {...props} initialValues={{programIncrement}} redirect={redirect}>
-      <ReferenceInput source="programIncrement" reference="program_increments">
-        <SelectInput source="name"/>
-      </ReferenceInput>
+    <SimpleForm {...props} initialValues={{projectSettings}} redirect={redirect}>
       <ReferenceInput source="team" reference="teams">
-        <SelectInput source="name"/>
+        <AutocompleteInput source="name"/>
       </ReferenceInput>
-      <ProjectSprintReferenceInput programIncrement={programIncrement} source="sprint" reference="sprints"/>
+      <ProjectSprintReferenceInput projectSettings={projectSettings} source="sprint" reference="sprints" allowEmpty/>
       <NumberInput source="capacity.frontend" label="Frontend capacity"/>
       <NumberInput source="capacity.backend" label="Backend capacity"/>
     </SimpleForm>

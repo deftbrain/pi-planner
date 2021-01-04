@@ -72,30 +72,40 @@ class List extends Component {
     const unsignedColumnWidth = 15;
     const unsignedTeam = {'@id': null, 'name': 'Unsigned'};
     const unsignedSprint = {'@id': null, 'name': 'Unsigned'};
-    const programIncrement = this.props.programIncrement;
-    let columnsPerRow = programIncrement.sprints.length;
-    let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
-    let teamsWithCapacity = new Set();
-    for (let capacity of programIncrement.teamSprintCapacities) {
-      teamsWithCapacity.add(capacity.team);
-    }
-    let teams = this.props.teams['hydra:member'].filter(t => this.props.epic.teams.includes(t['@id']) && teamsWithCapacity.has(t['@id']));
-    teams = [unsignedTeam, ...teams];
-    const sprints = [unsignedSprint, ...this.props.sprints['hydra:member']];
-    for (let team of teams) {
-      let teamWorkitems = this.getWorkitems(w => w.team === team['@id']);
-      for (let sprintIndex in sprints) {
-        let sprint = sprints[sprintIndex];
-        let teamSprintWorkitems = teamWorkitems.filter(w => w.sprint === sprint['@id']);
-        columns.push({
-          id: [this.props.epic['@id'], programIncrement.project, team['@id'], sprint['@id']].join(':'),
-          title: team.name,
-          label: 'Unsigned' === sprint.name ? sprint.name : 'Sprint ' + sprintIndex,
-          cards: this.getBoardCards(teamSprintWorkitems),
-          style: {
-            width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
-          }
-        });
+
+    for (let projectSettings of this.props.programIncrement.projectsSettings) {
+      const involvedTeams = this.props.epic.teams;
+      let teamsWithCapacity = new Set();
+      for (let capacity of projectSettings.teamSprintCapacities) {
+        if (involvedTeams.includes(capacity.team)) {
+          teamsWithCapacity.add(capacity.team);
+        }
+      }
+
+      if (!teamsWithCapacity.size) {
+        continue;
+      }
+
+      let columnsPerRow = projectSettings.sprints.length;
+      let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
+      let teams = this.props.teams['hydra:member'].filter(t => teamsWithCapacity.has(t['@id']));
+      teams = [unsignedTeam, ...teams];
+      const sprints = [unsignedSprint, ...this.props.sprints['hydra:member'].filter(s => projectSettings.sprints.includes(s['@id']))];
+      for (let team of teams) {
+        let teamWorkitems = this.getWorkitems(w => w.team === team['@id']);
+        for (let sprintIndex in sprints) {
+          let sprint = sprints[sprintIndex];
+          let teamSprintWorkitems = teamWorkitems.filter(w => w.sprint === sprint['@id']);
+          columns.push({
+            id: [this.props.epic['@id'], projectSettings.project, team['@id'], sprint['@id']].join(':'),
+            title: 'Unsigned' === sprint.name ? team.name : '',
+            label: 'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex,
+            cards: this.getBoardCards(teamSprintWorkitems),
+            style: {
+              width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
+            }
+          });
+        }
       }
     }
 

@@ -8,7 +8,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource(attributes={"order"={"name": "DESC"}})
+ * @ApiResource(attributes={"order"={"name": "desc"}}, normalizationContext={"skip_null_values": false})
  * @ApiFilter(SearchFilter::class, properties={"id": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\ProjectRepository")
  */

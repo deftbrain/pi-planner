@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource()
- * @ApiFilter(SearchFilter::class, properties={"programIncrement": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={"projectSettings": "exact"})
  * @ORM\Entity(repositoryClass=TeamSprintCapacityRepository::class)
  */
 class TeamSprintCapacity
@@ -43,10 +43,10 @@ class TeamSprintCapacity
     private $capacity = [];
 
     /**
-     * @ORM\ManyToOne(targetEntity=ProgramIncrement::class, inversedBy="teamSprintCapacities")
+     * @ORM\ManyToOne(targetEntity=ProjectSettings::class, inversedBy="teamSprintCapacities")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $programIncrement;
+    private $projectSettings;
 
     public function getId(): ?int
     {
@@ -89,14 +89,14 @@ class TeamSprintCapacity
         return $this;
     }
 
-    public function getProgramIncrement(): ?ProgramIncrement
+    public function getProjectSettings(): ?ProjectSettings
     {
-        return $this->programIncrement;
+        return $this->projectSettings;
     }
 
-    public function setProgramIncrement(?ProgramIncrement $programIncrement): self
+    public function setProjectSettings(?ProjectSettings $projectSettings): self
     {
-        $this->programIncrement = $programIncrement;
+        $this->projectSettings = $projectSettings;
 
         return $this;
     }

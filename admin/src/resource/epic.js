@@ -1,28 +1,35 @@
 import React from 'react';
-import ListGuesser from '@api-platform/admin/lib/ListGuesser';
-import FieldGuesser from '@api-platform/admin/lib/FieldGuesser';
-import EditGuesser from '@api-platform/admin/lib/EditGuesser';
-import {ReferenceArrayInput, SelectArrayInput, TextInput} from 'react-admin';
+import {
+  AutocompleteArrayInput,
+  ChipField,
+  Edit,
+  ReferenceArrayInput,
+  ReferenceField,
+  SimpleForm,
+  TextInput,
+} from 'react-admin';
 
-const EpicList = props => (
-  <ListGuesser {...props}>
-    <FieldGuesser source={'name'}/>
-    <FieldGuesser source={'status'}/>
-    <FieldGuesser source={'project'}/>
-    <FieldGuesser source={'teams'}/>
-  </ListGuesser>
-);
 
 const EpicEdit = props => (
-  <EditGuesser {...props}>
-    <TextInput source={'name'} disabled label="Name"/>
-    <ReferenceArrayInput source="teams" reference="teams" label="Teams">
-      <SelectArrayInput/>
-    </ReferenceArrayInput>
-  </EditGuesser>
+  <Edit {...props}>
+    <Form/>
+  </Edit>
 );
 
+const Form = props => {
+  const redirect = `/project_settings/${encodeURIComponent(props.record.projectSettings)}/show/epics`;
+
+  return (
+    <SimpleForm {...props} redirect={redirect}>
+      <TextInput source="name" disabled />
+      <ReferenceArrayInput label="Teams" source="teams" reference="teams">
+        <AutocompleteArrayInput/>
+      </ReferenceArrayInput>
+    </SimpleForm>
+  );
+};
+
 export default {
-  list: EpicList,
   edit: EpicEdit,
+  // list: EpicList,
 };

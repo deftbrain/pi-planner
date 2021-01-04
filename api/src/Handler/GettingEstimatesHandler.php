@@ -28,6 +28,10 @@ final class GettingEstimatesHandler
     public function __invoke(ProgramIncrement $programIncrement): array
     {
         $qb = $this->entityManager->createQueryBuilder();
+        $projectIds = array_map(
+            fn ($ps) => $ps->getProject()->getId(),
+            $programIncrement->getProjectsSettings()->toArray()
+        );
         $result = $qb
             ->from(Workitem::class, 'w')
             ->select(
@@ -38,7 +42,7 @@ final class GettingEstimatesHandler
                 'SUM(w.estimateBackend) AS backend'
             )
             ->andWhere('w.isDeleted = false')
-            ->andWhere($qb->expr()->in('w.project', $programIncrement->getProject()->getId()))
+            ->andWhere($qb->expr()->in('w.project', $projectIds))
             ->andWhere($qb->expr()->orX('w.estimateFrontend > 0', 'w.estimateBackend > 0'))
             ->groupBy('w.epic', 'w.team', 'w.sprint')
             ->getQuery()

@@ -2,26 +2,17 @@
 
 namespace App\VersionOne\Sync\AssetImporter;
 
-use App\Entity\EpicStatus;
-use App\Entity\ProgramIncrement;
+use App\Entity\Project;
 use App\VersionOne\AssetMetadata\Epic\ScopeAttribute;
-use App\VersionOne\AssetMetadata\Epic\StatusAttribute;
 
 class EpicAssetImporter extends AssetImporter
 {
     public function import(): void
     {
-        /** @var ProgramIncrement[] $programIncrements */
-        $programIncrements = $this->entityManager->getRepository(ProgramIncrement::class)->findAll();
-        foreach ($programIncrements as $programIncrement) {
-            $epicStatuses = array_map(
-                fn(EpicStatus $es) => $es->getExternalId(),
-                $programIncrement->getEpicStatuses()->toArray()
-            );
-            $filter = [
-                ScopeAttribute::getName() => $programIncrement->getProject()->getExternalId(),
-                StatusAttribute::getName() => $epicStatuses,
-            ];
+        /** @var Project[] $projects */
+        $projects = $this->entityManager->getRepository(Project::class)->findAll();
+        foreach ($projects as $project) {
+            $filter = ['AssetState' => 64, ScopeAttribute::getName() => $project->getExternalId()];
             $this->importAssets($filter);
         }
     }

@@ -27,17 +27,14 @@ export function retrieve(id) {
           .then(retrieved => ({retrieved, hubURL: extractHubURL(response)}))
       )
       .then(({retrieved, hubURL}) => {
-        let projects = [retrieved.project];
-        let teams = new Set();
-        for (let capacity of retrieved.teamSprintCapacities) {
-          teams.add(capacity.team);
-        }
-        let sprints = retrieved.sprints;
+        const projects = retrieved.projectsSettings.map(ps => ps.project);
+        const teams = new Set()
+        retrieved.projectsSettings.forEach(ps => ps.teamSprintCapacities.forEach(tc => teams.add(tc.team)));
+        const sprints = new Set()
+        retrieved.projectsSettings.forEach(c => c.sprints.forEach(s => sprints.add(s)));
         dispatch(retrieveProjects(projects));
-        if (teams.size) {
-          dispatch(retrieveTeams([...teams]));
-        }
-        dispatch(retrieveSprints(sprints));
+        dispatch(retrieveTeams([...teams]));
+        dispatch(retrieveSprints([...sprints]));
         dispatch(retrieveEstimates(id));
         dispatch(loading(false));
         dispatch(success(retrieved));

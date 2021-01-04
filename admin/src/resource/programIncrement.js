@@ -1,33 +1,20 @@
 import React from 'react';
-import {Create, Datagrid, Edit, EditButton, List, ReferenceField, TextField} from 'react-admin'
-import {ProgramIncrementForm} from './ProgramIncrementForm';
+import {Create, Datagrid, DeleteButton, Edit, EditButton, List, SimpleForm, TextField, TextInput} from 'react-admin';
 
-const ProgramIncrementCreate = props => (
-  <Create {...props}>
-    <ProgramIncrementForm/>
-  </Create>
+const Form = props => (
+  <SimpleForm {...props} redirect="list">
+    <TextInput source="name"/>
+  </SimpleForm>
 );
 
-const Title = (props) => {
-  return <span>Program increment {props.record.name}</span>;
-};
-
-const ProgramIncrementEdit = props => {
-  return (
-    <Edit {...props} title={<Title/>}>
-      <ProgramIncrementForm/>
-    </Edit>
-  );
-}
-
+const ProgramIncrementCreate = props => <Create {...props}><Form/></Create>;
+const ProgramIncrementEdit = props => <Edit {...props}><Form/></Edit>;
 const ProgramIncrementList = props => (
   <List {...props}>
     <Datagrid>
       <TextField source="name"/>
-      <ReferenceField source="project" reference="projects">
-        <TextField source="name"/>
-      </ReferenceField>
       <EditButton/>
+      <DeleteButton/>
     </Datagrid>
   </List>
 );
