@@ -49,10 +49,10 @@ const GeneralFormTab = props => {
         <SelectArrayInput/>
       </ReferenceArrayInput>
       <FormDataConsumer>
-        {({formData}) => formData.project
+        {({formData, ...rest}) => formData.project
           &&
           <ProjectSprintArrayInput label="Sprints" source="sprints" reference="sprints"
-                                   project={formData.project}/>
+                                   project={formData.project} {...rest}/>
         }
       </FormDataConsumer>
     </FormTab>
