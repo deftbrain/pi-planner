@@ -67,3 +67,9 @@ export function mercureMessage(retrieved) {
     dispatch({type: 'PROGRAMINCREMENT_SHOW_MERCURE_MESSAGE', retrieved});
   };
 }
+
+export function setTeamFilter(team) {
+  return dispatch => {
+    dispatch({type: 'PROGRAMINCREMENT_TEAM_FILTER_SET', team});
+  };
+}

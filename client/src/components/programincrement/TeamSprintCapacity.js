@@ -3,11 +3,6 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {makeStyles} from '@material-ui/core/styles';
 import sortBy from 'lodash/sortBy';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 function getInitialCapacity(team, sprint, capacity) {
   const teamSprintCapacity = capacity.find(c => team === c.team && sprint === c.sprint)
@@ -57,16 +52,18 @@ function getTeamSprintCapacity(teams, projectsSettings, estimate) {
   return result;
 }
 
+function filterTeamsByCapacity(teams, teamSprintCapacities) {
+  let result = new Set()
+  teamSprintCapacities.forEach(tc => {
+    const team = teams.find(t => t['@id'] === tc.team);
+    if (team) {
+      result.add(team)
+    }
+  });
+  return [...result];
+}
+
 const useStyles = makeStyles(theme => ({
-  root: {
-    position: 'sticky',
-    top: 0,
-    zIndex: theme.zIndex.speedDial,
-    background: theme.palette.background.default,
-  },
-  capacityContainer: {
-    flexDirection: 'column',
-  },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
@@ -75,16 +72,8 @@ const useStyles = makeStyles(theme => ({
       textAlign: 'center',
     },
   },
-  headerCell: {
-    width: props => `${100 / (props.sprints ? props.sprints['hydra:member'].length + 1 : 6)}%`,
-  }
+  headerCell: theme.typography.subtitle2,
 }));
-
-function filterTeamsByCapacity(teams, teamSprintCapacities) {
-  let result = new Set()
-  teamSprintCapacities.forEach(tc => result.add(teams.find(t => t['@id'] === tc.team)));
-  return [...result];
-}
 
 const TeamSprintCapacity = props => {
   const classes = useStyles(props);
@@ -104,7 +93,7 @@ const TeamSprintCapacity = props => {
   }
   sprintsBySchedule = Object.entries(sprintsBySchedule);
 
-  const teams = props.teams['hydra:member'];
+  const teams = props.teams['hydra:member'].filter(t => !props.selectedTeam || t['@id'] === props.selectedTeam);
   const teamsBySchedule = {};
   for (let settings of props.programIncrement.projectsSettings) {
     let schedule = sprintsBySchedule.find(([schedule, scheduleSprints]) => settings.sprints.includes(scheduleSprints[0]['@id']))[0];
@@ -117,35 +106,31 @@ const TeamSprintCapacity = props => {
   }
 
   const capacity = getTeamSprintCapacity(teams, props.programIncrement.projectsSettings, props.estimate);
+  sprintsBySchedule = sprintsBySchedule.filter(([schedule]) => teamsBySchedule[schedule].length);
   // Sort by count of sprints to improve usability (rows with fewer sprints are shown upper in the table)
   sprintsBySchedule = sortBy(sprintsBySchedule, o => o[1].length);
   return (
-    <div className={classes.root}>
-      <ExpansionPanel>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-          <Typography>Remaining capacity</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails classes={{root: classes.capacityContainer}}>
-          {sprintsBySchedule.map(([schedule, scheduleSprints]) => {
-            return (
-              <table key={schedule} className={classes.table}>
-                <thead>
-                <tr>
-                  <th className={classes.headerCell}>Team</th>
-                  <th className={classes.headerCell} colSpan={2} title="Remaining capacity">Total</th>
-                  {scheduleSprints.map((sprint, index) => (
-                    <th key={sprint.id} colSpan={2} className={classes.headerCell}
-                        title={`${new Date(sprint.startDate).toLocaleDateString()} - ${new Date(sprint.endDate).toLocaleDateString()}`}>{`Sprint ${index + 1}`}</th>
-                  ))}
-                </tr>
-                </thead>
-                <tbody>
-                {sortBy(teamsBySchedule[schedule], 'name').map(team => {
-                  let teamCapacity = capacity[team['@id']];
-                  return (
-                    <tr key={team['@id']}>
-                      <td>{team.name}</td>
-                      <td title="Frontend">{teamCapacity.total.frontend}</td>
+    <div>
+      {sprintsBySchedule.map(([schedule, scheduleSprints]) => {
+        return (
+          <table key={schedule} className={classes.table}>
+            <thead>
+            <tr>
+              <th className={classes.headerCell}>Team</th>
+              <th className={classes.headerCell} colSpan={2} title="Remaining capacity">Total</th>
+              {scheduleSprints.map((sprint, index) => (
+                <th key={sprint.id} colSpan={2} className={classes.headerCell}
+                    title={`${new Date(sprint.startDate).toLocaleDateString()} - ${new Date(sprint.endDate).toLocaleDateString()}`}>{`Sprint ${index + 1}`}</th>
+              ))}
+            </tr>
+            </thead>
+            <tbody>
+            {sortBy(teamsBySchedule[schedule], 'name').map(team => {
+              let teamCapacity = capacity[team['@id']];
+              return (
+                <tr key={team['@id']}>
+                  <td>{team.name}</td>
+                  <td title="Frontend">{teamCapacity.total.frontend}</td>
                       <td title="Backend">{teamCapacity.total.backend}</td>
                       {scheduleSprints.map(sprint => (
                         <Fragment key={`${team['@id']}:${sprint['@id']}`}>
@@ -160,8 +145,6 @@ const TeamSprintCapacity = props => {
               </table>
             );
           })}
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
     </div>
   );
 }
@@ -177,7 +160,8 @@ const mapStateToProps = state => ({
   teams: state.team.list.retrieved,
   sprints: state.sprint.list.retrieved,
   programIncrement: state.programincrement.show.retrieved,
-  estimate: state.estimate.list.retrieved,
+  selectedTeam: state.programincrement.show.teamFilter,
+  estimate: state.estimate.list.retrieved
 });
 
 export default connect(mapStateToProps)(TeamSprintCapacity);

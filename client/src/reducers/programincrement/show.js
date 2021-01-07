@@ -41,4 +41,17 @@ export function eventSource(state = null, action) {
   }
 }
 
-export default combineReducers({ error, loading, retrieved, eventSource });
+export function teamFilter(state = '', action) {
+  switch (action.type) {
+    case 'PROGRAMINCREMENT_TEAM_FILTER_SET':
+      return action.team;
+
+    case 'PROGRAMINCREMENT_SHOW_RESET':
+      return '';
+
+    default:
+      return state;
+  }
+}
+
+export default combineReducers({ error, loading, retrieved, eventSource, teamFilter });

@@ -65,17 +65,18 @@ class List extends Component {
         )}
 
         <div className={this.props.classes.root}>
-          {this.props.retrieved && this.props.retrieved['hydra:member'].map(item => (
-            <ExpansionPanel key={item['@id']} TransitionProps={{unmountOnExit: true}}>
-              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                <Typography className={this.props.classes.heading}>
-                  <ExternalLink entity={item}/>
-                  {this.props.teams && (
-                    <Teams teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
-                           className={this.props.classes.teams}/>
-                  )}
-                </Typography>
-              </ExpansionPanelSummary>
+          {this.props.retrieved && this.props.retrieved['hydra:member']
+            .filter(e => !this.props.selectedTeam || e.teams.includes(this.props.selectedTeam)).map(item => (
+              <ExpansionPanel key={item['@id']} TransitionProps={{unmountOnExit: true}}>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                  <Typography className={this.props.classes.heading}>
+                    <ExternalLink entity={item}/>
+                    {this.props.teams && (
+                      <Teams teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
+                             className={this.props.classes.teams}/>
+                    )}
+                  </Typography>
+                </ExpansionPanelSummary>
               <ExpansionPanelDetails>
                 <WorkitemList epic={item} programIncrement={this.props.programIncrement}/>
               </ExpansionPanelDetails>
@@ -88,14 +89,15 @@ class List extends Component {
 }
 
 const mapStateToProps = state => {
-  const {
-    retrieved,
-    loading,
-    error,
-    eventSource,
-    deletedItem
-  } = state.epic.list;
-  return {retrieved, loading, error, eventSource, deletedItem, teams: state.team.list.retrieved};
+  return {
+    retrieved: state.epic.list.retrieved,
+    loading: state.epic.list.loading,
+    error: state.epic.list.error,
+    eventSource: state.epic.list.eventSource,
+    deletedItem: state.epic.list.deletedItem,
+    teams: state.team.list.retrieved,
+    selectedTeam: state.programincrement.show.teamFilter
+  };
 };
 
 const mapDispatchToProps = dispatch => ({

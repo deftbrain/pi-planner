@@ -1,10 +1,10 @@
-import React, {Fragment, Component} from 'react';
+import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {retrieve} from '../../actions/programincrement/show';
 import EpicsList from '../epic/List'
-import TeamSprintCapacity from './TeamSprintCapacity';
+import Header from './Header';
 
 class Show extends Component {
   static propTypes = {
@@ -23,7 +23,7 @@ class Show extends Component {
 
     return (
       <div>
-        <h1>{item && `Program Increment: ${item['name']}`}</h1>
+        <Header title={item && `Program Increment: ${item['name']}`}/>
 
         {this.props.loading && (
           <div className="alert alert-info" role="status">
@@ -37,15 +37,7 @@ class Show extends Component {
           </div>
         )}
 
-        {item && (
-          <Fragment>
-            <TeamSprintCapacity/>
-            <EpicsList programIncrement={item}/>
-          </Fragment>
-        )}
-        <Link to=".." className="btn btn-primary">
-          Back to list
-        </Link>
+        {item && <EpicsList programIncrement={item}/>}
       </div>
     );
   }
