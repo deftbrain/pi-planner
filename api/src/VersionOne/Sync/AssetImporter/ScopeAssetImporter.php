@@ -4,8 +4,8 @@ namespace App\VersionOne\Sync\AssetImporter;
 
 class ScopeAssetImporter extends AssetImporter
 {
-    public function import(): void
+    protected function importAssets(array $filter): void
     {
-        $this->importAssets(['AssetState' => 64]);
+        parent::importAssets(['AssetState' => 64]);
     }
 }

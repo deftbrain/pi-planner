@@ -8,7 +8,7 @@ use App\VersionOne\AssetMetadata\PrimaryWorkitem\SuperAttribute;
 
 class PrimaryWorkitemAssetImporter extends AssetImporter
 {
-    public function import(): void
+    protected function importAssets(array $filter): void
     {
         /** @var ProjectSettings[] $projectsSettings */
         $projectsSettings = $this->entityManager->getRepository(ProjectSettings::class)->findAll();
@@ -18,7 +18,7 @@ class PrimaryWorkitemAssetImporter extends AssetImporter
                 $projectSettings->getEpics()->toArray()
             );
             if ($epicExternalIds) {
-                $this->importAssets([SuperAttribute::getName() => $epicExternalIds]);
+                parent::importAssets([SuperAttribute::getName() => $epicExternalIds]);
             }
         }
     }

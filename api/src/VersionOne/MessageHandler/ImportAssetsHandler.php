@@ -21,6 +21,6 @@ class ImportAssetsHandler implements MessageHandlerInterface
     public function __invoke(ImportAssetsMessage $message)
     {
         $assetMetadata = $this->assetMetadataFactory->makeMetadataFor($message->getAssetType());
-        $this->assetImporterFactory->makeImporter($assetMetadata)->import();
+        $this->assetImporterFactory->makeImporter($assetMetadata)->import($message->isForceUpdateRequired());
     }
 }

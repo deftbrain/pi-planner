@@ -6,7 +6,6 @@ use App\Entity\AbstractEntity;
 use App\VersionOne\AssetMetadata\AbstractAssetMetadata;
 use App\VersionOne\AssetMetadata\AssetMetadataInterface;
 use App\VersionOne\AssetMetadata\AttributeInterface;
-use App\VersionOne\AssetMetadata\BaseAsset\IDAttribute;
 use App\VersionOne\AssetMetadata\BaseAsset\IsDeletedAttribute;
 use App\VersionOne\BulkApiClient;
 use App\VersionOne\Sync\Serializer\Normalizer;
@@ -22,6 +21,7 @@ class AssetImporter
     private SerializerInterface $serializer;
     private ClassMetadataFactoryInterface $classMetadataFactory;
     private AssetMetadataInterface $assetMetadata;
+    protected bool $isForceUpdateRequired;
 
     public function __construct(
         BulkApiClient $apiClient,
@@ -40,8 +40,9 @@ class AssetImporter
         $this->assetMetadata = $assetMetadata;
     }
 
-    public function import(): void
+    public function import(bool $isForceUpdateRequired): void
     {
+        $this->isForceUpdateRequired = $isForceUpdateRequired;
         $this->importAssets([]);
     }
 
@@ -113,6 +114,7 @@ class AssetImporter
                     [
                         ObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true,
                         ObjectNormalizer::GROUPS => ['readable'],
+                        Normalizer::FORCE_UPDATE => $this->isForceUpdateRequired,
                     ]
                 );
                 $this->entityManager->persist($entity);

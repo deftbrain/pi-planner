@@ -19,6 +19,7 @@ class Normalizer extends ObjectNormalizer
 {
     public const FORMAT_V1_JSON = 'v1+json';
     public const PARENT_OBJECT_CLASS = 'parent_object_class';
+    public const FORCE_UPDATE = 'isForceUpdateRequired';
 
     /**
      * @var EntityManagerInterface
@@ -101,7 +102,7 @@ class Normalizer extends ObjectNormalizer
         }
 
         if ($existingEntity) {
-            if (isset($data[ChangeDateUTCAttribute::getName()])) {
+            if (isset($data[ChangeDateUTCAttribute::getName()]) && empty($context[self::FORCE_UPDATE])) {
                 $changedAt = strtotime($data[ChangeDateUTCAttribute::getName()]);
                 // Use timestamps for comparison because VersionOne API returns the
                 // change date-time with microseconds but in a DB we store only seconds

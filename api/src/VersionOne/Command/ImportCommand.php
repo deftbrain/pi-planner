@@ -19,6 +19,7 @@ class ImportCommand extends Command
     public const NAME = 'version-one:import-assets';
     private const ARGUMENT_ASSET_TYPE = 'asset-type';
     private const OPTION_IGNORE_RELATED_ASSETS = 'ignore-related-assets';
+    private const OPTION_FORCE_UPDATE = 'force-update';
 
     private SymfonyStyle $io;
     private AssetMetadataFactory $assetMetadataFactory;
@@ -26,6 +27,7 @@ class ImportCommand extends Command
     private MessageBusInterface $messageBus;
     private array $queuedAssetTypes = [];
     private bool $ignoreRelatedAssets;
+    private bool $isForceUpdateRequired;
 
     public function __construct(
         AssetMetadataFactory $assetMetadataFactory,
@@ -51,7 +53,14 @@ class ImportCommand extends Command
                 InputArgument::OPTIONAL,
                 'An asset type to import. Available values: ' . implode(', ', $this->getAvailableAssetTypes())
             )
-            ->addOption(self::OPTION_IGNORE_RELATED_ASSETS, 'i');
+            ->addOption(self::OPTION_IGNORE_RELATED_ASSETS, 'i')
+            ->addOption(
+                self::OPTION_FORCE_UPDATE,
+                'f',
+                null,
+                'Forces updating existing assets. By default assets with the same'
+                . ' ChangeDateUTC attribute value are not updated.'
+            );
     }
 
     /**
@@ -61,6 +70,7 @@ class ImportCommand extends Command
     {
         $this->io = new SymfonyStyle($input, $output);
         $this->ignoreRelatedAssets = $input->getOption(self::OPTION_IGNORE_RELATED_ASSETS);
+        $this->isForceUpdateRequired = $input->getOption(self::OPTION_FORCE_UPDATE);
         $assetType = $input->getArgument(self::ARGUMENT_ASSET_TYPE);
         $assetTypes = $assetType ? [$assetType] : $this->getAvailableAssetTypes();
         $this->io->writeln('Importing...');
@@ -100,7 +110,7 @@ class ImportCommand extends Command
 
     private function importAssets(string $assetType): void
     {
-        $this->messageBus->dispatch(new ImportAssetsMessage($assetType));
+        $this->messageBus->dispatch(new ImportAssetsMessage($assetType, $this->isForceUpdateRequired));
         $this->io->writeln(
             sprintf('Importing of %s assets has been scheduled', $assetType), OutputInterface::VERBOSITY_VERBOSE
         );
