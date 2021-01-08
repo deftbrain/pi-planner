@@ -132,7 +132,7 @@ class List extends Component {
 
   render() {
     return (
-      <Fragment>
+      <div>
         {this.props.loading && (
           <div className="alert alert-info">Loading...</div>
         )}
@@ -149,7 +149,7 @@ class List extends Component {
           <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
                  handleDragEnd={this.onDragEnd.bind(this)}/>
         )}
-      </Fragment>
+      </div>
     );
   }
 }
