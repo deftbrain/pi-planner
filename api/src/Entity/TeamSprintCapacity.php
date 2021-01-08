@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(attributes={"order"={"team.name"}})
  * @ApiFilter(SearchFilter::class, properties={"projectSettings": "exact"})
  * @ORM\Entity(repositoryClass=TeamSprintCapacityRepository::class)
  */
