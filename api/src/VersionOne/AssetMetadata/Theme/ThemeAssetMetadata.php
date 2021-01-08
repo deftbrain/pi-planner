@@ -13,6 +13,7 @@ class ThemeAssetMetadata extends BaseAssetAssetMetadata
             $this->attributes,
             [
                 new ScopeAttribute,
+                new OrderAttribute,
             ]
         );
     }
