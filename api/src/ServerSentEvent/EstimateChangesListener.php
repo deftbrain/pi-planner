@@ -5,6 +5,7 @@ namespace App\ServerSentEvent;
 use App\Entity\Workitem;
 use App\Handler\GettingEstimatesHandler;
 use App\Repository\ProgramIncrementRepository;
+use App\Repository\ProjectSettingsRepository;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -34,10 +35,7 @@ class EstimateChangesListener implements EventSubscriberInterface
      */
     private $gettingEstimatesHandler;
 
-    /**
-     * @var ProgramIncrementRepository
-     */
-    private $programIncrementRepository;
+    private ProjectSettingsRepository $projectSettingsRepository;
 
     private $affectedProjectIds = [];
 
@@ -45,12 +43,12 @@ class EstimateChangesListener implements EventSubscriberInterface
         RouterInterface $router,
         PublisherInterface $publisher,
         GettingEstimatesHandler $gettingEstimatesHandler,
-        ProgramIncrementRepository $programIncrementRepository
+        ProjectSettingsRepository $projectSettingsRepository
     ) {
         $this->router = $router;
         $this->publisher = $publisher;
         $this->gettingEstimatesHandler = $gettingEstimatesHandler;
-        $this->programIncrementRepository = $programIncrementRepository;
+        $this->projectSettingsRepository = $projectSettingsRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -79,20 +77,22 @@ class EstimateChangesListener implements EventSubscriberInterface
         }
 
         $affectedProjectIds = array_unique($this->affectedProjectIds);
-        $programIncrements = $this->programIncrementRepository->findAll();
-        foreach ($programIncrements as $pi) {
-            if (in_array($pi->getProject()->getId(), $affectedProjectIds)) {
-                $piEstimateIri = $this->router->generate(
-                    'api_program_increments_get_estimates_item',
-                    ['id' => $pi->getId()],
-                    RouterInterface::ABSOLUTE_URL
-                );
-                $data = json_encode(($this->gettingEstimatesHandler)($pi));
-                ($this->publisher)(
-                    new Update($piEstimateIri, $data)
-                );
-                break;
+        $projectsSettings = $this->projectSettingsRepository->findBy(['project' => $affectedProjectIds]);
+        $processedPIs = [];
+        foreach ($projectsSettings as $ps) {
+            $pi = $ps->getProgramIncrement();
+            if (in_array($pi, $processedPIs, true)) {
+                continue;
             }
+
+            $processedPIs[] = $pi;
+            $data = json_encode(($this->gettingEstimatesHandler)($pi));
+            $piEstimateIri = $this->router->generate(
+                'api_program_increments_get_estimates_item',
+                ['id' => $pi->getId()],
+                RouterInterface::ABSOLUTE_URL
+            );
+            ($this->publisher)(new Update($piEstimateIri, $data));
         }
     }
 }
