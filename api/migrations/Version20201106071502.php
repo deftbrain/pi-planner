@@ -30,19 +30,6 @@ final class Version20201106071502 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_E6B1FD39296CD8AE ON team_sprint_capacity (team_id)');
         $this->addSql('CREATE INDEX IDX_E6B1FD398C24077B ON team_sprint_capacity (sprint_id)');
         $this->addSql('CREATE INDEX IDX_E6B1FD391AA07519 ON team_sprint_capacity (program_increment_id)');
-        $this->addSql('CREATE TABLE messenger_messages (id BIGSERIAL NOT NULL, body TEXT NOT NULL, headers TEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, available_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, delivered_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX IDX_75EA56E0FB7336F0 ON messenger_messages (queue_name)');
-        $this->addSql('CREATE INDEX IDX_75EA56E0E3BD61CE ON messenger_messages (available_at)');
-        $this->addSql('CREATE INDEX IDX_75EA56E016BA31DB ON messenger_messages (delivered_at)');
-        $this->addSql('LOCK TABLE messenger_messages;');
-        $this->addSql('CREATE OR REPLACE FUNCTION notify_messenger_messages() RETURNS TRIGGER AS $$
-            BEGIN
-                PERFORM pg_notify(\'messenger_messages\', NEW.queue_name::text);
-                RETURN NEW;
-            END;
-        $$ LANGUAGE plpgsql;');
-        $this->addSql('DROP TRIGGER IF EXISTS notify_trigger ON messenger_messages;');
-        $this->addSql('CREATE TRIGGER notify_trigger AFTER INSERT ON messenger_messages FOR EACH ROW EXECUTE PROCEDURE notify_messenger_messages();');
         $this->addSql('ALTER TABLE program_increment_sprint ADD CONSTRAINT FK_1001532A1AA07519 FOREIGN KEY (program_increment_id) REFERENCES program_increment (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE program_increment_sprint ADD CONSTRAINT FK_1001532A8C24077B FOREIGN KEY (sprint_id) REFERENCES sprint (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE team_sprint_capacity ADD CONSTRAINT FK_E6B1FD39296CD8AE FOREIGN KEY (team_id) REFERENCES team (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -63,7 +50,6 @@ final class Version20201106071502 extends AbstractMigration
         $this->addSql('DROP SEQUENCE team_sprint_capacity_id_seq CASCADE');
         $this->addSql('DROP TABLE program_increment_sprint');
         $this->addSql('DROP TABLE team_sprint_capacity');
-        $this->addSql('DROP TABLE messenger_messages');
         $this->addSql('ALTER TABLE program_increment DROP CONSTRAINT FK_3BAB791166D1F9C');
         $this->addSql('DROP INDEX IDX_3BAB791166D1F9C');
         $this->addSql('ALTER TABLE program_increment ADD project_settings JSON NOT NULL');
