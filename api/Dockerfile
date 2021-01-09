@@ -96,6 +96,7 @@ RUN set -eux; \
 COPY bin bin/
 COPY config config/
 COPY public public/
+COPY migrations migrations/
 COPY src src/
 
 RUN set -eux; \
