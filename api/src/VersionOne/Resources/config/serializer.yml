@@ -23,11 +23,12 @@ App\Entity\AbstractEntity:
             Schedule: App\Entity\SprintSchedule
             Team: App\Entity\Team
             PrimaryWorkitem: App\Entity\Workitem
+            StoryStatus: App\Entity\WorkitemStatus
 
 App\Entity\BacklogGroup:
     attributes:
-        project:
-            serialized_name: Scope
+        projects:
+            serialized_name: Scope.ChildrenAndMe
             groups: ['readable']
 
 App\Entity\Epic:
@@ -40,6 +41,9 @@ App\Entity\Epic:
             groups: ['readable']
         wsjf:
             serialized_name: Wsjf
+            groups: ['readable']
+        description:
+            serialized_name: Description
             groups: ['readable']
         sortOrder:
             serialized_name: Order
@@ -77,17 +81,23 @@ App\Entity\Team:
 
 App\Entity\Workitem:
     attributes:
+        name:
+            serialized_name: Name
+            groups: ['readable', 'writable']
+        status:
+            serialized_name: Status
+            groups: ['readable', 'writable']
         backlogGroup:
             serialized_name: Parent
-            groups: ['readable']
+            groups: ['readable', 'writable']
             max_depth: 0
         epic:
             serialized_name: Super
-            groups: ['readable']
+            groups: ['readable', 'writable']
             max_depth: 0
         project:
             serialized_name: Scope
-            groups: ['readable']
+            groups: ['readable', 'writable']
             max_depth: 0
         sprint:
             serialized_name: Timebox
@@ -105,3 +115,9 @@ App\Entity\Workitem:
             serialized_name: Dependants
             groups: ['readable', 'writable']
             max_depth: 1
+
+App\Entity\WorkitemStatus:
+    attributes:
+        sortOrder:
+            serialized_name: Order
+            groups: ['readable']

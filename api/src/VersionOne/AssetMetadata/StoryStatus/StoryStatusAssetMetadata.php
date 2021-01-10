@@ -1,10 +1,10 @@
 <?php
 
-namespace App\VersionOne\AssetMetadata\Epic;
+namespace App\VersionOne\AssetMetadata\StoryStatus;
 
 use App\VersionOne\AssetMetadata\BaseAsset\BaseAssetAssetMetadata;
 
-class EpicAssetMetadata extends BaseAssetAssetMetadata
+class StoryStatusAssetMetadata extends BaseAssetAssetMetadata
 {
     public function __construct()
     {
@@ -12,10 +12,6 @@ class EpicAssetMetadata extends BaseAssetAssetMetadata
         $this->attributes = array_merge(
             $this->attributes,
             [
-                new ScopeAttribute,
-                new StatusAttribute,
-                new WsjfAttribute,
-                new DescriptionAttribute,
                 new OrderAttribute,
             ]
         );
@@ -23,6 +19,6 @@ class EpicAssetMetadata extends BaseAssetAssetMetadata
 
     public function getType(): string
     {
-        return 'Epic';
+        return 'StoryStatus';
     }
 }

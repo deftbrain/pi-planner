@@ -37,6 +37,16 @@ class BulkApiClient
         return $this->sendQuery($queries)['queryResult']['results'];
     }
 
+    public function createAsset(string $assetType, array $values): string
+    {
+        $content = $this->sendQuery(['AssetType' => $assetType] + $values);
+        if (!empty($content['assetsCreated']['oidTokens'])) {
+            return $content['assetsCreated']['oidTokens'][0];
+        }
+
+        throw new \RuntimeException('Unable to retrieve the Oid token from the response body');
+    }
+
     public function updateAsset(string $oid, array $values): void
     {
         $query = $this->makeQueryBuilder()

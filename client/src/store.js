@@ -10,6 +10,7 @@ import team from './reducers/team/';
 import sprint from './reducers/sprint/';
 import epic from './reducers/epic/';
 import workitem from './reducers/workitem/';
+import backlogGroup from './reducers/backloggroup';
 
 const history = createBrowserHistory();
 const store = createStore(
@@ -23,6 +24,7 @@ const store = createStore(
     sprint,
     epic,
     workitem,
+    backlogGroup,
   }),
   applyMiddleware(routerMiddleware(history), thunk)
 );

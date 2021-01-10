@@ -12,6 +12,7 @@ class PrimaryWorkitemAssetMetadata extends BaseAssetAssetMetadata
         $this->attributes = array_merge(
             $this->attributes,
             [
+                new StatusAttribute,
                 new ParentAttribute,
                 new SuperAttribute,
                 new ScopeAttribute,

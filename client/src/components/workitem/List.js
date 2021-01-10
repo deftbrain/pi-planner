@@ -7,6 +7,7 @@ import ExternalLink from '../entity/ExternalLink';
 import './List.css'
 import {update} from '../../actions/workitem/update';
 import Estimate from './Estimate';
+import NewWorkitemForm from './Create';
 import upperFirst from 'lodash/upperFirst';
 
 class List extends Component {
@@ -147,7 +148,7 @@ class List extends Component {
 
         {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && this.props.teams && this.props.sprints && (
           <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
-                 handleDragEnd={this.onDragEnd.bind(this)}/>
+                 handleDragEnd={this.onDragEnd.bind(this)} components={{NewCardForm: NewWorkitemForm}}/>
         )}
       </div>
     );

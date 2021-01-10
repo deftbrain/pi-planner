@@ -1,4 +1,5 @@
 import {extractHubURL, fetch, mercureSubscribe as subscribe, normalize} from '../../utils/dataAccess';
+import {retrieve as retrieveBacklogGroups} from '../backloggroup/list';
 import {retrieve as retrieveProjects} from '../project/list';
 import {retrieve as retrieveTeams} from '../team/list';
 import {retrieve as retrieveSprints} from '../sprint/list';
@@ -36,6 +37,7 @@ export function retrieve(id) {
         dispatch(retrieveTeams([...teams]));
         dispatch(retrieveSprints([...sprints]));
         dispatch(retrieveEstimates(id));
+        dispatch(retrieveBacklogGroups(projects));
         dispatch(loading(false));
         dispatch(success(retrieved));
 

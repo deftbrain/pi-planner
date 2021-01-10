@@ -19,7 +19,6 @@ abstract class AbstractEntity
     private $id;
 
     /**
-     * @Assert\NotBlank
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $externalId;
@@ -46,7 +45,7 @@ abstract class AbstractEntity
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isDeleted;
+    private $isDeleted = false;
 
     public function getId(): ?int
     {

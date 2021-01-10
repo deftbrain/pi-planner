@@ -4,16 +4,16 @@ namespace App\VersionOne\AssetMetadata\Theme;
 
 use App\VersionOne\AssetMetadata\AttributeInterface;
 
-class ScopeAttribute implements AttributeInterface
+class ScopeChildrenAndMeAttribute implements AttributeInterface
 {
     public static function getName(): string
     {
-        return 'Scope';
+        return 'Scope.ChildrenAndMe';
     }
 
     public function isMultiValue(): bool
     {
-        return false;
+        return true;
     }
 
     public function isRelation(): bool

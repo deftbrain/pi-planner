@@ -65,6 +65,9 @@ const ProjectSettingShow = props => {
               <ChipField source="name"/>
             </SingleFieldList>
           </ReferenceArrayField>
+          <ReferenceField source="defaultWorkitemStatus" reference="workitem_statuses" link="">
+            <ChipField source="name"/>
+          </ReferenceField>
         </Tab>
         <Tab label="Team capacity" path="capacity">
           <Button

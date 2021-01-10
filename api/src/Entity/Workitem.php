@@ -72,8 +72,15 @@ class Workitem extends AbstractEntity
      */
     private $dependants;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=WorkitemStatus::class)
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $status;
+
     public function __construct()
     {
+        $this->setChangedAt(new \DateTime());
         $this->dependencies = new ArrayCollection();
         $this->dependants = new ArrayCollection();
     }
@@ -210,6 +217,18 @@ class Workitem extends AbstractEntity
         if ($this->dependants->contains($dependant)) {
             $this->dependants->removeElement($dependant);
         }
+
+        return $this;
+    }
+
+    public function getStatus(): ?WorkitemStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?WorkitemStatus $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

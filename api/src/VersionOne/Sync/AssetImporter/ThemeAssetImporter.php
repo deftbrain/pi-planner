@@ -2,6 +2,6 @@
 
 namespace App\VersionOne\Sync\AssetImporter;
 
-class ScopeAssetImporter extends ActiveAssetImporter
+class ThemeAssetImporter extends ActiveAssetImporter
 {
 }

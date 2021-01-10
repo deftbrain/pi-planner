@@ -56,5 +56,6 @@ export default () => (
     <Resource name="sprint_schedules"/>
     <Resource name="teams"/>
     <Resource name="workitems"/>
+    <Resource name="workitem_statuses"/>
   </HydraAdmin>
 );

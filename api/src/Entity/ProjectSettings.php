@@ -58,6 +58,13 @@ class ProjectSettings
      */
     private $programIncrement;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=WorkitemStatus::class)
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"programIncrement"})
+     */
+    private $defaultWorkitemStatus;
+
     public function __construct()
     {
         $this->sprints = new ArrayCollection();
@@ -178,6 +185,18 @@ class ProjectSettings
     public function setProgramIncrement(?ProgramIncrement $programIncrement): self
     {
         $this->programIncrement = $programIncrement;
+
+        return $this;
+    }
+
+    public function getDefaultWorkitemStatus(): ?WorkitemStatus
+    {
+        return $this->defaultWorkitemStatus;
+    }
+
+    public function setDefaultWorkitemStatus(?WorkitemStatus $defaultWorkitemStatus): self
+    {
+        $this->defaultWorkitemStatus = $defaultWorkitemStatus;
 
         return $this;
     }

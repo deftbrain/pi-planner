@@ -30,12 +30,4 @@ class AbstractEntityListener
             $this->urlProvider->getUrl($entity->getExternalId())
         );
     }
-
-    public function preUpdate(AbstractEntity $entity): void
-    {
-        if (PHP_SAPI !== 'cli') {
-            // Prevent exporting to V1 updates given from V1 itself during importing (can be run via cli only)
-            $this->assetExporter->exportAsset($entity);
-        }
-    }
 }

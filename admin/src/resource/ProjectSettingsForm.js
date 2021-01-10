@@ -49,6 +49,9 @@ const GeneralFormTab = ({label, ...props}) => {
                                    project={formData.project}/>
         }
       </FormDataConsumer>
+      <ReferenceInput {...props} source="defaultWorkitemStatus" reference="workitem_statuses">
+        <AutocompleteInput/>
+      </ReferenceInput>
     </>
   );
 };

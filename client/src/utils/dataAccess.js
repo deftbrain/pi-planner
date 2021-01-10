@@ -65,6 +65,7 @@ export function fetch(id, options = {}, searchParams) {
               : (errors[violation.propertyPath] = violation.message)
           );
 
+          console.log(errors);
           throw new SubmissionError(errors);
         })
         .catch(error => Promise.reject(new Error(error.message || 'An error occurred.')));

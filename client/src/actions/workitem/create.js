@@ -1,12 +1,12 @@
-import { SubmissionError } from 'redux-form';
-import { fetch } from '../../utils/dataAccess';
+import {SubmissionError} from 'redux-form';
+import {fetch} from '../../utils/dataAccess';
 
 export function error(error) {
-  return { type: 'WORKITEM_CREATE_ERROR', error };
+  return {type: 'WORKITEM_CREATE_ERROR', error};
 }
 
 export function loading(loading) {
-  return { type: 'WORKITEM_CREATE_LOADING', loading };
+  return {type: 'WORKITEM_CREATE_LOADING', loading};
 }
 
 export function success(created) {
@@ -15,9 +15,14 @@ export function success(created) {
 
 export function create(values) {
   return dispatch => {
+    dispatch(error(null))
     dispatch(loading(true));
 
-    return fetch('workitems', { method: 'POST', body: JSON.stringify(values) })
+    return fetch('workitems', {
+      method: 'POST',
+      body: JSON.stringify(values),
+      headers: new Headers({'Content-Type': 'application/json'})
+    })
       .then(response => {
         dispatch(loading(false));
 
@@ -29,10 +34,11 @@ export function create(values) {
 
         if (e instanceof SubmissionError) {
           dispatch(error(e.errors._error));
-          throw e;
+        } else {
+          dispatch(error(e.message));
         }
 
-        dispatch(error(e.message));
+        throw e;
       });
   };
 }
@@ -41,5 +47,6 @@ export function reset() {
   return dispatch => {
     dispatch(loading(false));
     dispatch(error(null));
+    dispatch(success(null));
   };
 }
