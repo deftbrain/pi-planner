@@ -7,8 +7,6 @@ export default ({theme}) => {
   const login = useLogin();
   const notify = useNotify();
   const authCallback = (error, data) => {
-    // Clear tokens cached by the MSAL library: https://www.npmjs.com/package/msal#cache-storage
-    sessionStorage.clear();
     login({error, data}).catch(error => notify(error));
   }
   return (
