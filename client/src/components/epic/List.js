@@ -20,6 +20,10 @@ const styles = theme => ({
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
   },
+  projectName: {
+    fontSize: '1.5rem',
+    padding: `${theme.spacing(3)}px ${theme.spacing(1)}px ${theme.spacing(1)}px`,
+  },
   teams: {
     fontSize: theme.typography.pxToRem(12),
     marginLeft: '10px',
@@ -49,6 +53,18 @@ class List extends Component {
     this.props.reset(this.props.eventSource);
   }
 
+  groupEpicsByProject(epics) {
+    const groupedEpics = {};
+    for (let epic of epics) {
+      if (!groupedEpics[epic.project]) {
+        groupedEpics[epic.project] = [epic];
+      } else {
+        groupedEpics[epic.project].push(epic);
+      }
+    }
+    return groupedEpics;
+  }
+
   render() {
     return (
       <div>
@@ -65,23 +81,33 @@ class List extends Component {
         )}
 
         <div className={this.props.classes.root}>
-          {this.props.retrieved && this.props.retrieved['hydra:member']
-            .filter(e => !this.props.selectedTeam || e.teams.includes(this.props.selectedTeam)).map(item => (
-              <ExpansionPanel key={item['@id']} TransitionProps={{unmountOnExit: true}}>
-                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-                  <Typography className={this.props.classes.heading}>
-                    <ExternalLink entity={item}/>
-                    {this.props.teams && (
-                      <Teams teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
-                             className={this.props.classes.teams}/>
-                    )}
-                  </Typography>
-                </ExpansionPanelSummary>
-              <ExpansionPanelDetails>
-                <WorkitemList epic={item} programIncrement={this.props.programIncrement}/>
-              </ExpansionPanelDetails>
-            </ExpansionPanel>
-          ))}
+          {this.props.retrieved && Object.entries(this.groupEpicsByProject(this.props.retrieved['hydra:member']
+            .filter(e => !this.props.selectedTeam || e.teams.includes(this.props.selectedTeam)))).map(([project, epics]) =>
+            <div key={project}>
+              {this.props.projects &&
+              <Typography variant="h2" className={this.props.classes.projectName}>
+                {(this.props.projects['hydra:member'] || []).find(p => p['@id'] === project).name}
+              </Typography>
+              }
+              {epics.map(item =>
+                <ExpansionPanel key={item['@id']} TransitionProps={{unmountOnExit: true}}>
+                  <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                    <Typography className={this.props.classes.heading}>
+                      <ExternalLink entity={item}/>
+                      {this.props.teams && (
+                        <Teams
+                          teams={(this.props.teams['hydra:member'] || []).filter(t => item.teams.includes(t['@id']))}
+                          className={this.props.classes.teams}/>
+                      )}
+                    </Typography>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails>
+                    <WorkitemList epic={item} programIncrement={this.props.programIncrement}/>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -95,6 +121,7 @@ const mapStateToProps = state => {
     error: state.epic.list.error,
     eventSource: state.epic.list.eventSource,
     deletedItem: state.epic.list.deletedItem,
+    projects: state.project.list.retrieved,
     teams: state.team.list.retrieved,
     selectedTeam: state.programincrement.show.teamFilter
   };
