@@ -72,6 +72,9 @@ const useStyles = makeStyles(theme => ({
       textAlign: 'center',
     },
   },
+  overcapacity: {
+    color: theme.palette.error.dark,
+  },
   headerCell: theme.typography.subtitle2,
 }));
 
@@ -130,12 +133,12 @@ const TeamSprintCapacity = props => {
               return (
                 <tr key={team['@id']}>
                   <td>{team.name}</td>
-                  <td title="Frontend">{teamCapacity.total.frontend}</td>
-                      <td title="Backend">{teamCapacity.total.backend}</td>
+                  <td title="Frontend" className={teamCapacity.total.frontend < 0 && classes.overcapacity}>{teamCapacity.total.frontend}</td>
+                      <td title="Backend" className={teamCapacity.total.backend < 0 && classes.overcapacity}>{teamCapacity.total.backend}</td>
                       {scheduleSprints.map(sprint => (
                         <Fragment key={`${team['@id']}:${sprint['@id']}`}>
-                          <td title="Frontend">{teamCapacity[sprint['@id']].frontend}</td>
-                          <td title="Backend">{teamCapacity[sprint['@id']].backend}</td>
+                          <td title="Frontend" className={teamCapacity[sprint['@id']].frontend < 0 && classes.overcapacity}>{teamCapacity[sprint['@id']].frontend}</td>
+                          <td title="Backend" className={teamCapacity[sprint['@id']].backend < 0 && classes.overcapacity}>{teamCapacity[sprint['@id']].backend}</td>
                         </Fragment>
                       ))}
                     </tr>
