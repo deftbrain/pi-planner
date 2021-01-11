@@ -37,7 +37,8 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 		bin/console doctrine:migrations:migrate --no-interaction
 	fi
 
-	bin/console version-one:import-assets
+# Do that step manually to decrease downtime during update of the Docker image
+#	bin/console version-one:import-assets
 	bin/console messenger:consume async_priority_high async_priority_low -vv >> var/log/messenger.log 2>&1 &
 
 	crond -L $PWD/var/log/crond.log
