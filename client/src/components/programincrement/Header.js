@@ -30,7 +30,7 @@ const Header = props => {
 
   return (
     <div className={classes.root}>
-      <ExpansionPanel>
+      <ExpansionPanel defaultExpanded={true}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
           <Typography variant="h1" className={classes.title}>{props.title}</Typography>
           <TeamFilter/>
