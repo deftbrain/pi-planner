@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {list, reset} from '../../actions/workitem/list';
@@ -148,7 +148,8 @@ class List extends Component {
 
         {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && this.props.teams && this.props.sprints && (
           <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
-                 handleDragEnd={this.onDragEnd.bind(this)} components={{NewCardForm: NewWorkitemForm}}/>
+                 hideCardDeleteIcon={true} handleDragEnd={this.onDragEnd.bind(this)}
+                 components={{NewCardForm: NewWorkitemForm}}/>
         )}
       </div>
     );
