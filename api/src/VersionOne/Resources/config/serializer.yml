@@ -31,7 +31,7 @@ App\Entity\BacklogGroup:
             serialized_name: Order
             groups: ['readable']
         projects:
-            serialized_name: Scope.ChildrenAndMe
+            serialized_name: Scope.ChildrenMeAndDown
             groups: ['readable']
 
 App\Entity\Epic:

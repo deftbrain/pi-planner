@@ -4,11 +4,11 @@ namespace App\VersionOne\AssetMetadata\Theme;
 
 use App\VersionOne\AssetMetadata\AttributeInterface;
 
-class ScopeChildrenAndMeAttribute implements AttributeInterface
+class ScopeChildrenMeAndDownAttribute implements AttributeInterface
 {
     public static function getName(): string
     {
-        return 'Scope.ChildrenAndMe';
+        return 'Scope.ChildrenMeAndDown';
     }
 
     public function isMultiValue(): bool
