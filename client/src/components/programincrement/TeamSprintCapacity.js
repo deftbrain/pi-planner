@@ -63,6 +63,10 @@ function filterTeamsByCapacity(teams, teamSprintCapacities) {
   return [...result];
 }
 
+function formatCapacity(capacity) {
+  return Math.round((capacity + Number.EPSILON) * 100) / 100;
+}
+
 const useStyles = makeStyles(theme => ({
   table: {
     width: '100%',
@@ -133,12 +137,12 @@ const TeamSprintCapacity = props => {
               return (
                 <tr key={team['@id']}>
                   <td>{team.name}</td>
-                  <td title="Frontend" className={teamCapacity.total.frontend < 0 && classes.overcapacity}>{teamCapacity.total.frontend}</td>
-                      <td title="Backend" className={teamCapacity.total.backend < 0 && classes.overcapacity}>{teamCapacity.total.backend}</td>
+                  <td title="Frontend" className={teamCapacity.total.frontend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity.total.frontend)}</td>
+                      <td title="Backend" className={teamCapacity.total.backend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity.total.backend)}</td>
                       {scheduleSprints.map(sprint => (
                         <Fragment key={`${team['@id']}:${sprint['@id']}`}>
-                          <td title="Frontend" className={teamCapacity[sprint['@id']].frontend < 0 && classes.overcapacity}>{teamCapacity[sprint['@id']].frontend}</td>
-                          <td title="Backend" className={teamCapacity[sprint['@id']].backend < 0 && classes.overcapacity}>{teamCapacity[sprint['@id']].backend}</td>
+                          <td title="Frontend" className={teamCapacity[sprint['@id']].frontend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity[sprint['@id']].frontend)}</td>
+                          <td title="Backend" className={teamCapacity[sprint['@id']].backend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity[sprint['@id']].backend)}</td>
                         </Fragment>
                       ))}
                     </tr>
