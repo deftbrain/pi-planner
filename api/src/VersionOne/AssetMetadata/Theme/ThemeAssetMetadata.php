@@ -12,6 +12,7 @@ class ThemeAssetMetadata extends BaseAssetAssetMetadata
         $this->attributes = array_merge(
             $this->attributes,
             [
+                new OrderAttribute,
                 new ScopeChildrenAndMeAttribute,
             ]
         );

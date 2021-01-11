@@ -27,6 +27,9 @@ App\Entity\AbstractEntity:
 
 App\Entity\BacklogGroup:
     attributes:
+        sortOrder:
+            serialized_name: Order
+            groups: ['readable']
         projects:
             serialized_name: Scope.ChildrenAndMe
             groups: ['readable']
