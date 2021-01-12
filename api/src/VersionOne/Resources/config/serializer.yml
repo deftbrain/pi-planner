@@ -93,31 +93,24 @@ App\Entity\Workitem:
         backlogGroup:
             serialized_name: Parent
             groups: ['readable', 'writable']
-            max_depth: 0
         epic:
             serialized_name: Super
             groups: ['readable', 'writable']
-            max_depth: 0
         project:
             serialized_name: Scope
             groups: ['readable', 'writable']
-            max_depth: 0
         sprint:
             serialized_name: Timebox
             groups: ['readable', 'writable']
-            max_depth: 0
         team:
             serialized_name: Team
             groups: ['readable', 'writable']
-            max_depth: 0
         dependencies:
             serialized_name: Dependencies
             groups: ['readable', 'writable']
-            max_depth: 1
         dependants:
             serialized_name: Dependants
             groups: ['readable', 'writable']
-            max_depth: 1
 
 App\Entity\WorkitemStatus:
     attributes:
