@@ -69,11 +69,18 @@ function formatCapacity(capacity) {
 
 const useStyles = makeStyles(theme => ({
   table: {
+    tableLayout: 'fixed',
     width: '100%',
     borderCollapse: 'collapse',
     '& th,td': {
       border: '1px solid black',
       textAlign: 'center',
+    },
+    '& th:first-child': {
+      width: '8%',
+    },
+    '& th:nth-child(2)': {
+      width: '7%',
     },
   },
   overcapacity: {
