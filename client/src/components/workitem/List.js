@@ -59,12 +59,64 @@ class List extends Component {
   getWorkitemTags(workitem) {
     const result = [];
     if (workitem['dependencies'].length > 0) {
-      result.push({title: 'Dependencies: ' + workitem['dependencies'].length, bgcolor: 'red'});
+      const unfinishedDependencies = this.getUnfinishedDependencies(workitem);
+      const tag = {
+        title: 'Dependencies: ' + workitem['dependencies'].length,
+        bgcolor: '#c51162',
+      };
+      if (unfinishedDependencies.length) {
+        tag.title += ` (${unfinishedDependencies.length})`;
+        tag.bgcolor = 'red';
+        tag.onClick = () => alert("Unfinished/unassigned dependencies:\n" + this.getWorkitemsInfo(unfinishedDependencies));
+      }
+      result.push(tag);
     }
     if (workitem['dependants'].length > 0) {
-      result.push({title: 'Dependants: ' + workitem['dependants'].length, bgcolor: 'orange'});
+      result.push({
+        title: 'Dependants: ' + workitem['dependants'].length,
+        bgcolor: '#f57c00'
+      });
     }
     return result;
+  }
+
+  getUnfinishedDependencies(workitem) {
+    if (!this.props.sprints) {
+      return []
+    }
+    const getWorkitemSprint = w => this.props.sprints['hydra:member'].find(s => s['@id'] === w.sprint);
+    const workitemSprint = getWorkitemSprint(workitem);
+    if (!workitemSprint) {
+      return [];
+    }
+
+    let unfinishedDependencies = [];
+    Object.entries(this.props.retrieved).forEach(([epic, workitems]) => {
+      unfinishedDependencies = unfinishedDependencies.concat(workitems['hydra:member'].filter(w => {
+        if (!workitem.dependencies.includes(w['@id'])) {
+          return false;
+        }
+
+        const dependencySprint = getWorkitemSprint(w);
+        return !dependencySprint || !w.team || new Date(dependencySprint.endDate) > new Date(workitemSprint.startDate);
+      }));
+    });
+
+    return unfinishedDependencies;
+  }
+
+  getWorkitemsInfo(workitems) {
+    return workitems.map(w => {
+      const team = this.getWorkitemTeam(w);
+      return w.name + ` (Team: ${team ? team.name : 'Unassigned'})`;
+    }).join("\n");
+  }
+
+  getWorkitemTeam(workitem) {
+    if (!this.props.teams || !workitem.team) {
+      return null;
+    }
+    return this.props.teams['hydra:member'].find(t => t['@id'] === workitem.team)
   }
 
   getBoardData() {
