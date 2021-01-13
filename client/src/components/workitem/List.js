@@ -139,7 +139,7 @@ class List extends Component {
   getWorkitemsInfo(workitems) {
     return workitems.map(w => {
       const team = this.getWorkitemTeam(w);
-      return w.name + ` (Team: ${team ? team.name : 'Unassigned'})`;
+      return w.name + ` (${team ? team.name : 'Unassigned'})`;
     }).join("\n");
   }
 
