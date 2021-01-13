@@ -122,9 +122,9 @@ class List extends Component {
   getBoardData() {
     const data = {};
     const columns = [];
-    const unsignedColumnWidth = 15;
-    const unsignedTeam = {'@id': null, 'name': 'Unsigned'};
-    const unsignedSprint = {'@id': null, 'name': 'Unsigned'};
+    const unassignedColumnWidth = 15;
+    const unassignedTeam = {'@id': null, 'name': 'Unassigned'};
+    const unassignedSprint = {'@id': null, 'name': 'Unassigned'};
 
     for (let projectSettings of this.props.programIncrement.projectsSettings) {
       const involvedTeams = this.props.epic.teams;
@@ -140,10 +140,10 @@ class List extends Component {
       }
 
       let columnsPerRow = projectSettings.sprints.length;
-      let columnWith = (100 - unsignedColumnWidth) / columnsPerRow;
+      let columnWith = (100 - unassignedColumnWidth) / columnsPerRow;
       let teams = this.props.teams['hydra:member'].filter(t => teamsWithCapacity.has(t['@id']));
-      teams = [unsignedTeam, ...teams];
-      const sprints = [unsignedSprint, ...this.props.sprints['hydra:member'].filter(s => projectSettings.sprints.includes(s['@id']))];
+      teams = [unassignedTeam, ...teams];
+      const sprints = [unassignedSprint, ...this.props.sprints['hydra:member'].filter(s => projectSettings.sprints.includes(s['@id']))];
       for (let team of teams) {
         let teamWorkitems = this.getWorkitems(w => w.team === team['@id']);
         for (let sprintIndex in sprints) {
@@ -151,11 +151,11 @@ class List extends Component {
           let teamSprintWorkitems = teamWorkitems.filter(w => w.sprint === sprint['@id']);
           columns.push({
             id: [this.props.epic['@id'], projectSettings.project, team['@id'], sprint['@id']].join(':'),
-            title: 'Unsigned' === sprint.name ? team.name : '',
-            label: 'Unsigned' === sprint.name ? sprint.name : 'S' + sprintIndex,
+            title: 'Unassigned' === sprint.name ? team.name : '',
+            label: 'Unassigned' === sprint.name ? sprint.name : 'S' + sprintIndex,
             cards: this.getBoardCards(teamSprintWorkitems),
             style: {
-              width: `${'Unsigned' === sprint.name ? unsignedColumnWidth : columnWith}%`
+              width: `${'Unassigned' === sprint.name ? unassignedColumnWidth : columnWith}%`
             }
           });
         }
