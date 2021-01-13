@@ -25,11 +25,7 @@ div.react-trello-board > div {
     min-width: auto;
 }
 
-.react-trello-board .react-trello-card {
-    min-width: inherit;
-    max-width: inherit;
-    word-break: break-word;
+.react-trello-board .react-trello-lane > header > span:nth-child(2) {
+    width: 40%;
+    padding-right: 0;
 }
-/*.react-trello-board .react-trello-card header>span {*/
-/*    width: auto;*/
-/*}*/

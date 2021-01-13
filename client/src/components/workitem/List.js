@@ -9,6 +9,36 @@ import {update} from '../../actions/workitem/update';
 import Estimate from './Estimate';
 import NewWorkitemForm from './Create';
 import upperFirst from 'lodash/upperFirst';
+import {withStyles} from '@material-ui/styles';
+
+const styles = ({
+  root: {
+    width: '100%',
+  },
+  card: {
+    minWidth: 'inherit !important',
+    maxWidth: 'inherit !important',
+    '& > header': {
+      marginBottom: 0,
+      borderBottom: 0,
+      paddingTop: 3,
+    },
+    '& > div': {
+      textAlign: 'right',
+      border: 0,
+    },
+    '& > header span:first-child': {
+      width: '100%',
+    },
+    '& > header span:nth-child(2)': {
+      width: '100%',
+      position: 'absolute',
+      top: 0,
+      right: '-10px',
+      // opacity: 0.5,
+    }
+  }
+});
 
 class List extends Component {
   static propTypes = {
@@ -48,6 +78,7 @@ class List extends Component {
         title: <ExternalLink entity={workitem}/>,
         label: <Estimate workitem={workitem} onChange={this.onEstimateChange.bind(this, workitem)}/>,
         tags: this.getWorkitemTags(workitem),
+        className: this.props.classes.card,
       };
     });
   }
@@ -185,7 +216,7 @@ class List extends Component {
 
   render() {
     return (
-      <div>
+      <div className={this.props.classes.root}>
         {this.props.loading && (
           <div className="alert alert-info">Loading...</div>
         )}
@@ -235,4 +266,4 @@ const mapDispatchToProps = dispatch => ({
   update: (workitem, values) => dispatch(update(workitem, values)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(List);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(List));

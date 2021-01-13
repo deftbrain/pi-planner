@@ -41,6 +41,9 @@ const styles = {
   input: {
     width: '30px',
     textAlign: 'center',
+    border: '1px solid #eee',
+    fontSize: 12,
+    padding: 0,
   },
 };
 
