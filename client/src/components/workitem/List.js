@@ -177,6 +177,9 @@ class List extends Component {
       const sprints = [unassignedSprint, ...this.props.sprints['hydra:member'].filter(s => projectSettings.sprints.includes(s['@id']))];
       for (let team of teams) {
         let teamWorkitems = this.getWorkitems(w => w.team === team['@id']);
+        if (!teamWorkitems.length && this.props.isReviewModeEnabled) {
+          continue;
+        }
         for (let sprintIndex in sprints) {
           let sprint = sprints[sprintIndex];
           let teamSprintWorkitems = teamWorkitems.filter(w => w.sprint === sprint['@id']);
@@ -230,8 +233,8 @@ class List extends Component {
         )}
 
         {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && this.props.teams && this.props.sprints && (
-          <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={true} laneDraggable={false}
-                 hideCardDeleteIcon={true} handleDragEnd={this.onDragEnd.bind(this)}
+          <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={!this.props.isReviewModeEnabled}
+                 laneDraggable={false} hideCardDeleteIcon={true} handleDragEnd={this.onDragEnd.bind(this)}
                  components={{NewCardForm: NewWorkitemForm}}/>
         )}
       </div>
@@ -239,7 +242,7 @@ class List extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   const {
     retrieved,
     loading,
@@ -249,6 +252,7 @@ const mapStateToProps = (state, ownProps) => {
   } = state.workitem.list;
 
   return {
+    isReviewModeEnabled: state.programincrement.show.isReviewModeEnabled,
     projects: state.project.list.retrieved['hydra:member'],
     teams: state.team.list.retrieved,
     sprints: state.sprint.list.retrieved,

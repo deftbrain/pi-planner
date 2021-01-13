@@ -75,3 +75,9 @@ export function setTeamFilter(team) {
     dispatch({type: 'PROGRAMINCREMENT_TEAM_FILTER_SET', team});
   };
 }
+
+export function switchReviewMode() {
+  return dispatch => {
+    dispatch({type: 'PROGRAMINCREMENT_SHOW_SWITCH_REVIEW_MODE'});
+  };
+}

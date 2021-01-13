@@ -54,4 +54,14 @@ export function teamFilter(state = '', action) {
   }
 }
 
-export default combineReducers({ error, loading, retrieved, eventSource, teamFilter });
+export function isReviewModeEnabled(state = false, action) {
+  switch (action.type) {
+    case 'PROGRAMINCREMENT_SHOW_SWITCH_REVIEW_MODE':
+      return !state;
+
+    default:
+      return state;
+  }
+}
+
+export default combineReducers({ error, loading, retrieved, eventSource, teamFilter, isReviewModeEnabled });

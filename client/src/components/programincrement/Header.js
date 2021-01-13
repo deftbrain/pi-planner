@@ -1,4 +1,5 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import {makeStyles} from '@material-ui/core/styles';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -7,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import TeamFilter from './TeamFilter';
 import TeamSprintCapacity from './TeamSprintCapacity';
+import ReviewModeSwitcher from './ReviewModeSwitcher';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -28,12 +30,17 @@ const useStyles = makeStyles(theme => ({
 const Header = props => {
   const classes = useStyles(props);
 
+  if (!props.programIncrement) {
+    return null;
+  }
+
   return (
     <div className={classes.root}>
       <ExpansionPanel defaultExpanded={true}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
           <Typography variant="h1" className={classes.title}>{props.title}</Typography>
           <TeamFilter/>
+          <ReviewModeSwitcher/>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{root: classes.capacityContainer}}>
           <TeamSprintCapacity/>
@@ -43,4 +50,8 @@ const Header = props => {
   );
 }
 
-export default Header;
+const mapStateToProps = state => ({
+  programIncrement: state.programincrement.show.retrieved,
+})
+
+export default connect(mapStateToProps)(Header);
