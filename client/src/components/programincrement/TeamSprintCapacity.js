@@ -144,15 +144,25 @@ const TeamSprintCapacity = props => {
               return (
                 <tr key={team['@id']}>
                   <td>{team.name}</td>
-                  <td title="Frontend" className={teamCapacity.total.frontend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity.total.frontend)}</td>
-                      <td title="Backend" className={teamCapacity.total.backend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity.total.backend)}</td>
-                      {scheduleSprints.map(sprint => (
-                        <Fragment key={`${team['@id']}:${sprint['@id']}`}>
-                          <td title="Frontend" className={teamCapacity[sprint['@id']].frontend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity[sprint['@id']].frontend)}</td>
-                          <td title="Backend" className={teamCapacity[sprint['@id']].backend < 0 && classes.overcapacity}>{formatCapacity(teamCapacity[sprint['@id']].backend)}</td>
-                        </Fragment>
-                      ))}
-                    </tr>
+                  <td title="Frontend" className={teamCapacity.total.frontend < 0 ? classes.overcapacity : undefined}>
+                    {formatCapacity(teamCapacity.total.frontend)}
+                  </td>
+                  <td title="Backend" className={teamCapacity.total.backend < 0 ? classes.overcapacity : undefined}>
+                    {formatCapacity(teamCapacity.total.backend)}
+                  </td>
+                  {scheduleSprints.map(sprint => (
+                    <Fragment key={`${team['@id']}:${sprint['@id']}`}>
+                      <td title="Frontend"
+                          className={teamCapacity[sprint['@id']].frontend < 0 ? classes.overcapacity : undefined}>
+                        {formatCapacity(teamCapacity[sprint['@id']].frontend)}
+                      </td>
+                      <td title="Backend"
+                          className={teamCapacity[sprint['@id']].backend < 0 ? classes.overcapacity : undefined}>
+                        {formatCapacity(teamCapacity[sprint['@id']].backend)}
+                      </td>
+                    </Fragment>
+                  ))}
+                </tr>
                   )
                 })}
                 </tbody>
