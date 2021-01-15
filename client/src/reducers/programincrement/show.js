@@ -41,12 +41,15 @@ export function eventSource(state = null, action) {
   }
 }
 
-export function teamFilter(state = '', action) {
+const TEAM_FILTER_CACHE_KEY = 'selectedTeam';
+export function teamFilter(state = localStorage.getItem(TEAM_FILTER_CACHE_KEY) || '', action) {
   switch (action.type) {
     case 'PROGRAMINCREMENT_TEAM_FILTER_SET':
+      localStorage.setItem(TEAM_FILTER_CACHE_KEY, action.team);
       return action.team;
 
     case 'PROGRAMINCREMENT_SHOW_RESET':
+      localStorage.removeItem(TEAM_FILTER_CACHE_KEY);
       return '';
 
     default:
@@ -54,10 +57,13 @@ export function teamFilter(state = '', action) {
   }
 }
 
-export function isReviewModeEnabled(state = false, action) {
+const REVIEW_MODE_CACHE_KEY = 'reviewMode';
+export function isReviewModeEnabled(state = localStorage.getItem(REVIEW_MODE_CACHE_KEY) === 'true', action) {
   switch (action.type) {
     case 'PROGRAMINCREMENT_SHOW_SWITCH_REVIEW_MODE':
-      return !state;
+      const newState = !state;
+      localStorage.setItem(REVIEW_MODE_CACHE_KEY, newState);
+      return newState;
 
     default:
       return state;

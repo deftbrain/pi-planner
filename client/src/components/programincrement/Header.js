@@ -27,6 +27,15 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const EXPAND_HEADER_CACHE_KEY = 'expandHeader';
+
+function getDefaultExpanded() {
+  const cachedState = localStorage.getItem(EXPAND_HEADER_CACHE_KEY);
+  return cachedState !== 'false';
+}
+
+const onChange = (e, expanded) => localStorage.setItem(EXPAND_HEADER_CACHE_KEY, expanded);
+
 const Header = props => {
   const classes = useStyles(props);
 
@@ -36,7 +45,7 @@ const Header = props => {
 
   return (
     <div className={classes.root}>
-      <ExpansionPanel defaultExpanded={true}>
+      <ExpansionPanel defaultExpanded={getDefaultExpanded()} onChange={onChange}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
           <Typography variant="h1" className={classes.title}>{props.title}</Typography>
           <TeamFilter/>
