@@ -13,12 +13,12 @@ export function success(retrieved) {
   return { type: 'EPIC_LIST_SUCCESS', retrieved };
 }
 
-export function list(projectSettingsIds) {
+export function list(projectIds, projectSettingsIds) {
   return dispatch => {
     dispatch(loading(true));
     dispatch(error(''));
 
-    fetch('epics', {}, {projectSettings: projectSettingsIds, 'order[sortOrder]': 'asc'})
+    fetch('epics', {}, {project: projectIds, projectSettings: projectSettingsIds, 'order[sortOrder]': 'asc'})
       .then(response =>
         response
           .json()
