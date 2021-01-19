@@ -1,36 +1,58 @@
 version: '3.4'
 
+x-app: &app
+  image: ${PHP_IMAGE:?}
+  environment: &app-environment
+    APP_ENV: ${APP_ENV:?}
+    APP_DEBUG: ${APP_DEBUG:?}
+    APP_SECRET: ${APP_SECRET:?}
+    CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:?}
+    TRUSTED_HOSTS: ${TRUSTED_HOSTS:?}
+    TRUSTED_PROXIES: ${TRUSTED_PROXIES:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+    DATABASE_URL: ${DATABASE_URL:?}
+    API_HOST: ${API_HOST:?}
+    API_SCHEME: ${API_SCHEME:?}
+    COMMON_HOST: ${CLIENT_HOST}
+    MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:?}
+    MERCURE_JWT_SECRET: ${MERCURE_JWT_KEY:?}
+    MERCURE_PUBLISH_URL: ${MERCURE_PUBLISH_URL:?}
+    MERCURE_SUBSCRIBE_URL: ${MERCURE_SUBSCRIBE_URL:?}
+    VERSION_ONE_ACCESS_TOKEN: ${VERSION_ONE_ACCESS_TOKEN:?}
+    # Example: https://www2.v1host.com/CompanyName
+    VERSION_ONE_SERVER_BASE_URI: ${VERSION_ONE_SERVER_BASE_URI:?}
+    MICROSOFT_OAUTH_CLIENT_ID: ${MICROSOFT_OAUTH_CLIENT_ID:?}
+    MICROSOFT_OAUTH_TENANT_ID: ${MICROSOFT_OAUTH_TENANT_ID:?}
+    MICROSOFT_OAUTH_PUBLIC_KEYS_URL: ${MICROSOFT_OAUTH_PUBLIC_KEYS_URL:?}
+
 services:
   api:
-    image: ${PHP_IMAGE:?}
+    <<: *app
     environment:
-      APP_ENV: ${APP_ENV:?}
-      APP_DEBUG: ${APP_DEBUG:?}
-      APP_SECRET: ${APP_SECRET:?}
-      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:?}
-      TRUSTED_HOSTS: ${TRUSTED_HOSTS:?}
-      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
-      DATABASE_URL: ${DATABASE_URL:?}
-      API_HOST: ${API_HOST:?}
-      API_SCHEME: ${API_SCHEME:?}
-      COMMON_HOST: ${CLIENT_HOST}
-      MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:?}
-      MERCURE_JWT_SECRET: ${MERCURE_JWT_KEY:?}
-      MERCURE_PUBLISH_URL: ${MERCURE_PUBLISH_URL:?}
-      MERCURE_SUBSCRIBE_URL: ${MERCURE_SUBSCRIBE_URL:?}
-      VERSION_ONE_ACCESS_TOKEN: ${VERSION_ONE_ACCESS_TOKEN:?}
-      # Example: https://www2.v1host.com/CompanyName
-      VERSION_ONE_SERVER_BASE_URI: ${VERSION_ONE_SERVER_BASE_URI:?}
-      MICROSOFT_OAUTH_CLIENT_ID: ${MICROSOFT_OAUTH_CLIENT_ID:?}
-      MICROSOFT_OAUTH_TENANT_ID: ${MICROSOFT_OAUTH_TENANT_ID:?}
-      MICROSOFT_OAUTH_PUBLIC_KEYS_URL: ${MICROSOFT_OAUTH_PUBLIC_KEYS_URL:?}
+      <<: *app-environment
       VIRTUAL_HOST: ${API_HOST:?}
       VIRTUAL_PROTO: fastcgi
       VIRTUAL_ROOT: /srv/api/public
+    volumes:
+      - vhostd:/etc/nginx/vhost.d
     depends_on:
       - db
-    volumes:
-    - vhostd:/etc/nginx/vhost.d
+
+  queue_worker:
+    <<: *app
+    restart: always
+    healthcheck:
+      disable: true
+    entrypoint:
+      - bin/console
+      - messenger:consume
+      - async_priority_high
+      - async_priority_low
+      # Read 'Don’t Let Workers Run Forever' in https://symfony.com/doc/current/messenger.html#deploying-to-production
+      - --limit=10
+      - -vv
+    depends_on:
+      - db
+      - api
 
   db:
     image: postgres:12-alpine

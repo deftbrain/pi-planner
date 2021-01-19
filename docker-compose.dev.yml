@@ -21,6 +21,10 @@ services:
     depends_on:
       - dev-tls
 
+  queue_worker:
+    volumes:
+      - ./api:/srv/api
+
   db:
     ports:
       - 5432:5432
