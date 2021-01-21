@@ -126,6 +126,7 @@ const TeamSprintCapacity = props => {
   return (
     <div>
       {sprintsBySchedule.map(([schedule, scheduleSprints]) => {
+        scheduleSprints = sortBy(scheduleSprints, o => new Date(o.startDate));
         return (
           <table key={schedule} className={classes.table}>
             <thead>

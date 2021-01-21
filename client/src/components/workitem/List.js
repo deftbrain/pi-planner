@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
+import sortBy from 'lodash/sortBy';
 import {list, reset} from '../../actions/workitem/list';
 import Board from 'react-trello';
 import ExternalLink from '../entity/ExternalLink';
@@ -174,7 +175,11 @@ class List extends Component {
       let columnWith = (100 - unassignedColumnWidth) / columnsPerRow;
       let teams = this.props.teams['hydra:member'].filter(t => teamsWithCapacity.has(t['@id']));
       teams = [unassignedTeam, ...teams];
-      const sprints = [unassignedSprint, ...this.props.sprints['hydra:member'].filter(s => projectSettings.sprints.includes(s['@id']))];
+      const sprints = sortBy(
+        this.props.sprints['hydra:member'].filter(s => projectSettings.sprints.includes(s['@id'])),
+        o => new Date(o.startDate)
+      );
+      sprints.unshift(unassignedSprint);
       for (let team of teams) {
         let teamWorkitems = this.getWorkitems(w => w.team === team['@id']);
         if (!teamWorkitems.length && this.props.isReviewModeEnabled) {
