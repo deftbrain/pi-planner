@@ -25,10 +25,6 @@ services:
     volumes:
       - ./api:/srv/api
 
-  db:
-    ports:
-      - 5432:5432
-
   admin:
     environment:
       <<: *react-app-env-vars
