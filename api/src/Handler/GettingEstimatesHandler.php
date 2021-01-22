@@ -3,8 +3,10 @@
 namespace App\Handler;
 
 use App\Entity\ProgramIncrement;
+use App\Entity\ProjectSettings;
 use App\Entity\Workitem;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Component\Routing\RouterInterface;
 
 final class GettingEstimatesHandler
@@ -28,10 +30,6 @@ final class GettingEstimatesHandler
     public function __invoke(ProgramIncrement $programIncrement): array
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $projectIds = array_map(
-            fn ($ps) => $ps->getProject()->getId(),
-            $programIncrement->getProjectsSettings()->toArray()
-        );
         $result = $qb
             ->from(Workitem::class, 'w')
             ->select(
@@ -41,8 +39,13 @@ final class GettingEstimatesHandler
                 'SUM(w.estimateFrontend) AS frontend',
                 'SUM(w.estimateBackend) AS backend'
             )
+            ->innerJoin(
+                ProjectSettings::class, 'ps',
+                Join::WITH,
+                'w.epic MEMBER OF ps.epics AND IDENTITY(ps.programIncrement) = :programIncrement'
+            )
+            ->setParameter('programIncrement', $programIncrement->getId())
             ->andWhere('w.isDeleted = false')
-            ->andWhere($qb->expr()->in('w.project', $projectIds))
             ->andWhere($qb->expr()->orX('w.estimateFrontend > 0', 'w.estimateBackend > 0'))
             ->groupBy('w.epic', 'w.team', 'w.sprint')
             ->getQuery()
