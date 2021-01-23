@@ -23,6 +23,7 @@ div.react-trello-board > div {
 
 .react-trello-board .react-trello-lane > div {
     min-width: auto;
+    width: 100%;
 }
 
 .react-trello-board .react-trello-lane > header > span:nth-child(2) {
