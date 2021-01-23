@@ -60,8 +60,6 @@ services:
       POSTGRES_DB: ${DB_NAME:?}
       POSTGRES_USER: ${DB_USER:?}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?}
-    ports:
-      - 5432:5432
     volumes:
       - db-data:/var/lib/postgresql/data:rw
 
