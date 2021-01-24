@@ -11,6 +11,8 @@ import Estimate from './Estimate';
 import NewWorkitemForm from './Create';
 import upperFirst from 'lodash/upperFirst';
 import {withStyles} from '@material-ui/styles';
+import Card from './Card';
+import {store} from '../../store';
 
 const styles = ({
   root: {
@@ -30,6 +32,9 @@ const styles = ({
     },
     '& > header span:first-child': {
       width: '100%',
+      '& a': {
+        fontWeight: 'normal',
+      }
     },
     '& > header span:nth-child(2)': {
       width: '100%',
@@ -37,8 +42,22 @@ const styles = ({
       top: 0,
       right: '-10px',
       // opacity: 0.5,
+    },
+    '&$dependency, &$dependant, &$dependantDependency': {
+      '& > header span:first-child a': {
+        color: 'white',
+      }
     }
-  }
+  },
+  dependency: {
+    backgroundColor: '#c51162 !important',
+  },
+  dependant: {
+    backgroundColor: '#f57c00 !important',
+  },
+  dependantDependency: {
+    backgroundColor: 'red !important',
+  },
 });
 
 class List extends Component {
@@ -72,14 +91,42 @@ class List extends Component {
     this.props.update(workitem, {[estimateFieldName]: value});
   }
 
+  getDependencyManagerClass(workitem) {
+    const targetWorkitem = this.props.dependencyManager.workitem;
+    if (!targetWorkitem || targetWorkitem === workitem) {
+      return '';
+    }
+
+    const id = workitem['@id'];
+    const isDependency = targetWorkitem.dependencies.includes(id);
+    const isDependant = targetWorkitem.dependants.includes(id);
+    if (isDependency && isDependant) {
+      return this.props.classes.dependantDependency;
+    }
+
+    if (isDependency) {
+      return this.props.classes.dependency;
+    }
+
+    if (isDependant) {
+      return this.props.classes.dependant;
+    }
+
+    return '';
+  }
+
   getBoardCards(workitems) {
     return workitems.map(workitem => {
       return {
         id: workitem['@id'],
+        workitem: workitem,
         title: <ExternalLink entity={workitem}/>,
         label: <Estimate workitem={workitem} onChange={this.onEstimateChange.bind(this, workitem)}/>,
         tags: this.getWorkitemTags(workitem),
-        className: this.props.classes.card,
+        className: this.props.classes.card + ' ' + this.getDependencyManagerClass(workitem),
+        // Inject our own store to retrieve some action-creator methods in our HOC Card
+        // because a 3rd party Card component that will be finally used has its own store as well
+        store: store,
       };
     });
   }
@@ -98,7 +145,6 @@ class List extends Component {
       };
       if (unfinishedDependencies.length) {
         tag.title += ` (${unfinishedDependencies.length})`;
-        tag.bgcolor = 'red';
         tag.onClick = () => alert("Unfinished/unassigned dependencies:\n" + this.getWorkitemsInfo(unfinishedDependencies));
       }
       result.push(tag);
@@ -240,7 +286,7 @@ class List extends Component {
         {this.props.retrieved && this.props.retrieved[this.props.epic['@id']] && this.props.teams && this.props.sprints && (
           <Board id={this.props.epic['@id']} data={this.getBoardData()} editable={!this.props.isReviewModeEnabled}
                  laneDraggable={false} hideCardDeleteIcon={true} handleDragEnd={this.onDragEnd.bind(this)}
-                 components={{NewCardForm: NewWorkitemForm}}/>
+                 components={{NewCardForm: NewWorkitemForm, Card: Card}}/>
         )}
       </div>
     );
@@ -258,6 +304,7 @@ const mapStateToProps = (state) => {
 
   return {
     isReviewModeEnabled: state.programincrement.show.isReviewModeEnabled,
+    dependencyManager: state.programincrement.show.dependencyManager,
     projects: state.project.list.retrieved['hydra:member'],
     teams: state.team.list.retrieved,
     sprints: state.sprint.list.retrieved,

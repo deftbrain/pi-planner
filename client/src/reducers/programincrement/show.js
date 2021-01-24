@@ -70,4 +70,27 @@ export function isReviewModeEnabled(state = localStorage.getItem(REVIEW_MODE_CAC
   }
 }
 
-export default combineReducers({ error, loading, retrieved, eventSource, teamFilter, isReviewModeEnabled });
+const dependencyManagerInitialState = {workitem: null};
+
+export function dependencyManager(state = dependencyManagerInitialState, action) {
+  switch (action.type) {
+    case 'PROGRAMINCREMENT_SHOW_ENABLE_DEPENDENCY_MANAGER':
+      return {workitem: action.workitem};
+
+    case 'PROGRAMINCREMENT_SHOW_DISABLE_DEPENDENCY_MANAGER':
+      return dependencyManagerInitialState;
+
+    default:
+      return state;
+  }
+}
+
+export default combineReducers({
+  error,
+  loading,
+  retrieved,
+  eventSource,
+  teamFilter,
+  isReviewModeEnabled,
+  dependencyManager
+});

@@ -81,3 +81,15 @@ export function switchReviewMode() {
     dispatch({type: 'PROGRAMINCREMENT_SHOW_SWITCH_REVIEW_MODE'});
   };
 }
+
+export function enableDependencyManager(workitem) {
+  return dispatch => {
+    dispatch({type: 'PROGRAMINCREMENT_SHOW_ENABLE_DEPENDENCY_MANAGER', workitem});
+  };
+}
+
+export function disableDependencyManager() {
+  return dispatch => {
+    dispatch({type: 'PROGRAMINCREMENT_SHOW_DISABLE_DEPENDENCY_MANAGER'});
+  };
+}
