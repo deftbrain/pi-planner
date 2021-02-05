@@ -1,6 +1,7 @@
 .DS_Store
 /.idea/
 /.env*
+/backups/
 /docker-compose.override.yaml
 /docker-compose.override.yml
 /prod.yml

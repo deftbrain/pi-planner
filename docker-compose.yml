@@ -24,6 +24,33 @@ x-app: &app
     MICROSOFT_OAUTH_TENANT_ID: ${MICROSOFT_OAUTH_TENANT_ID:?}
     MICROSOFT_OAUTH_PUBLIC_KEYS_URL: ${MICROSOFT_OAUTH_PUBLIC_KEYS_URL:?}
 
+x-certs-dir: &CERTS_DIR
+  /volumes/certs
+x-db-data-dir: &DB_DATA_DIR
+  /volumes/db-data
+x-backups-dir: &BACKUPS_DIR
+  /backups
+
+x-backuper: &backuper
+   # See docs/backuping-and-restoring-data-volumes.md for more details
+   image: alpine
+   profiles: ['backuper']
+   environment:
+     BACKUPS_DIR: *BACKUPS_DIR
+     CERTS_DIR: *CERTS_DIR
+     DB_DATA_DIR: *DB_DATA_DIR
+   working_dir: *BACKUPS_DIR
+   volumes:
+     - type: bind
+       source: ./backups
+       target: *BACKUPS_DIR
+     - type: volume
+       source: certs
+       target: *CERTS_DIR
+     - type: volume
+       source: db-data
+       target: *DB_DATA_DIR
+
 services:
   api:
     <<: *app
@@ -92,6 +119,24 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     depends_on:
       - api
+
+  backup-db-data:
+    <<: *backuper
+    command: sh -c 'tar czvf db-data-`date +\%Y-\%m-\%d@\%H:\%M:\%S`.tar.gz -C $$DB_DATA_DIR .'
+
+  restore-db-data:
+    <<: *backuper
+    working_dir: /
+    entrypoint: sh -c 'rm -rf $$DB_DATA_DIR/* && tar xzv -C $$DB_DATA_DIR -f $$0'
+
+  backup-certs:
+    <<: *backuper
+    command: sh -c 'tar czvf certs-`date +\%Y-\%m-\%d@\%H:\%M:\%S`.tar.gz -C $$CERTS_DIR .'
+
+  restore-certs:
+    <<: *backuper
+    working_dir: /
+    entrypoint: sh -c 'rm -rf $$CERTS_DIR/* && tar xzv -C $$CERTS_DIR -f $$0'
 
 volumes:
   db-data:
