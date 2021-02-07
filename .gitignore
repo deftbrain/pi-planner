@@ -1,7 +1,6 @@
 .DS_Store
 /.idea/
 /.env*
+/.env-vars.sh
 /backups/
-/docker-compose.override.yaml
-/docker-compose.override.yml
-/prod.yml
+/docker-compose.override.*

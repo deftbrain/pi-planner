@@ -10,8 +10,6 @@ services:
     build:
       context: ./api
       target: ${PHP_IMAGE_TARGET:?}
-      cache_from:
-        - ${PHP_IMAGE:?}
       args:
         DATABASE_URL: ${DATABASE_URL:?}
         API_HOST: ${API_HOST:?}
@@ -24,16 +22,12 @@ services:
       args: 
         <<: *react-app-env-vars
         REACT_APP_ADMIN_URL: ${ADMIN_URL:?}
-      cache_from:
-        - ${CLIENT_IMAGE:?}
 
   admin:
     build:
       context: ./admin
       target: ${ADMIN_IMAGE_TARGET:?}
       args: *react-app-env-vars
-      cache_from:
-        - ${ADMIN_IMAGE:?}
 
 volumes:
   db-data:
