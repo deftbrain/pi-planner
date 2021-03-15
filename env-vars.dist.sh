@@ -70,7 +70,7 @@ export APP_ENV=dev
 export APP_DEBUG=1
 # https://symfony.com/doc/current/reference/configuration/framework.html#secret
 export APP_SECRET=!ChangeMe!
-export DATABASE_URL=${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?serverVersion=${DB_VERSION}
+export DATABASE_URL="${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?serverVersion=${DB_VERSION}"
 export MESSENGER_TRANSPORT_DSN=doctrine://default
 
 
