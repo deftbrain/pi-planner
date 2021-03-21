@@ -4,14 +4,14 @@ namespace App\DataPersister;
 
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use App\Entity\Workitem;
-use App\VersionOne\Sync\AssetExporter;
+use App\Integration\AssetExporterInterface;
 
 class WorkitemPersisterDecorator implements ContextAwareDataPersisterInterface
 {
     private ContextAwareDataPersisterInterface $decorated;
-    private AssetExporter $assetExporter;
+    private AssetExporterInterface $assetExporter;
 
-    public function __construct(ContextAwareDataPersisterInterface $decorated, AssetExporter $assetExporter)
+    public function __construct(ContextAwareDataPersisterInterface $decorated, AssetExporterInterface $assetExporter)
     {
         $this->decorated = $decorated;
         $this->assetExporter = $assetExporter;

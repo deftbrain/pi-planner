@@ -16,6 +16,13 @@
 
         source /path/to/env-vars.sh
 
+1. Copy issue-tracker-specific configs to the `config` directory to enable it:
+
+        # Yes, it sucks, but currently I have no time for moving issue-tracker-specific code into bundles 
+        cp api/src/Integration/VersionOne/Resources/config/services.yaml api/config/services/version_one.yaml
+        cp api/src/Integration/VersionOne/Resources/config/httplug.yaml api/config/packages/httplug_version_one.yaml
+        cp api/src/Integration/VersionOne/Resources/config/messenger.yaml api/config/packages/messenger_version_one.yaml
+ 
 1. Build Docker images:
 
         docker-compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.prod.yml build
@@ -55,6 +62,12 @@
 
         docker-compose exec api bin/console version-one:import-assets -v
 
+1. Add importing VersionOne assets to `crontab` on a host machine:
+
+        # Import all assets every 15 minutes
+        */15 * * * * flock -n /tmp/v1-import.lock -c 'cd PATH_TO_PROJECT && docker-compose exec api bin/console version-one:import-assets -v'
+        # Import workitems only every minute
+        * * * * * flock -n /tmp/v1-import.lock -c 'cd PATH_TO_PROJECT && docker-compose exec api bin/console version-one:import-assets PrimaryWorkitem -i'
 
 [1]: https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
 [2]: https://docs.docker.com/compose/profiles/

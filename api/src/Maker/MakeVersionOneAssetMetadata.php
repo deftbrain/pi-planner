@@ -3,7 +3,7 @@
 namespace App\Maker;
 
 use App\Entity\AbstractEntity;
-use App\VersionOne\MetaApiClient;
+use App\Integration\VersionOne\MetaApiClient;
 use Symfony\Bundle\MakerBundle\ConsoleStyle;
 use Symfony\Bundle\MakerBundle\DependencyBuilder;
 use Symfony\Bundle\MakerBundle\Generator;

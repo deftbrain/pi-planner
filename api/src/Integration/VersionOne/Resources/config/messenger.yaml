@@ -1,0 +1,5 @@
+framework:
+    messenger:
+        routing:
+            App\Integration\VersionOne\Message\ImportAllTypesAssetsMessage: async_priority_low
+            App\Integration\VersionOne\Message\ImportAssetsMessage: async_priority_high

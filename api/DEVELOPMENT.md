@@ -8,7 +8,7 @@
 
 1. Let a serializer know how to normalize/denormalize the property:
 
-        open api/src/VersionOne/Resources/config/serializer.yml
+        open api/src/Integration/VersionOne/Resources/config/serializer.yml
 
 1. Generate a VersionOne attribute metadata class for the property:
 

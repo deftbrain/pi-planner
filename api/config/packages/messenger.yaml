@@ -10,7 +10,3 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     queue_name: low
-
-        routing:
-            App\VersionOne\Message\ImportAllTypesAssetsMessage: async_priority_low
-            App\VersionOne\Message\ImportAssetsMessage: async_priority_high

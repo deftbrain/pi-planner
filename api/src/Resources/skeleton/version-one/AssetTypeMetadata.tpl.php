@@ -2,7 +2,7 @@
 
 namespace <?= $namespace ?>;
 
-use App\VersionOne\AssetMetadata\<?= $is_base_type ? 'AbstractAssetMetadata' : 'BaseAsset\\BaseAssetAssetMetadata' ?>;
+use App\Integration\VersionOne\AssetMetadata\<?= $is_base_type ? 'AbstractAssetMetadata' : 'BaseAsset\\BaseAssetAssetMetadata' ?>;
 
 class <?= $class_name ?> extends <?= $is_base_type ? 'AbstractAssetMetadata' : 'BaseAssetAssetMetadata' ?>
 

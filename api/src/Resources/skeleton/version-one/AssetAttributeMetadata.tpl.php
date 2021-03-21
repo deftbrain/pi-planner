@@ -2,7 +2,7 @@
 
 namespace <?= $namespace ?>;
 
-use App\VersionOne\AssetMetadata\AttributeInterface;
+use App\Integration\VersionOne\AssetMetadata\AttributeInterface;
 
 class <?= $class_name ?> implements AttributeInterface
 {

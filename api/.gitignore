@@ -3,6 +3,10 @@
 /helm/api/Chart.lock
 
 /http-client.*
+/config/services/*
+!/config/services/_common.yaml
+/config/packages/*_version_one.yaml
+/config/packages/*_jira.yaml
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -19,3 +23,5 @@
 /.php_cs
 /.php_cs.cache
 ###< friendsofphp/php-cs-fixer ###
+
+!.gitkeep
