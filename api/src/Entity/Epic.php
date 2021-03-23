@@ -12,7 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(attributes={"order"={"sortOrder"}})
- * @ApiFilter(SearchFilter::class, properties={"id": "exact", "project": "exact", "projectSettings": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={
+ *     "id": "exact",
+ *     "project": "exact",
+ *     "projectSettings": "exact",
+ *     "programIncrement": "exact"
+ * })
  * @ApiFilter(OrderFilter::class, properties={"wsjf": {"nulls_comparison": OrderFilter::NULLS_SMALLEST}})
  * @ORM\Entity(repositoryClass="App\Repository\EpicRepository")
  */
@@ -20,7 +25,7 @@ class Epic extends AbstractEntity
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\EpicStatus")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $status;
 
@@ -54,6 +59,11 @@ class Epic extends AbstractEntity
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=ProgramIncrement::class)
+     */
+    private $programIncrement;
 
     public function __construct()
     {
@@ -154,6 +164,18 @@ class Epic extends AbstractEntity
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getProgramIncrement(): ?ProgramIncrement
+    {
+        return $this->programIncrement;
+    }
+
+    public function setProgramIncrement(?ProgramIncrement $programIncrement): self
+    {
+        $this->programIncrement = $programIncrement;
 
         return $this;
     }

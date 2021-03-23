@@ -22,6 +22,16 @@ export VERSION_ONE_ACCESS_TOKEN=
 export VERSION_ONE_SERVER_BASE_URI=
 
 
+### JIRA API RELATED VARIABLES
+export JIRA_USER_NAME=
+export JIRA_USER_API_TOKEN=
+export JIRA_SERVER_BASE_URI=
+export JIRA_CUSTOM_FIELD_PI=
+export JIRA_CUSTOM_FIELD_EPIC=
+export JIRA_CUSTOM_FIELD_TEAM=
+export JIRA_CUSTOM_FIELD_SPRINT=
+export JIRA_CUSTOM_FIELD_STORY_POINTS=
+
 ### LETSENCRYPT RELATED VARIABLES
 # Let you know if certificates renewal is broken https://letsencrypt.org/docs/expiration-emails/
 export LETSENCRYPT_EMAIL=

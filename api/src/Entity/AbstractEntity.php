@@ -16,7 +16,7 @@ abstract class AbstractEntity
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -32,15 +32,13 @@ abstract class AbstractEntity
      * @Assert\NotBlank
      * @ApiProperty(iri="http://schema.org/name")
      * @ORM\Column(type="string", length=255)
-     * @todo Make the property private when the issue is fixed: https://github.com/api-platform/api-platform/issues/1362
      */
     protected $name;
 
     /**
-     * @Assert\NotBlank
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    private $changedAt;
+    private ?\DateTimeInterface $changedAt = null;
 
     /**
      * @ORM\Column(type="boolean")
@@ -93,7 +91,7 @@ abstract class AbstractEntity
         return $this->changedAt;
     }
 
-    public function setChangedAt(\DateTimeInterface $changedAt): self
+    public function setChangedAt(?\DateTimeInterface $changedAt): self
     {
         $this->changedAt = $changedAt;
 

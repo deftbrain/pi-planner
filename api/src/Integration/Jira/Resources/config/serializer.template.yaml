@@ -1,0 +1,112 @@
+App\Entity\AbstractEntity:
+    attributes:
+        changedAt:
+            serialized_name: updated
+            groups: ['readable']
+        externalId:
+            serialized_name: key
+            groups: ['readable']
+        name:
+            serialized_name: summary
+            groups: ['readable']
+    discriminator_map:
+        type_property: type
+        mapping:
+            Component: App\Entity\BacklogGroup
+            Epic: App\Entity\Epic
+            ProgramIncrement: App\Entity\ProgramIncrement
+            Project: App\Entity\Project
+            Schedule: App\Entity\SprintSchedule
+            Sprint: App\Entity\Sprint
+            Story: App\Entity\Workitem
+            Team: App\Entity\Team
+
+# Entities given from the '/search' endpoint
+App\Entity\Epic:
+    attributes:
+        description:
+            groups: ['readable']
+        externalId:
+            groups: ['writable']
+        programIncrement:
+            serialized_name: ${JIRA_CUSTOM_FIELD_PI}
+            groups: ['readable']
+        project:
+            groups: ['readable']
+        sortOrder:
+            groups: ['readable']
+
+App\Entity\Workitem:
+    attributes:
+        backlogGroup:
+            serialized_name: components
+            # Don't read this field for now because it's multi-value field in Jira but not in our system.
+            # For now it's used only during creating a new issue.
+            groups: ['writable']
+        epic:
+            serialized_name: ${JIRA_CUSTOM_FIELD_EPIC}
+            groups: ['readable', 'writable']
+        estimateTotal:
+            serialized_name: ${JIRA_CUSTOM_FIELD_STORY_POINTS}
+            groups: ['writable']
+        name:
+            groups: ['readable', 'writable']
+        project:
+            groups: ['readable', 'writable']
+        sprint:
+            serialized_name: ${JIRA_CUSTOM_FIELD_SPRINT}
+            groups: ['readable', 'writable']
+        team:
+            serialized_name: ${JIRA_CUSTOM_FIELD_TEAM}
+            groups: ['readable', 'writable']
+        type:
+            serialized_name: issuetype
+
+
+# Entities given from standard issue fields
+App\Entity\BacklogGroup:
+    attributes:
+        externalId:
+            serialized_name: id
+            groups: ['writable']
+        name:
+            serialized_name: value
+        projects:
+            groups: ['readable']
+
+
+# Entities given from custom issue fields
+App\Entity\ProgramIncrement:
+    attributes:
+        externalId:
+            serialized_name: id
+            groups: ['writable']
+        name:
+            serialized_name: value
+
+App\Entity\Project:
+    attributes:
+        externalId:
+            groups: ['writable']
+        sprintSchedule:
+            groups: ['readable']
+
+App\Entity\Sprint:
+    attributes:
+        endDate:
+            groups: ['readable']
+        externalId:
+            serialized_name: id
+            groups: ['writable']
+        schedule:
+            groups: ['readable']
+        startDate:
+            groups: ['readable']
+
+App\Entity\Team:
+    attributes:
+        externalId:
+            serialized_name: id
+            groups: ['writable']
+        name:
+            serialized_name: value

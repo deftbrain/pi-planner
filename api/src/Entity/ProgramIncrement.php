@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  * @ORM\Entity(repositoryClass="App\Repository\ProgramIncrementRepository")
  */
-class ProgramIncrement
+class ProgramIncrement extends AbstractEntity
 {
     /**
      * @ORM\Id()
@@ -37,14 +37,14 @@ class ProgramIncrement
      * @ORM\Column(type="integer")
      * @Groups({"programIncrement"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ApiProperty(iri="http://schema.org/name")
      * @ORM\Column(type="string", length=255)
      * @Groups({"programIncrement"})
      */
-    private $name;
+    protected $name;
 
     /**
      * @ORM\OneToMany(targetEntity=ProjectSettings::class, mappedBy="programIncrement", orphanRemoval=true)
@@ -55,23 +55,6 @@ class ProgramIncrement
     public function __construct()
     {
         $this->projectsSettings = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     /**

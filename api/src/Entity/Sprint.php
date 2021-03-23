@@ -30,6 +30,13 @@ class Sprint extends AbstractEntity
      */
     private $schedule;
 
+    public function __construct()
+    {
+        $defaultDate = new \DateTimeImmutable('@0');
+        $this->setStartDate($defaultDate);
+        $this->setEndDate($defaultDate);
+    }
+
     public function getStartDate(): ?\DateTimeInterface
     {
         return $this->startDate;

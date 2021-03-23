@@ -42,9 +42,7 @@ class Workitem extends AbstractEntity
     private $epic;
 
     /**
-     * @Assert\NotBlank
      * @ORM\ManyToOne(targetEntity="App\Entity\BacklogGroup")
-     * @ORM\JoinColumn(nullable=false)
      */
     private $backlogGroup;
 
@@ -74,13 +72,11 @@ class Workitem extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity=WorkitemStatus::class)
-     * @ORM\JoinColumn(nullable=false)
      */
     private $status;
 
     public function __construct()
     {
-        $this->setChangedAt(new \DateTime());
         $this->dependencies = new ArrayCollection();
         $this->dependants = new ArrayCollection();
     }
@@ -167,6 +163,17 @@ class Workitem extends AbstractEntity
         $this->estimateBackend = $estimateBackend;
 
         return $this;
+    }
+
+    public function getEstimateTotal(): ?float
+    {
+        $estimateFrontend = $this->getEstimateFrontend();
+        $estimateBackend = $this->getEstimateBackend();
+        if ($estimateFrontend !== null || $estimateBackend !== null) {
+            return $estimateFrontend + $estimateBackend;
+        }
+
+        return null;
     }
 
     /**

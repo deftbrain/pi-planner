@@ -16,13 +16,11 @@
 
         source /path/to/env-vars.sh
 
-1. Copy issue-tracker-specific configs to the `config` directory to enable it:
+1. Copy issue-tracker-specific configs to the `config` directory to enable integration.
+ Yes, it sucks, but currently I have no time for moving issue-tracker-specific code into bundles :)
 
-        # Yes, it sucks, but currently I have no time for moving issue-tracker-specific code into bundles 
-        cp api/src/Integration/VersionOne/Resources/config/services.yaml api/config/services/version_one.yaml
-        cp api/src/Integration/VersionOne/Resources/config/httplug.yaml api/config/packages/httplug_version_one.yaml
-        cp api/src/Integration/VersionOne/Resources/config/messenger.yaml api/config/packages/messenger_version_one.yaml
- 
+        api/bin/enable-integration.sh Jira|VersionOne
+
 1. Build Docker images:
 
         docker-compose -f docker-compose.yml -f docker-compose.build.yml -f docker-compose.prod.yml build
@@ -48,7 +46,7 @@
     1. Log in to the target machine and export the environment variables into the current shell session:
 
             cd /var/www/pi-planner
-            source env-vars.sh
+            source /path/to/env-vars.sh
 
     1. Do the next commands on the target machine as well;
 
@@ -58,8 +56,19 @@
 
         docker-compose up -d
 
-1. Import the initial data if you didn't use a backup:
+1. Import the initial data if you didn't use a backup
+ and add these commands to cron to keep data up-to-date:
 
+        # In case of intergration with Jira 
+        docker-compose exec api bin/console jira:import:projects PROJECT_KEY1 PROJECT_KEY2
+        docker-compose exec api bin/console jira:import:issue-field-values Story $JIRA_CUSTOM_FIELD_PI ProgramIncrement PROJECT_KEY1 PROJECT_KEY2
+        docker-compose exec api bin/console jira:import:issue-field-values Story components Component PROJECT_KEY1 PROJECT_KEY2
+        docker-compose exec api bin/console jira:import:issue-field-values Story $JIRA_CUSTOM_FIELD_TEAM Team PROJECT_KEY1 PROJECT_KEY2
+        docker-compose exec api bin/console jira:import:sprints
+        docker-compose exec api bin/console jira:import:epics
+        docker-compose exec api bin/console jira:import:stories Story 'Issue type name 2' 'Issue type name 3'
+
+        # In case of intergration with VersionOne 
         docker-compose exec api bin/console version-one:import-assets -v
 
 1. Add importing VersionOne assets to `crontab` on a host machine:

@@ -45,7 +45,10 @@ services:
         tags:
             -   name: doctrine.orm.entity_listener
                 event: postLoad
-                entity: App\Entity\AbstractEntity
+                entity: App\Entity\Epic
+            -   name: doctrine.orm.entity_listener
+                event: postLoad
+                entity: App\Entity\Workitem
 
     App\Entity\Listener\ProjectSettingsEntityListener:
         tags:
