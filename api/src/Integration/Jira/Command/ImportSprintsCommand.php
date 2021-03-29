@@ -67,7 +67,7 @@ class ImportSprintsCommand extends Command
                 $this->io->writeln(sprintf('Board #%d', $boardId), $this->io::VERBOSITY_VERBOSE);
                 $this->apiClient->processPaginatedData(
                     static fn (ApiClient $apiClient, int $startAt) => $apiClient->getSprints($boardId, $startAt),
-                    function (array $response, int $startAt) use (&$sprints) {
+                    function (array $response, int $startAt) use (&$sprints, $boardId) {
                         $sprints += array_column($response['values'], null, 'id');
                         $this->io->writeln(
                             sprintf(
@@ -78,6 +78,10 @@ class ImportSprintsCommand extends Command
                             ),
                             $this->io::VERBOSITY_VERBOSE
                         );
+                        $this->io->writeln(
+                            sprintf('Board ID: %d. Sprints: %s', $boardId, json_encode($response['values'])),
+                            $this->io::VERBOSITY_VERY_VERBOSE
+                        );
                     }
                 );
             }
@@ -86,7 +90,13 @@ class ImportSprintsCommand extends Command
             }
 
             $fakeSprintScheduleExternalId = $project->getSprintSchedule()->getExternalId();
-            array_walk($sprints, fn (&$sprint) => $sprint['schedule'] = ['id' => $fakeSprintScheduleExternalId]);
+            array_walk($sprints, static function (&$sprint) use ($fakeSprintScheduleExternalId) {
+                // Add a board ID to a name to be able to be able to distinguish
+                // sprints with the same names but from different boards
+                $sprint['name'] = sprintf('(%s) %s', $sprint['name'], $sprint['originBoardId']);
+                // Link a sprint to a fake sprint schedule to prevent extra changes in code
+                $sprint['schedule'] = ['id' => $fakeSprintScheduleExternalId];
+            });
             $this->assetImporter->persistAssets($sprints, 'Sprint');
         }
 
