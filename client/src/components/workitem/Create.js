@@ -58,8 +58,8 @@ const Create = props => {
   }
 
   const onCreate = () => {
-    if (!name || !backlogGroup) {
-      props.showError('Name and Backlog Group fields are required!');
+    if (!name) {
+      props.showError('The \'Name\' field is required!');
       return;
     }
     props.create({
