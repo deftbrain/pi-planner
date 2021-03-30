@@ -110,8 +110,9 @@ class ObjectNormalizer extends BaseObjectNormalizer
 
         if ($existingEntity) {
             if (isset($data[self::FIELD_UPDATED]) && empty($context[self::FORCE_UPDATE])) {
-                $changedAt = new \DateTimeImmutable($data[self::FIELD_UPDATED]);
-                if ($changedAt === $existingEntity->getChangedAt()) {
+                $changedAt = strtotime($data[self::FIELD_UPDATED]);
+                // Use timestamps for comparison to ignore microseconds that are not written to our database
+                if ($changedAt === $existingEntity->getChangedAt()->getTimestamp()) {
                     return $existingEntity;
                 }
             }

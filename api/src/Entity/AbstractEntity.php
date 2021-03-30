@@ -91,8 +91,12 @@ abstract class AbstractEntity
         return $this->changedAt;
     }
 
-    public function setChangedAt(?\DateTimeInterface $changedAt): self
+    public function setChangedAt(?\DateTime $changedAt): self
     {
+        if ($changedAt) {
+            // Workaround to make code write a correct datetime (without loosing timezone shift) into our database
+            $changedAt->setTimezone(new \DateTimeZone('UTC'));
+        }
         $this->changedAt = $changedAt;
 
         return $this;
