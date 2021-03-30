@@ -49,55 +49,61 @@ class ImportSprintsCommand extends Command
 
         /** @var Project[] $projects */
         $projects = $this->entityManager->getRepository(Project::class)->findAll();
+        $boardToProjectMap = [];
         foreach ($projects as $project) {
-            $boardIdsChunks = [];
             $this->apiClient->processPaginatedData(
                 static fn (
                     ApiClient $apiClient,
                     int $startAt
                 ) => $apiClient->getBoards($project->getExternalId(), $startAt),
-                static function (array $response) use (&$boardIdsChunks) {
-                    $boardIdsChunks[] = array_column($response['values'], 'id');
+                static function (array $response) use (&$boardToProjectMap) {
+                    foreach ($response['values'] as $board) {
+                        $boardToProjectMap[$board['id']] = $board['location']['projectKey'];
+                    }
                 }
             );
-            $boardIds = array_merge(...$boardIdsChunks);
+        }
 
-            $sprints = [];
-            foreach ($boardIds as $boardId) {
+        foreach ($projects as $project) {
+            $projectBoardIds = array_keys($boardToProjectMap, $project->getExternalId());
+            $projectSprints = [];
+            foreach ($projectBoardIds as $boardId) {
                 $this->io->writeln(sprintf('Board #%d', $boardId), $this->io::VERBOSITY_VERBOSE);
                 $this->apiClient->processPaginatedData(
                     static fn (ApiClient $apiClient, int $startAt) => $apiClient->getSprints($boardId, $startAt),
-                    function (array $response, int $startAt) use (&$sprints, $boardId) {
-                        $sprints += array_column($response['values'], null, 'id');
+                    function (array $response, int $startAt) use (&$projectSprints, $projectBoardIds, $boardId) {
+                        foreach ($response['values'] as $sprint) {
+                            if (in_array($sprint['originBoardId'], $projectBoardIds, true) && !isset($projectSprints[$sprint['id']])) {
+                                $projectSprints[$sprint['id']] = $sprint;
+                            }
+                        }
                         $this->io->writeln(
                             sprintf(
-                                'startAt: %d. maxResults: %d. total: %s',
+                                "Board ID: %d\nSprints: %s\nstartAt: %d, maxResults: %d, total: %s",
+                                $boardId,
+                                json_encode($response['values']),
                                 $startAt,
                                 $response['maxResults'],
                                 $response['total'] ?? 'unknown'
                             ),
                             $this->io::VERBOSITY_VERBOSE
                         );
-                        $this->io->writeln(
-                            sprintf('Board ID: %d. Sprints: %s', $boardId, json_encode($response['values'])),
-                            $this->io::VERBOSITY_VERY_VERBOSE
-                        );
                     }
                 );
             }
-            if (!$sprints) {
+            if (!$projectSprints) {
                 continue;
             }
 
             $fakeSprintScheduleExternalId = $project->getSprintSchedule()->getExternalId();
-            array_walk($sprints, static function (&$sprint) use ($fakeSprintScheduleExternalId) {
+            array_walk($projectSprints, static function (&$sprint) use ($fakeSprintScheduleExternalId) {
                 // Add a board ID to a name to be able to be able to distinguish
                 // sprints with the same names but from different boards
                 $sprint['name'] = sprintf('(%s) %s', $sprint['name'], $sprint['originBoardId']);
                 // Link a sprint to a fake sprint schedule to prevent extra changes in code
                 $sprint['schedule'] = ['id' => $fakeSprintScheduleExternalId];
             });
-            $this->assetImporter->persistAssets($sprints, 'Sprint');
+            $this->assetImporter->persistAssets($projectSprints, 'Sprint');
         }
 
         $this->io->success('Completed');
