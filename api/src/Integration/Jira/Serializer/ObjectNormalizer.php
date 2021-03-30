@@ -96,6 +96,9 @@ class ObjectNormalizer extends BaseObjectNormalizer
                 $data['description'] = $data['renderedFields']['description'];
                 unset($data['renderedFields']);
             }
+            if (!$existingEntity) {
+                $context[self::GROUPS][] = 'readable_on_create';
+            }
         } else {
             if ($existingEntity) {
                 return $existingEntity;

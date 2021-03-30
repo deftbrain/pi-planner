@@ -11,6 +11,7 @@ parameters:
     jira.custom_field.epic: '%env(JIRA_CUSTOM_FIELD_EPIC)%'
     jira.custom_field.team: '%env(JIRA_CUSTOM_FIELD_TEAM)%'
     jira.custom_field.sprint: '%env(JIRA_CUSTOM_FIELD_SPRINT)%'
+    jira.custom_field.story_points: '%env(JIRA_CUSTOM_FIELD_STORY_POINTS)%'
     jira.custom_field.program_increment: '%env(JIRA_CUSTOM_FIELD_PI)%'
 
 services:

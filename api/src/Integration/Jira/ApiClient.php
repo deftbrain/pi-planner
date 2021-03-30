@@ -99,6 +99,7 @@ class ApiClient
                 $this->params->get('jira.custom_field.epic'),
                 $this->params->get('jira.custom_field.team'),
                 $this->params->get('jira.custom_field.sprint'),
+                $this->params->get('jira.custom_field.story_points'),
             ],
             'startAt' => $startAt,
         ];

@@ -48,7 +48,7 @@ App\Entity\Workitem:
             groups: ['readable', 'writable']
         estimateTotal:
             serialized_name: ${JIRA_CUSTOM_FIELD_STORY_POINTS}
-            groups: ['writable']
+            groups: ['readable_on_create', 'writable']
         name:
             groups: ['readable', 'writable']
         project:

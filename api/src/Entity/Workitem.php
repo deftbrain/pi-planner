@@ -176,6 +176,12 @@ class Workitem extends AbstractEntity
         return null;
     }
 
+    public function setEstimateTotal(?float $estimate): void
+    {
+        $this->setEstimateFrontend(null);
+        $this->setEstimateBackend($estimate);
+    }
+
     /**
      * @return Collection|self[]
      */
