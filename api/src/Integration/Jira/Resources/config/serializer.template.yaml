@@ -42,7 +42,7 @@ App\Entity\Workitem:
             serialized_name: components
             # Don't read this field for now because it's multi-value field in Jira but not in our system.
             # For now it's used only during creating a new issue.
-            groups: ['writable']
+            groups: ['writable_on_create']
         epic:
             serialized_name: ${JIRA_CUSTOM_FIELD_EPIC}
             groups: ['readable', 'writable']

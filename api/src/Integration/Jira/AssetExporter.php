@@ -25,13 +25,19 @@ class AssetExporter implements AssetExporterInterface
             return;
         }
 
+        $doesEntityExist = (bool) $entity->getExternalId();
+        $serializationGroups = ['writable'];
+        if (!$doesEntityExist) {
+            $serializationGroups[] = 'writable_on_create';
+        }
+
         $values = $this->serializer->normalize(
             $entity,
             ObjectNormalizer::FORMAT,
-            [ObjectNormalizer::GROUPS => ['writable'], ObjectNormalizer::PARENT_OBJECT_CLASS => get_class($entity)]
+            [ObjectNormalizer::GROUPS => $serializationGroups, ObjectNormalizer::PARENT_OBJECT_CLASS => get_class($entity)]
         );
 
-        if ($entity->getExternalId()) {
+        if ($doesEntityExist) {
             $this->apiClient->updateIssue($entity->getExternalId(), $values);
         } else {
             $externalId = $this->apiClient->createIssue($values);
