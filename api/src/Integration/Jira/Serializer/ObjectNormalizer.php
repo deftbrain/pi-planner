@@ -112,7 +112,7 @@ class ObjectNormalizer extends BaseObjectNormalizer
             if (isset($data[self::FIELD_UPDATED]) && empty($context[self::FORCE_UPDATE])) {
                 $changedAt = strtotime($data[self::FIELD_UPDATED]);
                 // Use timestamps for comparison to ignore microseconds that are not written to our database
-                if ($changedAt === $existingEntity->getChangedAt()->getTimestamp()) {
+                if ($existingEntity->getChangedAt() && $changedAt === $existingEntity->getChangedAt()->getTimestamp()) {
                     return $existingEntity;
                 }
             }
