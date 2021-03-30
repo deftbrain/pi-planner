@@ -159,11 +159,11 @@ class ApiClient
             return null;
         }
 
+        $contents = $response->getBody()->getContents();
         if (!in_array($statusCode, [Response::HTTP_OK, Response::HTTP_CREATED])) {
-            throw new \RuntimeException($response->getReasonPhrase(), $statusCode);
+            throw new \RuntimeException($contents ?: $response->getReasonPhrase(), $statusCode);
         }
 
-        $contents = $response->getBody()->getContents();
         $contents = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         return $contents;
     }
