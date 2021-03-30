@@ -40,6 +40,10 @@ class AssetExporter implements AssetExporterInterface
         if ($doesEntityExist) {
             $this->apiClient->updateIssue($entity->getExternalId(), $values);
         } else {
+            if (empty($values['components'])) {
+                // Prevent sending the null value which causes an error
+                unset($values['components']);
+            }
             $externalId = $this->apiClient->createIssue($values);
             $entity->setExternalId($externalId);
         }
