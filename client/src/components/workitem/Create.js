@@ -64,7 +64,7 @@ const Create = props => {
     }
     props.create({
       name,
-      backlogGroup,
+      backlogGroup: backlogGroup ? backlogGroup : null,
       estimateFrontend: estimateFrontend.length > 0 ? parseFloat(estimateFrontend) : null,
       estimateBackend: estimateBackend.length > 0 ? parseFloat(estimateBackend) : null,
       status: props.programIncrement.retrieved.projectsSettings.find(ps => ps.project === project).defaultWorkitemStatus,
