@@ -8,12 +8,14 @@ use App\Integration\Jira\AssetImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ImportSprintsCommand extends Command
 {
     public const NAME = 'jira:import:sprints';
+    private const OPTION_ADD_BOARD_ID_TO_NAME = 'add-board-id-to-name';
 
     private SymfonyStyle $io;
     private ApiClient $apiClient;
@@ -36,7 +38,13 @@ class ImportSprintsCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(self::NAME);
+        $this->setName(self::NAME)
+            ->addOption(
+                self::OPTION_ADD_BOARD_ID_TO_NAME,
+                'b',
+                InputOption::VALUE_NONE,
+                'Add a board ID to a sprint name to be able to distinguish sprints with the same names.'
+            );
     }
 
     /**
@@ -44,6 +52,7 @@ class ImportSprintsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $addBoardId = $input->getOption(self::OPTION_ADD_BOARD_ID_TO_NAME);
         $this->io = new SymfonyStyle($input, $output);
         $this->io->writeln('Importing...');
 
@@ -96,10 +105,11 @@ class ImportSprintsCommand extends Command
             }
 
             $fakeSprintScheduleExternalId = $project->getSprintSchedule()->getExternalId();
-            array_walk($projectSprints, static function (&$sprint) use ($fakeSprintScheduleExternalId) {
-                // Add a board ID to a name to be able to be able to distinguish
-                // sprints with the same names but from different boards
-                $sprint['name'] = sprintf('(%s) %s', $sprint['name'], $sprint['originBoardId']);
+            array_walk($projectSprints, static function (&$sprint) use ($fakeSprintScheduleExternalId, $addBoardId) {
+                if ($addBoardId) {
+                    $sprint['name'] = sprintf('(%s) %s', $sprint['originBoardId'], $sprint['name']);
+                }
+
                 // Link a sprint to a fake sprint schedule to prevent extra changes in code
                 $sprint['schedule'] = ['id' => $fakeSprintScheduleExternalId];
             });
