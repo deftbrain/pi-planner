@@ -6,6 +6,7 @@ use App\Entity\AbstractEntity;
 use App\Entity\BacklogGroup;
 use App\Entity\Epic;
 use App\Entity\Sprint;
+use App\Entity\Workitem;
 use App\Integration\Serializer\ObjectNormalizer as BaseObjectNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -120,6 +121,9 @@ class ObjectNormalizer extends BaseObjectNormalizer
             $context[self::OBJECT_TO_POPULATE] = $existingEntity;
         }
 
+        if ($type === Workitem::class) {
+            $context[self::ISSUE_COMPLETED] = ($data['status']['statusCategory']['key'] ?? null) === 'done';
+        }
         $entity = parent::denormalize($data, $type, $format, $context);
         $errors = $this->validator->validate($entity);
         if ($errors->count()) {

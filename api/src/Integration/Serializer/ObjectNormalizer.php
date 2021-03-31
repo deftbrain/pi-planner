@@ -10,4 +10,5 @@ abstract class ObjectNormalizer extends \Symfony\Component\Serializer\Normalizer
 {
     public const FORCE_UPDATE = 'force_update';
     public const PARENT_OBJECT_CLASS = 'parent_object_class';
+    public const ISSUE_COMPLETED = 'issue_completed';
 }

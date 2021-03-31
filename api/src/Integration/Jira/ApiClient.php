@@ -95,6 +95,7 @@ class ApiClient
             'fields' => [
                 'summary',
                 'project',
+                'status',
                 'updated',
                 $this->params->get('jira.custom_field.epic'),
                 $this->params->get('jira.custom_field.team'),
