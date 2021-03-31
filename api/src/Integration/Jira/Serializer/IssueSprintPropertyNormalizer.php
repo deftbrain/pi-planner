@@ -6,7 +6,7 @@ use App\Entity\Sprint;
 use App\Entity\Workitem;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 
-class SprintPropertyNormalizer implements ContextAwareDenormalizerInterface
+class IssueSprintPropertyNormalizer implements ContextAwareDenormalizerInterface
 {
     private const FIELD_END_DATE = 'endDate';
     private const FIELD_STATE = 'state';

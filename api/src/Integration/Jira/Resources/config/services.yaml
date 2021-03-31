@@ -40,7 +40,7 @@ services:
                 method: prePersist
                 entity: App\Entity\Project
 
-    App\Integration\Jira\Serializer\SprintPropertyNormalizer:
+    App\Integration\Jira\Serializer\IssueSprintPropertyNormalizer:
         tags: [{name: serializer.normalizer, priority: 1}]
 
     app.integration.asset_exporter:
