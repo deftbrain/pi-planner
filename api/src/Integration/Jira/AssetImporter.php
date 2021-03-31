@@ -4,7 +4,6 @@ namespace App\Integration\Jira;
 
 use App\Entity\AbstractEntity;
 use App\Integration\Jira\Serializer\ObjectNormalizer;
-use App\Integration\VersionOne\AssetMetadata\AbstractAssetMetadata;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -23,33 +22,6 @@ class AssetImporter
         $this->serializer = $serializer;
         $this->entityManager = $entityManager;
         $this->classMetadataFactory = $classMetadataFactory;
-    }
-
-    private function updateOrInsertAssets(array $assets, string $entityClassName): void
-    {
-        $assetsWithSameTypeRelations = [];
-        $assetsWithoutSameTypeRelations = [];
-        $assetType = $this->assetMetadata->getType();
-        $sameTypeRelationsAttributes = array_filter(
-            $this->assetMetadata->getAttributes(),
-            fn ($a) => $a->isRelation() && $a->getRelatedAsset() === $assetType
-        );
-        if (!$sameTypeRelationsAttributes) {
-            $this->persistAssets($assets, $entityClassName);
-            return;
-        }
-
-        $sameTypeRelationAttributeNames = array_map(fn ($a) => $a::getName(), $sameTypeRelationsAttributes);
-        foreach ($assets as $asset) {
-            $assetsWithSameTypeRelations[] = array_intersect_key(
-                $asset,
-                array_flip($sameTypeRelationAttributeNames + [AbstractAssetMetadata::FIELD_OID])
-            );
-            $assetsWithoutSameTypeRelations[] = array_diff_key($asset, array_flip($sameTypeRelationAttributeNames));
-        }
-
-        $this->persistAssets($assetsWithoutSameTypeRelations, $entityClassName);
-        $this->persistAssets($assetsWithSameTypeRelations, $entityClassName);
     }
 
     public function persistAssets(array $assets, string $type): void
