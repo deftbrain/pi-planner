@@ -15,6 +15,7 @@ import LoginPage from './Login';
 import authProvider, {isUserAuthenticated} from './authProvider';
 import {API_ENTRYPOINT} from './config/app';
 import {SprintEdit, SprintList} from './resource/sprint';
+import {WorkitemEdit} from './resource/workitem';
 
 const authOptions = {credentials: 'include'};
 const fetchHydra = (url, options = {}) => baseFetchHydra(url, {...options, ...authOptions});
@@ -56,7 +57,7 @@ export default () => (
     <Resource name="sprints" list={SprintList} edit={SprintEdit}/>
     <Resource name="sprint_schedules"/>
     <Resource name="teams"/>
-    <Resource name="workitems"/>
+    <Resource name="workitems" edit={WorkitemEdit}/>
     <Resource name="workitem_statuses"/>
   </HydraAdmin>
 );
