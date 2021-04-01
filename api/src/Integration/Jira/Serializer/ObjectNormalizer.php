@@ -122,7 +122,12 @@ class ObjectNormalizer extends BaseObjectNormalizer
         }
 
         if ($type === Workitem::class) {
-            $context[self::ISSUE_COMPLETED] = ($data['status']['statusCategory']['key'] ?? null) === 'done';
+            $isIssueCompleted = ($data['status']['statusCategory']['key'] ?? null) === 'done';
+            if ($isIssueCompleted && !$existingEntity) {
+                // Don't import already completed stories
+                return null;
+            }
+            $context[self::ISSUE_COMPLETED] = $isIssueCompleted;
         }
         $entity = parent::denormalize($data, $type, $format, $context);
         $errors = $this->validator->validate($entity);

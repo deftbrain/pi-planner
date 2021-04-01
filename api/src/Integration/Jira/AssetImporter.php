@@ -39,7 +39,9 @@ class AssetImporter
                         ObjectNormalizer::PARENT_OBJECT_CLASS => $entityClassName,
                     ]
                 );
-                $this->entityManager->persist($entity);
+                if ($entity) {
+                    $this->entityManager->persist($entity);
+                }
             } catch (\DomainException $exception) {
                 echo $exception->getMessage() . PHP_EOL;
             }
