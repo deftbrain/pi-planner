@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -17,6 +18,7 @@ class ImportStoriesCommand extends Command
 {
     public const NAME = 'jira:import:stories';
     private const ARGUMENT_ISSUE_TYPES = 'issue-types';
+    private const OPTION_FORCE_UPDATE = 'force-update';
 
     private SymfonyStyle $io;
     private ApiClient $apiClient;
@@ -43,6 +45,12 @@ class ImportStoriesCommand extends Command
             self::ARGUMENT_ISSUE_TYPES,
             InputArgument::REQUIRED | InputArgument::IS_ARRAY,
             'Issue types (separate multiple keys with a space, use quotes for types with spaces)'
+        )->addOption(
+            self::OPTION_FORCE_UPDATE,
+            'f',
+            InputOption::VALUE_NONE,
+            'Forces updating existing stories.'
+            . 'By default, already imported stories with the unchanged \'updated\' attribute value are ignored.'
         );
     }
 
@@ -55,6 +63,7 @@ class ImportStoriesCommand extends Command
         $this->io->writeln('Importing...');
 
         $issueTypes = $input->getArgument(self::ARGUMENT_ISSUE_TYPES);
+        $isForceUpdateEnabled = $input->getOption(self::OPTION_FORCE_UPDATE);
         /** @var ProjectSettings[] $projectsSettings */
         $projectsSettings = $this->entityManager->getRepository(ProjectSettings::class)->findAll();
         foreach ($projectsSettings as $projectSettings) {
@@ -69,8 +78,8 @@ class ImportStoriesCommand extends Command
                         $issueTypes,
                         $startAt
                     ),
-                    function (array $response, int $startAt) {
-                        $this->assetImporter->persistAssets($response['issues'], 'Story');
+                    function (array $response, int $startAt) use ($isForceUpdateEnabled) {
+                        $this->assetImporter->persistAssets($response['issues'], 'Story', $isForceUpdateEnabled);
                         $this->io->writeln(
                             sprintf(
                                 'startAt: %d. maxResults: %d. total: %d',

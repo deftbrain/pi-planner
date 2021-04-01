@@ -24,7 +24,7 @@ class AssetImporter
         $this->classMetadataFactory = $classMetadataFactory;
     }
 
-    public function persistAssets(array $assets, string $type): void
+    public function persistAssets(array $assets, string $type, bool $isForceUpdateEnabled = false): void
     {
         $entityClassName = $this->getEntityClass($type);
         foreach ($assets as $asset) {
@@ -37,6 +37,7 @@ class AssetImporter
                         ObjectNormalizer::GROUPS => ['readable'],
                         ObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true,
                         ObjectNormalizer::PARENT_OBJECT_CLASS => $entityClassName,
+                        ObjectNormalizer::FORCE_UPDATE => $isForceUpdateEnabled,
                     ]
                 );
                 if ($entity) {
