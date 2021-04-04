@@ -79,7 +79,7 @@ class ApiClient
         return $this->sendRequest($this->params->get('jira.endpoint.search'), 'POST', $body);
     }
 
-    public function getIssues(array $epicKeys, array $issueTypes, int $startAt): array
+    public function getIssuesFromEpics(array $epicKeys, array $issueTypes, int $startAt): array
     {
         if (!$epicKeys || !$issueTypes) {
             return [];
@@ -92,19 +92,38 @@ class ApiClient
                 implode(',', $epicKeys),
                 implode('\',\'', $issueTypes),
             ),
-            'fields' => [
-                'summary',
-                'project',
-                'status',
-                'updated',
-                $this->params->get('jira.custom_field.epic'),
-                $this->params->get('jira.custom_field.team'),
-                $this->params->get('jira.custom_field.sprint'),
-                $this->params->get('jira.custom_field.story_points'),
-            ],
+            'fields' => $this->getIssueFields(),
             'startAt' => $startAt,
         ];
         return $this->sendRequest($this->params->get('jira.endpoint.search'), 'POST', $body);
+    }
+
+    public function getIssues(array $issueKeys, int $startAt): array
+    {
+        if (!$issueKeys) {
+            return [];
+        }
+
+        $body = [
+            'jql' => sprintf('key IN (%s)', implode(',', $issueKeys)),
+            'fields' => $this->getIssueFields(),
+            'startAt' => $startAt,
+        ];
+        return $this->sendRequest($this->params->get('jira.endpoint.search'), 'POST', $body);
+    }
+
+    private function getIssueFields(): array
+    {
+        return [
+            'summary',
+            'project',
+            'status',
+            'updated',
+            $this->params->get('jira.custom_field.epic'),
+            $this->params->get('jira.custom_field.team'),
+            $this->params->get('jira.custom_field.sprint'),
+            $this->params->get('jira.custom_field.story_points'),
+        ];
     }
 
     public function getIssueFieldValues(array $projectKeys, string $issueTypeName, string $fieldKey): array
@@ -154,6 +173,12 @@ class ApiClient
 
     private function sendRequest(string $url, string $method = 'GET', $body = null): ?array
     {
+        if ($body) {
+            // Prevent failing a request when some of issue keys, specified in a JQL query,
+            // has not been found because related issues in Jira have been deleted.
+            // More info: https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-search/#api-rest-api-2-search-get
+            $body['validateQuery'] = 'none';
+        }
         $request = $this->requestFactory->createRequest($method, $url, [], json_encode($body));
         $response = $this->httpClient->sendRequest($request);
         $statusCode = $response->getStatusCode();
