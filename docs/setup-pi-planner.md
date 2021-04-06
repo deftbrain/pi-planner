@@ -3,7 +3,9 @@
 ## Common
 1. Install [Docker Engine][3] 17.9+ (for supporting [extension fields][1]);
 1. Install [Docker Compose][4] 1.28+ (for supporting [profiles][2]);
-1. [Generate a VersionOne API key][5];
+1. Generate an API key for an issue-tracker you are going to be integrated with: 
+    * [Jira][8]
+    * [VersionOne][5]
 1. [Register a single-page application][6] with the Microsoft Identity platform and add the following redirect URIs
  (replace placeholders with the relevant values):
     * ${ADMIN_URL}/#/login
@@ -56,27 +58,34 @@
 
         docker-compose up -d
 
-1. Import the initial data if you didn't use a backup
- and add these commands to cron to keep data up-to-date:
+1. Import the initial data if you didn't use a backup:
+    * For integration with Jira:
 
-        # In case of intergration with Jira 
-        docker-compose exec api bin/console jira:import:projects PROJECT_KEY1 PROJECT_KEY2
-        docker-compose exec api bin/console jira:import:issue-field-values Story $JIRA_CUSTOM_FIELD_PI ProgramIncrement PROJECT_KEY1 PROJECT_KEY2
-        docker-compose exec api bin/console jira:import:issue-field-values Story components Component PROJECT_KEY1 PROJECT_KEY2
-        docker-compose exec api bin/console jira:import:issue-field-values Story $JIRA_CUSTOM_FIELD_TEAM Team PROJECT_KEY1 PROJECT_KEY2
-        docker-compose exec api bin/console jira:import:sprints
-        docker-compose exec api bin/console jira:import:epics
-        docker-compose exec api bin/console jira:import:stories Story 'Issue type name 2' 'Issue type name 3'
+            docker-compose exec api bin/console jira:import:projects PROJECT_KEY1 PROJECT_KEY2
+            docker-compose exec api bin/console jira:import:issue-field-values Story $JIRA_CUSTOM_FIELD_PI ProgramIncrement PROJECT_KEY1 PROJECT_KEY2
+            docker-compose exec api bin/console jira:import:issue-field-values Story components Component PROJECT_KEY1 PROJECT_KEY2
+            docker-compose exec api bin/console jira:import:issue-field-values Story $JIRA_CUSTOM_FIELD_TEAM Team PROJECT_KEY1 PROJECT_KEY2
+            docker-compose exec api bin/console jira:import:sprints
+            docker-compose exec api bin/console jira:import:epics
+            docker-compose exec api bin/console jira:import:stories Story 'Issue type name 2' 'Issue type name 3'
 
-        # In case of intergration with VersionOne 
-        docker-compose exec api bin/console version-one:import-assets -v
+    * For integration with VersionOne:
 
-1. Add importing VersionOne assets to `crontab` on a host machine:
+            docker-compose exec api bin/console version-one:import-assets -v
 
-        # Import all assets every 15 minutes
-        */15 * * * * flock -n /tmp/v1-import.lock -c 'cd PATH_TO_PROJECT && docker-compose exec api bin/console version-one:import-assets -v'
-        # Import workitems only every minute
-        * * * * * flock -n /tmp/v1-import.lock -c 'cd PATH_TO_PROJECT && docker-compose exec api bin/console version-one:import-assets PrimaryWorkitem -i'
+1. Schedule synchronization with appropriate issue-tracker adding below jobs to the `crontab` on a host machine:
+    * For integration with Jira:
+
+            */15 * * * * flock -n /tmp/pi-planner-import-epics.lock -c "cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec -T api bin/console jira:import:epics &>> /var/log/pi-planner-import-epics.log"
+            * * * * * flock -n /tmp/pi-planner-import-stories.lock -c "cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec -T api bin/console jira:import:stories Story 'Issue type name 2' 'Issue type name 3' &>> /var/log/pi-planner-import-stories.log"
+    
+    * For integration with VersionOne:
+
+            # Import all assets every 15 minutes
+            */15 * * * * flock -n /tmp/pi-planner-import.lock -c 'cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec api bin/console version-one:import-assets -v'
+            # Import workitems every 2 minutes
+            */2 * * * * flock -n /tmp/pi-planner-import.lock -c 'cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec api bin/console version-one:import-assets PrimaryWorkitem -i'
+
 
 [1]: https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
 [2]: https://docs.docker.com/compose/profiles/
@@ -85,3 +94,4 @@
 [5]: https://community.versionone.com/Digital.ai_Agility_Integrations/Developer_Library/Getting_Started/API_Authentication/Access_Token_Authentication
 [6]: https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app
 [7]: ./backuping-and-restoring-data-volumes.md
+[8]: https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/#get-an-api-token

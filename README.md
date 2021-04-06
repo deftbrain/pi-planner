@@ -1,7 +1,8 @@
 # PI Planner
 Helps to speed up the [PI Planning][1] providing the advanced
 program board synchronized with your issue tracker.  
-Supported issue tracker:
+Supported issue trackers:
+* [Jira](https://www.atlassian.com/software/jira)
 * [VersionOne](https://www.collab.net/products/versionone)
 
 ## Contents
