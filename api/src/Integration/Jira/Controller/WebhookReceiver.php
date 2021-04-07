@@ -2,6 +2,7 @@
 
 namespace App\Integration\Jira\Controller;
 
+use App\Integration\Jira\WebhookHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -10,9 +11,16 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class WebhookReceiver
 {
+    private WebhookHandler $webhookHandler;
+
+    public function __construct(WebhookHandler $webhookHandler)
+    {
+        $this->webhookHandler = $webhookHandler;
+    }
+
     public function __invoke(string $issueKey): JsonResponse
     {
-        // TODO: Implement method
-        return new JsonResponse($issueKey);
+        $this->webhookHandler->handleIssue($issueKey);
+        return new JsonResponse();
     }
 }

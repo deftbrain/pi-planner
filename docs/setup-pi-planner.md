@@ -73,13 +73,22 @@
 
             docker-compose exec api bin/console version-one:import-assets -v
 
-1. Schedule synchronization with appropriate issue-tracker adding below jobs to the `crontab` on a host machine:
+1. Schedule synchronization with appropriate issue-tracker:
     * For integration with Jira:
+        1. Add the following jobs to the `crontab` on a host machine:
 
-            */15 * * * * flock -n /tmp/pi-planner-import-epics.lock -c "cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec -T api bin/console jira:import:epics &>> /var/log/pi-planner-import-epics.log"
-            * * * * * flock -n /tmp/pi-planner-import-stories.lock -c "cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec -T api bin/console jira:import:stories Story 'Issue type name 2' 'Issue type name 3' &>> /var/log/pi-planner-import-stories.log"
-    
-    * For integration with VersionOne:
+                0 0 * * * flock -n /tmp/pi-planner-import-epics.lock -c "cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec -T api bin/console jira:import:epics &>> /var/log/pi-planner-import-epics.log"
+                0 1 * * * flock -n /tmp/pi-planner-import-stories.lock -c "cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec -T api bin/console jira:import:stories Story 'Issue type name 2' 'Issue type name 3' &>> /var/log/pi-planner-import-stories.log"
+
+        1. Register a [webhook][9] for getting updates related to epics and workitems from Jira in a real time
+         (replace all placeholders, except the `${issue.key}`, with the relevant values):
+            * Name: PI Planner
+            * URL: https://${API_HOST}/webhooks/jira/${issue.key}
+            * Scope: project in (PROJECT_KEY1, PROJECT_KEY2) AND issuetype in (Story, 'Issue type name 2', 'Issue type name 3')
+            * Events: Issue Created, Issue Updated, Issue Deleted
+            * ExcludeBody: Yes
+
+    * For integration with VersionOne add the following jobs to the `crontab` on a host machine:
 
             # Import all assets every 15 minutes
             */15 * * * * flock -n /tmp/pi-planner-import.lock -c 'cd /path/to/docker-compose.yaml/dir && source /path/to/env-vars.sh && /usr/local/bin/docker-compose exec api bin/console version-one:import-assets -v'
@@ -95,3 +104,4 @@
 [6]: https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app
 [7]: ./backuping-and-restoring-data-volumes.md
 [8]: https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/#get-an-api-token
+[9]: https://developer.atlassian.com/cloud/jira/platform/webhooks/

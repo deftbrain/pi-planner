@@ -58,6 +58,8 @@ class ImportEpicsCommand extends Command
         $this->apiClient->processPaginatedData(
             static fn (ApiClient $apiClient, int $startAt) => $apiClient->getEpics($projectKeys, $startAt),
             function (array $response, int $startAt) {
+                // There is no way to get a numeric order value from Jira so use the $startAt + $index for that purpose
+                // https://community.atlassian.com/t5/Jira-questions/How-do-I-get-the-rank-field-to-return-numeric-values/qaq-p/47214
                 array_walk($response['issues'], static fn (&$epic, $index) => $epic['sortOrder'] = $startAt + $index);
                 $this->assetImporter->persistAssets($response['issues'], 'Epic');
                 $this->io->writeln(

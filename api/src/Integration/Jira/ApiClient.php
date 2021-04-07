@@ -112,6 +112,20 @@ class ApiClient
         return $this->sendRequest($this->params->get('jira.endpoint.search'), 'POST', $body);
     }
 
+    public function getIssue(string $issueKey): ?array
+    {
+        $url = sprintf('%s/%s', $this->params->get('jira.endpoint.issue'), $issueKey);
+        try {
+            return $this->sendRequest($url);
+        } catch (\RuntimeException $exception) {
+            if ($exception->getCode() === Response::HTTP_NOT_FOUND) {
+                return null;
+            }
+
+            throw $exception;
+        }
+    }
+
     private function getIssueFields(): array
     {
         return [
