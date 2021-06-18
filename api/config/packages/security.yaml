@@ -6,6 +6,9 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        webhooks_jira:
+            pattern: ^/webhooks/jira/
+            security: false
         main:
             logout:
                 path: logout

@@ -1,0 +1,15 @@
+httplug:
+    clients:
+        jira:
+            plugins:
+                - authentication:
+                      basic: 
+                          type: basic
+                          username: '%env(JIRA_USER_NAME)%'
+                          password: '%env(JIRA_USER_API_TOKEN)%'
+                - base_uri:
+                      uri: '%jira.server_base_uri%'
+                - header_set:
+                      headers:
+                          Accept: application/json
+                          Content-Type: application/json

@@ -1,0 +1,3 @@
+jira:
+    resource: ../../src/Integration/Jira/Controller
+    type: annotation

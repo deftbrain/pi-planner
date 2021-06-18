@@ -1,12 +1,13 @@
 import React from 'react';
 import {
   AutocompleteInput,
+  BooleanInput,
   FormDataConsumer,
   ReferenceArrayInput,
   ReferenceInput,
   SelectArrayInput,
   SelectInput,
-  SimpleForm,
+  SimpleForm
 } from 'react-admin'
 import {ProjectSprintArrayInput} from './ProjectSprintArrayInput';
 import {useForm} from 'react-final-form';
@@ -37,10 +38,18 @@ const GeneralFormTab = ({label, ...props}) => {
       </ReferenceInput>
       <FormDataConsumer>
         {({formData}) => formData.project &&
-          <ReferenceArrayInput {...props} label="Epics" source="epics" reference="epics"
-                               filter={{project: formData.project}}>
-            <SelectArrayInput/>
-          </ReferenceArrayInput>
+          <>
+            <BooleanInput label="Show in the list only epics assigned to the chosen program increment" source="filterByPI"/>
+            <ReferenceArrayInput {...props} label="Epics" source="epics" reference="epics"
+                                 filter={{
+                                   project: formData.project,
+                                   programIncrement: formData.filterByPI && formData.programIncrement
+                                     ? formData.programIncrement
+                                     : null
+                                 }}>
+              <SelectArrayInput/>
+            </ReferenceArrayInput>
+          </>
         }
       </FormDataConsumer>
       <FormDataConsumer>

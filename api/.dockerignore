@@ -21,7 +21,6 @@
 .php_cs.cache
 bin/*
 !bin/console
-!bin/scheduler
 build/
 docker/db/data/
 helm/

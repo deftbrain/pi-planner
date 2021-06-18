@@ -20,15 +20,3 @@ httplug:
             factory: httplug.factory.auto
             plugins: 
                 - httplug.plugin.cache
-        version_one:
-            plugins:
-                - authentication:
-                      bearer: 
-                          type: bearer
-                          token: '%version_one.access_token%'
-                - base_uri:
-                      uri: '%version_one.server_base_uri%'
-                - header_set:
-                      headers:
-                          Accept: application/json
-                          Content-Type: application/json

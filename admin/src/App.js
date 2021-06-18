@@ -3,7 +3,7 @@ import {Redirect, Route} from 'react-router-dom';
 import {
   fetchHydra as baseFetchHydra,
   HydraAdmin,
-  hydraDataProvider as baseHydraDataProvider,
+  hydraDataProvider as baseHydraDataProvider
 } from '@api-platform/admin';
 import {Resource} from 'react-admin';
 import parseHydraDocumentation from "@api-platform/api-doc-parser/lib/hydra/parseHydraDocumentation";
@@ -14,6 +14,8 @@ import {TeamSprintCapacityCreate, TeamSprintCapacityEdit} from './resource/teamS
 import LoginPage from './Login';
 import authProvider, {isUserAuthenticated} from './authProvider';
 import {API_ENTRYPOINT} from './config/app';
+import {SprintEdit, SprintList} from './resource/sprint';
+import {WorkitemEdit} from './resource/workitem';
 
 const authOptions = {credentials: 'include'};
 const fetchHydra = (url, options = {}) => baseFetchHydra(url, {...options, ...authOptions});
@@ -52,10 +54,10 @@ export default () => (
     <Resource name="epics" {...epicComponents}/>
     <Resource name="epic_statuses"/>
     <Resource name="projects"/>
-    <Resource name="sprints"/>
+    <Resource name="sprints" list={SprintList} edit={SprintEdit}/>
     <Resource name="sprint_schedules"/>
     <Resource name="teams"/>
-    <Resource name="workitems"/>
+    <Resource name="workitems" edit={WorkitemEdit}/>
     <Resource name="workitem_statuses"/>
   </HydraAdmin>
 );

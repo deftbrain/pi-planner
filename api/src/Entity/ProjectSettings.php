@@ -34,8 +34,8 @@ class ProjectSettings
     private $project;
 
     /**
-     * @Assert\NotBlank
      * @ORM\ManyToMany(targetEntity=Sprint::class)
+     * @ORM\JoinColumn(nullable=true)
      * @Groups({"programIncrement"})
      */
     private $sprints;
@@ -60,7 +60,6 @@ class ProjectSettings
 
     /**
      * @ORM\ManyToOne(targetEntity=WorkitemStatus::class)
-     * @ORM\JoinColumn(nullable=false)
      * @Groups({"programIncrement"})
      */
     private $defaultWorkitemStatus;

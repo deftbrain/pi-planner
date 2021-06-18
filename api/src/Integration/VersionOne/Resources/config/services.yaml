@@ -1,0 +1,52 @@
+parameters:
+    app.integration.serializer.class_metadata: '%kernel.project_dir%/src/Integration/VersionOne/Resources/config/serializer.yml'
+    version_one.access_token: '%env(VERSION_ONE_ACCESS_TOKEN)%'
+    version_one.server_base_uri: '%env(VERSION_ONE_SERVER_BASE_URI)%'
+    version_one.endpoint.bulk: '/api/asset'
+    version_one.endpoint.asset_detail: '/assetdetail.v1'
+    version_one.endpoint.meta: '/meta.v1'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface: '@app.integration.serializer.class_metadata_factory'
+            Symfony\Component\Serializer\NameConverter\NameConverterInterface: '@App\Integration\Serializer\MetadataAwareNameConverter'
+
+    App\Integration\VersionOne\:
+        resource: '../../src/Integration/VersionOne/'
+
+    App\Integration\VersionOne\BulkApiClient:
+        arguments:
+            Psr\Http\Client\ClientInterface: '@httplug.client.version_one'
+            $bulkEndpoint: '%version_one.endpoint.bulk%'
+
+    App\Integration\VersionOne\Listener\ProjectSettingsEntityListener:
+        tags:
+            -   name: doctrine.orm.entity_listener
+                event: postPersist
+                method: importEntities
+                entity: App\Entity\ProjectSettings
+            -   name: doctrine.orm.entity_listener
+                event: postUpdate
+                method: importEntities
+                entity: App\Entity\ProjectSettings
+
+    App\Integration\VersionOne\MetaApiClient:
+        arguments:
+            Psr\Http\Client\ClientInterface: '@httplug.client.version_one'
+            $metaEndpoint: '%version_one.endpoint.meta%'
+
+    App\Integration\VersionOne\Sync\AssetImporter\:
+        resource: '../../src/Integration/VersionOne/Sync/AssetImporter/*AssetImporter.php'
+        public: true
+
+    app.integration.asset_exporter:
+        class: App\Integration\VersionOne\Sync\AssetExporter
+
+    app.integration.asset_external_url_provider:
+        class: App\Integration\VersionOne\AssetExternalUrlProvider
+
+    App\Maker\MakeVersionOneAssetMetadata:

@@ -36,11 +36,6 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	if ls -A migrations/*.php >/dev/null 2>&1; then
 		bin/console doctrine:migrations:migrate --no-interaction
 	fi
-
-# Do that step manually to decrease downtime during update of the Docker image
-#	bin/console version-one:import-assets
-
-	crond -L $PWD/var/log/crond.log
 fi
 
 exec docker-php-entrypoint "$@"

@@ -1,0 +1,50 @@
+parameters:
+    app.integration.serializer.class_metadata: '%kernel.project_dir%/config/serializer_jira.yaml'
+    jira.server_base_uri: '%env(JIRA_SERVER_BASE_URI)%'
+    jira.endpoint.browse: '/browse'
+    jira.endpoint.rest_api: '/rest/api/2'
+    jira.endpoint.issue: '%jira.endpoint.rest_api%/issue'
+    jira.endpoint.issue_createmeta: '%jira.endpoint.issue%/createmeta'
+    jira.endpoint.project: '%jira.endpoint.rest_api%/project'
+    jira.endpoint.search: '%jira.endpoint.rest_api%/search'
+    jira.endpoint.board: '/rest/agile/1.0/board'
+    jira.custom_field.epic: '%env(JIRA_CUSTOM_FIELD_EPIC)%'
+    jira.custom_field.team: '%env(JIRA_CUSTOM_FIELD_TEAM)%'
+    jira.custom_field.sprint: '%env(JIRA_CUSTOM_FIELD_SPRINT)%'
+    jira.custom_field.story_points: '%env(JIRA_CUSTOM_FIELD_STORY_POINTS)%'
+    jira.custom_field.program_increment: '%env(JIRA_CUSTOM_FIELD_PI)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface: '@app.integration.serializer.class_metadata_factory'
+            Symfony\Component\Serializer\NameConverter\NameConverterInterface: '@App\Integration\Serializer\MetadataAwareNameConverter'
+
+    App\Integration\Jira\:
+        resource: '../../src/Integration/Jira/'
+
+    App\Integration\Jira\ApiClient:
+        arguments:
+            Psr\Http\Client\ClientInterface: '@httplug.client.jira'
+
+    App\Integration\Jira\Controller\WebhookReceiver:
+        tags: [{name: controller.service_arguments}]
+
+    App\Integration\Jira\Listener\ProjectEntityListener:
+        tags:
+            -   name: doctrine.orm.entity_listener
+                event: prePersist
+                method: prePersist
+                entity: App\Entity\Project
+
+    App\Integration\Jira\Serializer\IssueSprintPropertyNormalizer:
+        tags: [{name: serializer.normalizer, priority: 1}]
+
+    app.integration.asset_exporter:
+        class: App\Integration\Jira\AssetExporter
+
+    app.integration.asset_external_url_provider:
+        class: App\Integration\Jira\IssueDetailsUrlProvider
